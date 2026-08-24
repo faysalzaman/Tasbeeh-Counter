@@ -36,21 +36,28 @@ class LocalStorage {
       await _settingsBox.put('settings', AppSettings.defaultSettings());
     }
 
-    // Initialize default dhikrs if not present
-    if (_dhikrBox.isEmpty) {
-      for (final dhikrData in AppConstants.defaultDhikrs) {
-        final dhikr = Dhikr(
-          id: DateTime.now().millisecondsSinceEpoch.toString() + dhikrData['name'],
-          name: dhikrData['name'] as String,
-          arabicText: dhikrData['arabicText'] as String?,
-          transliteration: dhikrData['transliteration'] as String?,
-          translation: dhikrData['translation'] as String?,
-          targetCount: dhikrData['targetCount'] as int,
-          isDefault: dhikrData['isDefault'] as bool,
-          schedule: dhikrData['schedule'] as String?,
-        );
-        await _dhikrBox.put(dhikr.id, dhikr);
-      }
+    // Seed any missing default dhikrs (by name) so newly added
+    // defaults appear for existing installs without wiping user data.
+    final existingDefaultNames = _dhikrBox.values
+        .where((d) => d.isDefault)
+        .map((d) => d.name)
+        .toSet();
+
+    for (final dhikrData in AppConstants.defaultDhikrs) {
+      final name = dhikrData['name'] as String;
+      if (existingDefaultNames.contains(name)) continue;
+
+      final dhikr = Dhikr(
+        id: DateTime.now().millisecondsSinceEpoch.toString() + name,
+        name: name,
+        arabicText: dhikrData['arabicText'] as String?,
+        transliteration: dhikrData['transliteration'] as String?,
+        translation: dhikrData['translation'] as String?,
+        targetCount: dhikrData['targetCount'] as int,
+        isDefault: dhikrData['isDefault'] as bool,
+        schedule: dhikrData['schedule'] as String?,
+      );
+      await _dhikrBox.put(dhikr.id, dhikr);
     }
   }
 

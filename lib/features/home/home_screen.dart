@@ -63,7 +63,13 @@ class HomeScreen extends ConsumerWidget {
                           icon: Icons.bolt,
                           label: l10n.quickDhikr,
                           count: defaultDhikrs.length,
-                          badgeCount: suggestedDhikrs.where((d) => ScheduleHelper.shouldShowNow(d.scheduleEnum)).length,
+                          badgeCount: suggestedDhikrs
+                              .where(
+                                (d) => ScheduleHelper.shouldShowNow(
+                                  d.scheduleEnum,
+                                ),
+                              )
+                              .length,
                           color: theme.colorScheme.primary,
                           onTap: () => context.push(AppRoutes.quickDhikr),
                         ),
@@ -204,11 +210,7 @@ class _CategoryCard extends StatelessWidget {
                       color: color.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      icon,
-                      color: color,
-                      size: 32,
-                    ),
+                    child: Icon(icon, color: color, size: 32),
                   ),
                   if (badgeCount != null && badgeCount! > 0)
                     Positioned(
