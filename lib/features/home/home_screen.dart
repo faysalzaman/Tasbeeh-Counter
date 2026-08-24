@@ -19,139 +19,176 @@ class HomeScreen extends ConsumerWidget {
     final l10n = context.l10n;
 
     return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
       body: SafeArea(
         child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                  vertical: 16.0,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header
+                    // Top App Header
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const GreetingWidget(),
-                        IconButton(
+                        IconButton.filledTonal(
                           onPressed: () => context.push(AppRoutes.settings),
                           icon: const Icon(Icons.settings_outlined),
                           tooltip: l10n.settings,
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 28),
 
-                    // Categories Grid
-                    Text(
-                      'Categories',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    // Category Section Title
+                    Row(
+                      children: [
+                        Text(
+                          'Categories',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '${defaultDhikrs.length + customDhikrs.length} Total',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
+
+                    // Categories Grid
                     GridView.count(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 0.92,
+                      mainAxisSpacing: 14,
+                      crossAxisSpacing: 14,
+                      childAspectRatio: 0.98,
                       children: [
                         _CategoryCard(
-                          icon: Icons.bolt,
+                          icon: Icons.bolt_rounded,
                           label: l10n.quickDhikr,
                           count: defaultDhikrs.length,
                           badgeCount: relevantNowDhikrs.length,
-                          color: theme.colorScheme.primary,
+                          containerColor: theme.colorScheme.primaryContainer,
+                          iconColor: theme.colorScheme.onPrimaryContainer,
                           onTap: () => context.push(AppRoutes.quickDhikr),
                         ),
                         _CategoryCard(
-                          icon: Icons.bookmark,
+                          icon: Icons.bookmark_rounded,
                           label: l10n.myWazifas,
                           count: customDhikrs.length,
-                          color: theme.colorScheme.secondary,
+                          containerColor: theme.colorScheme.secondaryContainer,
+                          iconColor: theme.colorScheme.onSecondaryContainer,
                           onTap: () => context.push(AppRoutes.myWazifas),
                         ),
                         if (activeDhikrs.isNotEmpty)
                           _CategoryCard(
-                            icon: Icons.play_circle_fill,
+                            icon: Icons.play_circle_filled_rounded,
                             label: l10n.continueWazifa,
                             count: activeDhikrs.length,
-                            color: Colors.orange,
+                            containerColor: theme.colorScheme.tertiaryContainer,
+                            iconColor: theme.colorScheme.onTertiaryContainer,
                             onTap: () => context.push(AppRoutes.continueWazifa),
                           ),
                         _CategoryCard(
-                          icon: Icons.menu_book,
+                          icon: Icons.menu_book_rounded,
                           label: l10n.allAzkaar,
                           count: defaultDhikrs.length + customDhikrs.length,
-                          color: Colors.teal,
+                          containerColor:
+                              theme.colorScheme.surfaceContainerHigh,
+                          iconColor: theme.colorScheme.primary,
                           onTap: () => context.push(AppRoutes.dhikrSelection),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
-                    // Create New Wazifa CTA
-                    Card(
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: () => context.push(AppRoutes.createWazifa),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 56,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.primary.withValues(
-                                    alpha: 0.1,
+                    // Create New Wazifa Banner
+                    Container(
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: theme.colorScheme.outlineVariant.withValues(
+                            alpha: 0.4,
+                          ),
+                        ),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(20),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(20),
+                          onTap: () => context.push(AppRoutes.createWazifa),
+                          child: Padding(
+                            padding: const EdgeInsets.all(18.0),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 52,
+                                  height: 52,
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary.withValues(
+                                      alpha: 0.12,
+                                    ),
+                                    shape: BoxShape.circle,
                                   ),
-                                  shape: BoxShape.circle,
+                                  child: Icon(
+                                    Icons.add_rounded,
+                                    color: theme.colorScheme.primary,
+                                    size: 28,
+                                  ),
                                 ),
-                                child: Icon(
-                                  Icons.add,
-                                  color: theme.colorScheme.primary,
-                                  size: 28,
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l10n.createWazifa,
+                                        style: theme.textTheme.titleMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'Set your own target and schedule',
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(
+                                              color: theme
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      l10n.createWazifa,
-                                      style: theme.textTheme.titleMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Set your own target and schedule',
-                                      style: theme.textTheme.bodySmall
-                                          ?.copyWith(
-                                            color: theme.colorScheme.onSurface
-                                                .withValues(alpha: 0.6),
-                                          ),
-                                    ),
-                                  ],
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: theme.colorScheme.onSurfaceVariant,
                                 ),
-                              ),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 16,
-                                color: theme.colorScheme.onSurface.withValues(
-                                  alpha: 0.4,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
@@ -168,7 +205,8 @@ class _CategoryCard extends StatelessWidget {
   final String label;
   final int count;
   final int? badgeCount;
-  final Color color;
+  final Color containerColor;
+  final Color iconColor;
   final VoidCallback onTap;
 
   const _CategoryCard({
@@ -176,7 +214,8 @@ class _CategoryCard extends StatelessWidget {
     required this.label,
     required this.count,
     this.badgeCount,
-    required this.color,
+    required this.containerColor,
+    required this.iconColor,
     required this.onTap,
   });
 
@@ -184,70 +223,85 @@ class _CategoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(14.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: containerColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(icon, color: iconColor, size: 28),
                     ),
-                    child: Icon(icon, color: color, size: 32),
-                  ),
-                  if (badgeCount != null && badgeCount! > 0)
-                    Positioned(
-                      top: -4,
-                      right: -4,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: color,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          '$badgeCount',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                    if (badgeCount != null && badgeCount! > 0)
+                      Positioned(
+                        top: -2,
+                        right: -2,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: theme.colorScheme.surface,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Text(
+                            '$badgeCount',
+                            style: TextStyle(
+                              color: theme.colorScheme.onPrimary,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                label,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+                  ],
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '$count items',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                const SizedBox(height: 10),
+                Text(
+                  label,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  '$count items',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

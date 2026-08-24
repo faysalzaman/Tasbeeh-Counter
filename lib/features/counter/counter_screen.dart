@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
@@ -23,10 +24,11 @@ class CounterScreen extends ConsumerStatefulWidget {
 
 class _CounterScreenState extends ConsumerState<CounterScreen>
     with SingleTickerProviderStateMixin {
-  late ConfettiController _confettiController;
+  late final ConfettiController _confettiController;
   StreamSubscription<double>? _volumeSubscription;
   double _currentVolume = 0.5;
   bool _isVolumeKeyPressed = false;
+  final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
@@ -48,6 +50,7 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
       ref.read(counterStateProvider.notifier).setDhikr(dhikr);
     }
   }
+
   void _setupVolumeKeys() {
     final settings = ref.read(settingsProvider);
     if (!settings.volumeKeyCounting) return;
@@ -59,11 +62,15 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
         _isVolumeKeyPressed = true;
         _handleCount();
 
-        Future.delayed(const Duration(milliseconds: 200), () {
+        // Optional: restore system volume to keep hardware levels steady
+        VolumeController.instance.setVolume(_currentVolume);
+
+        Future.delayed(const Duration(milliseconds: 150), () {
           if (mounted) _isVolumeKeyPressed = false;
         });
+      } else {
+        _currentVolume = volume;
       }
-      _currentVolume = volume;
     });
   }
 
@@ -71,7 +78,9 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
     final dhikr = ref.read(dhikrByIdProvider(widget.dhikrId));
     final progress = ref.read(progressByIdProvider(widget.dhikrId));
     final isCompleted = progress?.isCompleted ?? false;
-    if (dhikr != null && !isCompleted) {
+    final repeatEnabled = progress?.repeatEnabled ?? false;
+
+    if (dhikr != null && (!isCompleted || repeatEnabled)) {
       ref.read(counterStateProvider.notifier).increment(widget.dhikrId);
     }
   }
@@ -80,18 +89,18 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
     final l10n = context.l10n;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(l10n.resetProgressTitle),
         content: Text(l10n.resetProgressMessage),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () {
               ref.read(counterStateProvider.notifier).reset(widget.dhikrId);
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
             },
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             child: Text(l10n.reset),
@@ -108,6 +117,7 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
 
   @override
   void dispose() {
+    _focusNode.dispose();
     _confettiController.dispose();
     _volumeSubscription?.cancel();
     super.dispose();
@@ -120,6 +130,17 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
     final counterState = ref.watch(counterStateProvider);
     final l10n = context.l10n;
 
+    // Reactively trigger confetti animation using ref.listen
+    ref.listen(counterStateProvider.select((s) => s.showCompletionAnimation), (
+      previous,
+      next,
+    ) {
+      if (next &&
+          _confettiController.state != ConfettiControllerState.playing) {
+        _confettiController.play();
+      }
+    });
+
     if (dhikr == null) {
       return Scaffold(body: Center(child: Text(l10n.noCustomWazifas)));
     }
@@ -128,194 +149,186 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
     final isCompleted = progress?.isCompleted ?? false;
     final repeatEnabled = progress?.repeatEnabled ?? false;
 
-    // Trigger confetti on completion
-    if (counterState.showCompletionAnimation &&
-        !_confettiController.state.name.contains('playing')) {
-      _confettiController.play();
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(dhikr.name),
-        actions: [
-          if (repeatEnabled)
-            Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.secondary.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${l10n.round} ${counterState.roundCount}',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.secondary,
+    return KeyboardListener(
+      focusNode: _focusNode,
+      autofocus: true,
+      onKeyEvent: (KeyEvent event) {
+        // Fallback/Web physical key support for space or volume keys
+        if (event is KeyDownEvent &&
+            (event.logicalKey == LogicalKeyboardKey.space ||
+                event.logicalKey == LogicalKeyboardKey.audioVolumeUp ||
+                event.logicalKey == LogicalKeyboardKey.audioVolumeDown)) {
+          _handleCount();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(dhikr.name),
+          actions: [
+            if (repeatEnabled)
+              Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.secondary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${l10n.round} ${counterState.roundCount}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          SafeArea(
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight:
-                            MediaQuery.of(context).size.height -
-                            MediaQuery.of(context).padding.top -
-                            kToolbarHeight -
-                            240,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Arabic text
-                          if (dhikr.arabicText != null) ...[
-                            Text(
-                              dhikr.arabicText!,
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
+          ],
+        ),
+        body: Stack(
+          children: [
+            SafeArea(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight:
+                              MediaQuery.sizeOf(context).height -
+                              MediaQuery.paddingOf(context).top -
+                              kToolbarHeight -
+                              240,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (dhikr.arabicText != null) ...[
+                              Text(
+                                dhikr.arabicText!,
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                                textDirection: TextDirection.rtl,
                               ),
-                              textAlign: TextAlign.center,
-                              textDirection: TextDirection.rtl,
-                            ),
-                            const SizedBox(height: 6),
-                          ],
-
-                          // Transliteration
-                          if (dhikr.transliteration != null)
-                            Text(
-                              dhikr.transliteration!,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface.withOpacity(0.7),
-                                  ),
-                              textAlign: TextAlign.center,
-                            ),
-
-                          const SizedBox(height: 24),
-
-                          // Circular Progress & Counter
-                          CircularProgressWidget(
-                            progress: targetCount > 0
-                                ? counterState.displayCount / targetCount
-                                : 0,
-                            currentCount: counterState.displayCount,
-                            targetCount: targetCount,
-                            remainingCount:
-                                targetCount - counterState.displayCount,
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          // Completion message
-                          if (counterState.isCompleted && !repeatEnabled)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                l10n.mashaAllahCompleted,
+                              const SizedBox(height: 6),
+                            ],
+                            if (dhikr.transliteration != null)
+                              Text(
+                                dhikr.transliteration!,
                                 style: Theme.of(context).textTheme.titleMedium
                                     ?.copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.7),
                                     ),
+                                textAlign: TextAlign.center,
                               ),
+                            const SizedBox(height: 24),
+                            CircularProgressWidget(
+                              progress: targetCount > 0
+                                  ? counterState.displayCount / targetCount
+                                  : 0,
+                              currentCount: counterState.displayCount,
+                              targetCount: targetCount,
+                              remainingCount:
+                                  targetCount - counterState.displayCount,
                             ),
-                        ],
+                            const SizedBox(height: 24),
+                            if (counterState.isCompleted && !repeatEnabled)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  l10n.mashaAllahCompleted,
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-
-                // Bottom controls
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Count button
-                      CountButton(
-                        onTap: isCompleted && !repeatEnabled
-                            ? null
-                            : _handleCount,
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Action buttons
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: _showResetDialog,
-                              icon: const Icon(Icons.restart_alt, size: 18),
-                              label: Text(l10n.reset),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CountButton(
+                          onTap: isCompleted && !repeatEnabled
+                              ? null
+                              : _handleCount,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: _showResetDialog,
+                                icon: const Icon(Icons.restart_alt, size: 18),
+                                label: Text(l10n.reset),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: FilledButton.icon(
-                              onPressed: _saveAndExit,
-                              icon: const Icon(Icons.save, size: 18),
-                              label: Text(l10n.saveAndExit),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: FilledButton.icon(
+                                onPressed: _saveAndExit,
+                                icon: const Icon(Icons.save, size: 18),
+                                label: Text(l10n.saveAndExit),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-
-          // Confetti overlay
-          Align(
-            alignment: Alignment.topCenter,
-            child: ConfettiWidget(
-              confettiController: _confettiController,
-              blastDirectionality: BlastDirectionality.explosive,
-              shouldLoop: false,
-              colors: [
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.secondary,
-                Colors.green,
-                Colors.amber,
-              ],
-              numberOfParticles: 30,
-              gravity: 0.2,
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConfettiWidget(
+                confettiController: _confettiController,
+                blastDirectionality: BlastDirectionality.explosive,
+                shouldLoop: false,
+                colors: [
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.secondary,
+                  Colors.green,
+                  Colors.amber,
+                ],
+                numberOfParticles: 30,
+                gravity: 0.2,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

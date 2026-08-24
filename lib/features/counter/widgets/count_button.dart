@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter/services.dart';
 import '../../../core/localization/l10n_extension.dart';
 
 class CountButton extends StatefulWidget {
@@ -11,40 +11,24 @@ class CountButton extends StatefulWidget {
   State<CountButton> createState() => _CountButtonState();
 }
 
-class _CountButtonState extends State<CountButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _scaleController;
+class _CountButtonState extends State<CountButton> {
   bool _isPressed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _scaleController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-      lowerBound: 0.92,
-      upperBound: 1.0,
-    );
-    _scaleController.value = 1.0;
-  }
 
   void _onTapDown(TapDownDetails details) {
     if (widget.onTap == null) return;
+    HapticFeedback.lightImpact();
     setState(() => _isPressed = true);
-    _scaleController.reverse();
   }
 
   void _onTapUp(TapUpDetails details) {
     if (widget.onTap == null) return;
     setState(() => _isPressed = false);
-    _scaleController.forward();
     widget.onTap!();
   }
 
   void _onTapCancel() {
     if (widget.onTap == null) return;
     setState(() => _isPressed = false);
-    _scaleController.forward();
   }
 
   @override
@@ -57,79 +41,71 @@ class _CountButtonState extends State<CountButton>
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
       onTapCancel: _onTapCancel,
-      child: AnimatedBuilder(
-        animation: _scaleController,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleController.value,
-            child: Container(
-              width: 160,
-              height: 160,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: isDisabled
-                    ? LinearGradient(
-                        colors: [
-                          theme.colorScheme.onSurface.withOpacity(0.1),
-                          theme.colorScheme.onSurface.withOpacity(0.05),
-                        ],
-                      )
-                    : LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          theme.colorScheme.primary,
-                          theme.colorScheme.primary.withOpacity(0.8),
-                        ],
+      child: AnimatedScale(
+        scale: _isPressed ? 0.92 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeOutCubic,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          width: 160,
+          height: 160,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: isDisabled
+                ? LinearGradient(
+                    colors: [
+                      theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                      theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                    ],
+                  )
+                : LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      theme.colorScheme.primary,
+                      theme.colorScheme.primary.withValues(alpha: 0.8),
+                    ],
+                  ),
+            boxShadow: isDisabled
+                ? []
+                : [
+                    BoxShadow(
+                      color: theme.colorScheme.primary.withValues(
+                        alpha: _isPressed ? 0.15 : 0.35,
                       ),
-                boxShadow: isDisabled
-                    ? []
-                    : [
-                        BoxShadow(
-                          color: theme.colorScheme.primary.withOpacity(0.3),
-                          blurRadius: 20,
-                          spreadRadius: 2,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.add,
-                      size: 48,
-                      color: isDisabled
-                          ? theme.colorScheme.onSurface.withOpacity(0.3)
-                          : Colors.white,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      l10n.tap,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: isDisabled
-                            ? theme.colorScheme.onSurface.withOpacity(0.3)
-                            : Colors.white,
-                      ),
+                      blurRadius: _isPressed ? 10 : 20,
+                      spreadRadius: _isPressed ? 1 : 2,
+                      offset: Offset(0, _isPressed ? 4 : 8),
                     ),
                   ],
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.add,
+                  size: 48,
+                  color: isDisabled
+                      ? theme.colorScheme.onSurface.withValues(alpha: 0.3)
+                      : Colors.white,
                 ),
-              ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.tap,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: isDisabled
+                        ? theme.colorScheme.onSurface.withValues(alpha: 0.3)
+                        : Colors.white,
+                  ),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
-    )
-        .animate(target: _isPressed ? 1 : 0)
-        .scale(begin: const Offset(1, 1), end: const Offset(0.95, 0.95), duration: 50.ms);
-  }
-
-  @override
-  void dispose() {
-    _scaleController.dispose();
-    super.dispose();
+    );
   }
 }

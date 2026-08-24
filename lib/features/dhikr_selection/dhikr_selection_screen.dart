@@ -20,20 +20,61 @@ class DhikrSelectionScreen extends ConsumerWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
+        backgroundColor: theme.colorScheme.surface,
         appBar: AppBar(
-          title: Text(l10n.selectDhikr),
-          bottom: TabBar(
-            tabs: [
-              Tab(text: l10n.defaultAzkaar),
-              Tab(text: l10n.myWazifas),
-            ],
+          centerTitle: true,
+          elevation: 0,
+          scrolledUnderElevation: 2,
+          title: Text(
+            l10n.selectDhikr,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(52),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: TabBar(
+                dividerColor: Colors.transparent,
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicator: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.25),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                labelColor: theme.colorScheme.onPrimary,
+                unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                ),
+                tabs: [
+                  Tab(text: l10n.defaultAzkaar),
+                  Tab(text: l10n.myWazifas),
+                ],
+              ),
+            ),
           ),
         ),
         body: TabBarView(
           children: [
             // Default Azkaar Tab
             ListView.builder(
-              padding: const EdgeInsets.all(16),
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
               itemCount: suggestedDhikrs.length,
               itemBuilder: (context, index) {
                 final dhikr = suggestedDhikrs[index];
@@ -44,45 +85,63 @@ class DhikrSelectionScreen extends ConsumerWidget {
             // My Wazifas Tab
             customDhikrs.isEmpty
                 ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.bookmark_border,
-                          size: 64,
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.3,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          l10n.noCustomWazifas,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.5,
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer
+                                  .withValues(alpha: 0.3),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.bookmark_add_outlined,
+                              size: 56,
+                              color: theme.colorScheme.primary,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.noCustomWazifasSubtitle,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.4,
+                          const SizedBox(height: 20),
+                          Text(
+                            l10n.noCustomWazifas,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () => context.push(AppRoutes.createWazifa),
-                          icon: const Icon(Icons.add),
-                          label: Text(l10n.createWazifa),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.noCustomWazifasSubtitle,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 24),
+                          FilledButton.icon(
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: () =>
+                                context.push(AppRoutes.createWazifa),
+                            icon: const Icon(Icons.add_rounded),
+                            label: Text(l10n.createWazifa),
+                          ),
+                        ],
+                      ),
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
                     itemCount: customDhikrs.length,
                     itemBuilder: (context, index) {
                       final dhikr = customDhikrs[index];
@@ -95,46 +154,13 @@ class DhikrSelectionScreen extends ConsumerWidget {
                   ),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: FloatingActionButton.extended(
+          elevation: 3,
           onPressed: () => context.push(AppRoutes.createWazifa),
-          child: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
+          label: Text(l10n.createWazifa),
         ),
       ),
-    );
-  }
-}
-
-class _ScheduleChip extends StatelessWidget {
-  final DhikrSchedule? schedule;
-
-  const _ScheduleChip({this.schedule});
-
-  @override
-  Widget build(BuildContext context) {
-    if (schedule == null) return const SizedBox.shrink();
-
-    final theme = Theme.of(context);
-    final isRelevant = ScheduleHelper.shouldShowNow(schedule);
-
-    return Chip(
-      label: Text(
-        schedule!.label,
-        style: TextStyle(
-          fontSize: 11,
-          color: isRelevant
-              ? theme.colorScheme.primary
-              : theme.colorScheme.onSurface.withValues(alpha: 0.5),
-          fontWeight: isRelevant ? FontWeight.bold : FontWeight.normal,
-        ),
-      ),
-      padding: EdgeInsets.zero,
-      visualDensity: VisualDensity.compact,
-      backgroundColor: isRelevant
-          ? theme.colorScheme.primary.withValues(alpha: 0.1)
-          : theme.colorScheme.onSurface.withValues(alpha: 0.05),
-      side: isRelevant
-          ? BorderSide(color: theme.colorScheme.primary.withValues(alpha: 0.3))
-          : BorderSide.none,
     );
   }
 }
@@ -163,148 +189,247 @@ class DhikrListTile extends ConsumerWidget {
     final repeatEnabled = progress?.repeatEnabled ?? false;
     final scheduleEnum = progress?.scheduleEnum;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: () => context.push(AppRoutes.dhikrDetail, extra: dhikr.id),
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          dhikr.name,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (dhikr.arabicText != null) ...[
-                          const SizedBox(height: 4),
+    final progressRatio = targetCount > 0
+        ? (currentCount / targetCount).clamp(0.0, 1.0)
+        : 0.0;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(18),
+        child: InkWell(
+          onTap: () => context.push(AppRoutes.dhikrDetail, extra: dhikr.id),
+          borderRadius: BorderRadius.circular(18),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Header Row
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            dhikr.arabicText!,
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
+                            dhikr.name,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
                             ),
-                            textDirection: TextDirection.rtl,
                           ),
+                          if (dhikr.translation.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              dhikr.translation,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ],
-                        ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            dhikr.translation,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.6,
+                      ),
+                    ),
+                    if (isInProgress) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                value: progressRatio,
+                                strokeWidth: 2.5,
+                                color: theme.colorScheme.primary,
+                                backgroundColor: theme.colorScheme.primary
+                                    .withValues(alpha: 0.2),
                               ),
                             ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  if (isInProgress)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '$currentCount/$targetCount',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary,
+                            const SizedBox(width: 6),
+                            Text(
+                              '$currentCount/$targetCount',
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                    ],
+                  ],
+                ),
+
+                // Arabic Text Container (if available)
+                if (dhikr.arabicText != null &&
+                    dhikr.arabicText!.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
                     ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  Chip(
-                    label: Text('${l10n.targetCount}: $targetCount'),
-                    padding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  Chip(
-                    label: Text(dhikr.category.label),
-                    padding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
-                  ),
-                  if (repeatEnabled)
-                    Chip(
-                      label: Text(l10n.repeatMode),
-                      padding: EdgeInsets.zero,
-                      visualDensity: VisualDensity.compact,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  if (scheduleEnum != null)
-                    _ScheduleChip(schedule: scheduleEnum),
+                    child: Text(
+                      dhikr.arabicText!,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontFamily: 'Amiri',
+                        fontWeight: FontWeight.bold,
+                        height: 1.6,
+                      ),
+                      textDirection: TextDirection.rtl,
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
                 ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Row(
+
+                const SizedBox(height: 12),
+
+                // Metadata Badges
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    _MetaBadge(
+                      label: '${l10n.targetCount}: $targetCount',
+                      icon: Icons.flag_outlined,
+                    ),
+                    _MetaBadge(
+                      label: dhikr.category.label,
+                      icon: Icons.category_outlined,
+                    ),
+                    if (repeatEnabled)
+                      _MetaBadge(
+                        label: l10n.repeatMode,
+                        icon: Icons.repeat_rounded,
+                        color: theme.colorScheme.secondary,
+                      ),
+                    if (scheduleEnum != null)
+                      _ScheduleBadge(schedule: scheduleEnum),
+                  ],
+                ),
+
+                const SizedBox(height: 8),
+
+                // Bottom Action Bar
+                Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (showEdit)
-                      IconButton(
+                      IconButton.outlined(
+                        style: IconButton.styleFrom(
+                          side: BorderSide(
+                            color: theme.colorScheme.outlineVariant.withValues(
+                              alpha: 0.5,
+                            ),
+                          ),
+                          visualDensity: VisualDensity.compact,
+                        ),
                         onPressed: () => context.push(
                           AppRoutes.createWazifa,
                           extra: dhikr.id,
                         ),
-                        icon: const Icon(Icons.edit_outlined, size: 20),
+                        icon: const Icon(Icons.edit_outlined, size: 18),
                         tooltip: l10n.edit,
                       ),
-                    if (showDelete)
-                      IconButton(
+                    if (showDelete) ...[
+                      const SizedBox(width: 8),
+                      IconButton.outlined(
+                        style: IconButton.styleFrom(
+                          side: BorderSide(
+                            color: theme.colorScheme.error.withValues(
+                              alpha: 0.3,
+                            ),
+                          ),
+                          visualDensity: VisualDensity.compact,
+                        ),
                         onPressed: () => _showDeleteDialog(context, ref),
                         icon: Icon(
                           Icons.delete_outline,
-                          size: 20,
+                          size: 18,
                           color: theme.colorScheme.error,
                         ),
                         tooltip: l10n.delete,
                       ),
-                    if (!showEdit && !showDelete)
+                    ],
+                    if (!showEdit && !showDelete) ...[
                       if (isCompleted)
-                        Chip(
-                          avatar: Icon(
-                            Icons.check_circle,
-                            color: theme.colorScheme.primary,
-                            size: 18,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
                           ),
-                          label: Text(l10n.completed),
-                          padding: EdgeInsets.zero,
-                          visualDensity: VisualDensity.compact,
-                          backgroundColor: theme.colorScheme.primary.withValues(
-                            alpha: 0.1,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primaryContainer
+                                .withValues(alpha: 0.5),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.check_circle_rounded,
+                                color: theme.colorScheme.primary,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                l10n.completed,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.primary,
+                                ),
+                              ),
+                            ],
                           ),
                         )
                       else
-                        FilledButton(
+                        FilledButton.icon(
+                          style: FilledButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            visualDensity: VisualDensity.compact,
+                          ),
                           onPressed: () =>
                               context.push(AppRoutes.counter, extra: dhikr.id),
-                          child: Text(
+                          icon: const Icon(Icons.fingerprint_rounded, size: 18),
+                          label: Text(
                             isInProgress ? l10n.continue_ : l10n.start,
                           ),
                         ),
+                    ],
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -313,9 +438,12 @@ class DhikrListTile extends ConsumerWidget {
 
   void _showDeleteDialog(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(l10n.deleteWazifaTitle),
         content: Text(
           l10n.deleteWazifaMessage.toString().replaceAll('{name}', dhikr.name),
@@ -332,8 +460,100 @@ class DhikrListTile extends ConsumerWidget {
                   .deleteDhikr(dhikr.id);
               Navigator.pop(context);
             },
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(
+              backgroundColor: theme.colorScheme.error,
+              foregroundColor: theme.colorScheme.onError,
+            ),
             child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MetaBadge extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Color? color;
+
+  const _MetaBadge({required this.label, required this.icon, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final badgeColor = color ?? theme.colorScheme.onSurfaceVariant;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: badgeColor),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              color: badgeColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScheduleBadge extends StatelessWidget {
+  final DhikrSchedule? schedule;
+
+  const _ScheduleBadge({this.schedule});
+
+  @override
+  Widget build(BuildContext context) {
+    if (schedule == null) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+    final isRelevant = ScheduleHelper.shouldShowNow(schedule);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: isRelevant
+            ? theme.colorScheme.primary.withValues(alpha: 0.12)
+            : theme.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(8),
+        border: isRelevant
+            ? Border.all(
+                color: theme.colorScheme.primary.withValues(alpha: 0.3),
+              )
+            : null,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.schedule_rounded,
+            size: 12,
+            color: isRelevant
+                ? theme.colorScheme.primary
+                : theme.colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            schedule!.label,
+            style: TextStyle(
+              fontSize: 11,
+              color: isRelevant
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurfaceVariant,
+              fontWeight: isRelevant ? FontWeight.bold : FontWeight.w500,
+            ),
           ),
         ],
       ),

@@ -21,137 +21,184 @@ class MyWazifaCard extends ConsumerWidget {
     final isCompleted = progress?.isCompleted ?? false;
     final reminderEnabled = progress?.reminderEnabled ?? false;
     final repeatEnabled = progress?.repeatEnabled ?? false;
-    final progressPct =
-        targetCount > 0 ? (currentCount / targetCount).clamp(0.0, 1.0) : 0.0;
+    final progressPct = targetCount > 0
+        ? (currentCount / targetCount).clamp(0.0, 1.0)
+        : 0.0;
 
-    return Card(
+    final activeColor = isCompleted
+        ? theme.colorScheme.tertiary
+        : theme.colorScheme.primary;
+    final activeContainerColor = isCompleted
+        ? theme.colorScheme.tertiaryContainer
+        : theme.colorScheme.primaryContainer;
+
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => context.push(AppRoutes.counter, extra: dhikr.id),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          dhikr.name,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (dhikr.arabicText != null) ...[
-                          const SizedBox(height: 4),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isCompleted
+              ? theme.colorScheme.tertiary.withValues(alpha: 0.3)
+              : theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () => context.push(AppRoutes.counter, extra: dhikr.id),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Row: Details & Progress Indicator Badge
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            dhikr.arabicText!,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              fontWeight: FontWeight.w600,
+                            dhikr.name,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: -0.3,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            textDirection: TextDirection.rtl,
                           ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: isCompleted
-                          ? theme.colorScheme.primary.withValues(alpha: 0.15)
-                          : theme.colorScheme.primary.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: isCompleted
-                          ? Icon(
-                              Icons.check,
-                              color: theme.colorScheme.primary,
-                              size: 24,
-                            )
-                          : Text(
-                              '${(progressPct * 100).toInt()}%',
-                              style: theme.textTheme.bodySmall?.copyWith(
+                          if (dhikr.arabicText != null &&
+                              dhikr.arabicText!.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              dhikr.arabicText!,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontFamily: 'Amiri',
                                 fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.primary,
+                                color: activeColor,
+                                height: 1.2,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textDirection: TextDirection.rtl,
                             ),
+                          ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: progressPct,
-                  minHeight: 6,
-                  backgroundColor: theme.colorScheme.primary.withValues(
-                    alpha: 0.1,
-                  ),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    theme.colorScheme.primary,
+                    const SizedBox(width: 12),
+
+                    // Percent / Completion Badge
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: activeContainerColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: isCompleted
+                            ? Icon(
+                                Icons.check_circle_rounded,
+                                color: theme.colorScheme.onTertiaryContainer,
+                                size: 26,
+                              )
+                            : Text(
+                                '${(progressPct * 100).toInt()}%',
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.onPrimaryContainer,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Linear Animated Progress Bar
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: TweenAnimationBuilder<double>(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutCubic,
+                    tween: Tween<double>(begin: 0.0, end: progressPct),
+                    builder: (context, value, _) {
+                      return LinearProgressIndicator(
+                        value: value,
+                        minHeight: 8,
+                        backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                        valueColor: AlwaysStoppedAnimation<Color>(activeColor),
+                      );
+                    },
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '$currentCount / $targetCount',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (reminderEnabled)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: Icon(
-                            Icons.alarm_on,
-                            size: 16,
-                            color: theme.colorScheme.primary.withValues(
-                              alpha: 0.7,
-                            ),
-                          ),
-                        ),
-                      if (repeatEnabled)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: Icon(
-                            Icons.repeat,
-                            size: 16,
-                            color: theme.colorScheme.secondary.withValues(
-                              alpha: 0.7,
-                            ),
-                          ),
-                        ),
-                      Text(
-                        isCompleted ? l10n.completed : l10n.continue_,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.primary,
-                        ),
+                const SizedBox(height: 12),
+
+                // Bottom Status Details & Badges
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '$currentCount / $targetCount',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (reminderEnabled)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: Icon(
+                              Icons.alarm_on_rounded,
+                              size: 16,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        if (repeatEnabled)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: Icon(
+                              Icons.repeat_rounded,
+                              size: 16,
+                              color: theme.colorScheme.secondary,
+                            ),
+                          ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isCompleted
+                                ? activeContainerColor
+                                : theme.colorScheme.surfaceContainerHigh,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            isCompleted ? l10n.completed : l10n.continue_,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: isCompleted
+                                  ? theme.colorScheme.onTertiaryContainer
+                                  : theme.colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
