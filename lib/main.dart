@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/audio/audio_service.dart';
 import 'core/haptics/haptics_service.dart';
+import 'core/localization/generated/app_localizations.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/storage/local_storage.dart';
 import 'core/theme/app_theme.dart';
-import 'models/app_settings.dart';
 import 'providers/settings_provider.dart';
 import 'router/app_router.dart';
 
@@ -28,11 +27,7 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(
-    const ProviderScope(
-      child: TasbeehCounterApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: TasbeehCounterApp()));
 }
 
 class TasbeehCounterApp extends ConsumerWidget {
@@ -73,21 +68,13 @@ class TasbeehCounterApp extends ConsumerWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: _getThemeMode(settings.themeMode),
       locale: _getLocale(settings.languageCode),
-      supportedLocales: const [
-        Locale('en'),
-        Locale('ar'),
-        Locale('ur'),
-      ],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: appRouter,
       builder: (context, child) {
-        // Handle RTL for Arabic and Urdu
         final locale = Localizations.localeOf(context);
-        final isRTL = locale.languageCode == 'ar' || locale.languageCode == 'ur';
+        final isRTL =
+            locale.languageCode == 'ar' || locale.languageCode == 'ur';
 
         return Directionality(
           textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,

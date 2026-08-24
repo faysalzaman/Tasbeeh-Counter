@@ -12,7 +12,7 @@ class HapticsService {
   Future<void> initialize() async {
     if (_initialized) return;
     try {
-      _hasVibrator = await Vibration.hasVibrator() ?? false;
+      _hasVibrator = await Vibration.hasVibrator();
       _initialized = true;
     } catch (e) {
       _hasVibrator = false;

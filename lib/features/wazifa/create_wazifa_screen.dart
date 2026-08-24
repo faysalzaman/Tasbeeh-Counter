@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../models/dhikr.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../providers/dhikr_provider.dart';
 
 class CreateWazifaScreen extends ConsumerStatefulWidget {
@@ -102,7 +102,9 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
       if (existing != null) {
         final updated = existing.copyWith(
           name: name,
-          arabicText: _arabicController.text.trim().isEmpty ? null : _arabicController.text.trim(),
+          arabicText: _arabicController.text.trim().isEmpty
+              ? null
+              : _arabicController.text.trim(),
           transliteration: _transliterationController.text.trim().isEmpty
               ? null
               : _transliterationController.text.trim(),
@@ -115,14 +117,20 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
           reminderTime: reminderTimeStr,
           startDate: _startDate,
           numberOfDays: numberOfDays,
-          notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
         );
         await ref.read(dhikrListNotifierProvider.notifier).saveDhikr(updated);
       }
     } else {
-      await ref.read(dhikrListNotifierProvider.notifier).createCustomDhikr(
+      await ref
+          .read(dhikrListNotifierProvider.notifier)
+          .createCustomDhikr(
             name: name,
-            arabicText: _arabicController.text.trim().isEmpty ? null : _arabicController.text.trim(),
+            arabicText: _arabicController.text.trim().isEmpty
+                ? null
+                : _arabicController.text.trim(),
             transliteration: _transliterationController.text.trim().isEmpty
                 ? null
                 : _transliterationController.text.trim(),
@@ -135,7 +143,9 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
             reminderTime: reminderTimeStr,
             startDate: _startDate,
             numberOfDays: numberOfDays,
-            notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
+            notes: _notesController.text.trim().isEmpty
+                ? null
+                : _notesController.text.trim(),
           );
     }
 
@@ -146,12 +156,10 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Wazifa' : 'Create Wazifa'),
-      ),
+      appBar: AppBar(title: Text(_isEditing ? l10n.edit : l10n.createWazifa)),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -160,14 +168,14 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
             // Name
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Dhikr Name *',
-                hintText: 'e.g., Astaghfirullah',
-                prefixIcon: Icon(Icons.title),
+              decoration: InputDecoration(
+                labelText: '${l10n.dhikrName} *',
+                hintText: l10n.dhikrNameHint,
+                prefixIcon: const Icon(Icons.title),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a name';
+                  return l10n.validationRequired;
                 }
                 return null;
               },
@@ -177,10 +185,10 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
             // Arabic Text
             TextFormField(
               controller: _arabicController,
-              decoration: const InputDecoration(
-                labelText: 'Arabic Text (Optional)',
-                hintText: 'أَسْتَغْفِرُ ٱللَّٰهَ',
-                prefixIcon: Icon(Icons.translate),
+              decoration: InputDecoration(
+                labelText: l10n.arabicText,
+                hintText: l10n.arabicTextHint,
+                prefixIcon: const Icon(Icons.translate),
               ),
               textDirection: TextDirection.rtl,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
@@ -190,10 +198,10 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
             // Transliteration
             TextFormField(
               controller: _transliterationController,
-              decoration: const InputDecoration(
-                labelText: 'Transliteration (Optional)',
-                hintText: 'Astaghfirullah',
-                prefixIcon: Icon(Icons.spellcheck),
+              decoration: InputDecoration(
+                labelText: l10n.transliteration,
+                hintText: l10n.transliterationHint,
+                prefixIcon: const Icon(Icons.spellcheck),
               ),
             ),
             const SizedBox(height: 16),
@@ -201,10 +209,10 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
             // Translation
             TextFormField(
               controller: _translationController,
-              decoration: const InputDecoration(
-                labelText: 'Translation (Optional)',
-                hintText: 'I seek forgiveness from Allah',
-                prefixIcon: Icon(Icons.language),
+              decoration: InputDecoration(
+                labelText: l10n.translation,
+                hintText: l10n.translationHint,
+                prefixIcon: const Icon(Icons.language),
               ),
             ),
             const SizedBox(height: 16),
@@ -212,19 +220,19 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
             // Target Count
             TextFormField(
               controller: _targetController,
-              decoration: const InputDecoration(
-                labelText: 'Target Count *',
-                hintText: 'e.g., 100',
-                prefixIcon: Icon(Icons.format_list_numbered),
+              decoration: InputDecoration(
+                labelText: '${l10n.targetCount} *',
+                hintText: l10n.targetCountHint,
+                prefixIcon: const Icon(Icons.format_list_numbered),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter a target count';
+                  return l10n.validationRequired;
                 }
                 final count = int.tryParse(value);
                 if (count == null || count < 1) {
-                  return 'Please enter a valid number';
+                  return l10n.validationNumber;
                 }
                 return null;
               },
@@ -233,8 +241,8 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
 
             // Repeat Mode
             SwitchListTile(
-              title: const Text('Repeat Mode'),
-              subtitle: const Text('Automatically start a new round after completion'),
+              title: Text(l10n.repeatMode),
+              subtitle: Text(l10n.repeatModeSubtitle),
               value: _repeatEnabled,
               onChanged: (value) => setState(() => _repeatEnabled = value),
               secondary: const Icon(Icons.repeat),
@@ -243,8 +251,8 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
 
             // Reminder
             SwitchListTile(
-              title: const Text('Daily Reminder'),
-              subtitle: const Text('Get notified to perform this Dhikr'),
+              title: Text(l10n.dailyReminder),
+              subtitle: Text(l10n.dailyReminderSubtitle),
               value: _reminderEnabled,
               onChanged: (value) => setState(() => _reminderEnabled = value),
               secondary: const Icon(Icons.alarm),
@@ -253,11 +261,11 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
               const SizedBox(height: 8),
               ListTile(
                 leading: const Icon(Icons.access_time),
-                title: const Text('Reminder Time'),
+                title: Text(l10n.reminderTime),
                 subtitle: Text(
                   _reminderTime != null
                       ? '${_reminderTime!.hour.toString().padLeft(2, '0')}:${_reminderTime!.minute.toString().padLeft(2, '0')}'
-                      : 'Not set',
+                      : l10n.notSet,
                 ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: _pickReminderTime,
@@ -268,11 +276,11 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
             // Duration
             ListTile(
               leading: const Icon(Icons.calendar_today),
-              title: const Text('Start Date (Optional)'),
+              title: Text(l10n.startDate),
               subtitle: Text(
                 _startDate != null
                     ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
-                    : 'Today',
+                    : l10n.today,
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: _pickStartDate,
@@ -280,10 +288,10 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
             const SizedBox(height: 8),
             TextFormField(
               controller: _daysController,
-              decoration: const InputDecoration(
-                labelText: 'Number of Days (Optional)',
-                hintText: 'e.g., 7',
-                prefixIcon: Icon(Icons.timelapse),
+              decoration: InputDecoration(
+                labelText: l10n.numberOfDays,
+                hintText: l10n.numberOfDaysHint,
+                prefixIcon: const Icon(Icons.timelapse),
               ),
               keyboardType: TextInputType.number,
             ),
@@ -292,10 +300,10 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
             // Notes
             TextFormField(
               controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: 'Notes (Optional)',
-                hintText: 'Any additional notes...',
-                prefixIcon: Icon(Icons.notes),
+              decoration: InputDecoration(
+                labelText: l10n.notes,
+                hintText: l10n.notesHint,
+                prefixIcon: const Icon(Icons.notes),
               ),
               maxLines: 3,
             ),
@@ -307,7 +315,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
               child: FilledButton.icon(
                 onPressed: _saveWazifa,
                 icon: const Icon(Icons.save),
-                label: Text(_isEditing ? 'Update Wazifa' : 'Create Wazifa'),
+                label: Text(_isEditing ? l10n.update : l10n.create),
               ),
             ),
           ],

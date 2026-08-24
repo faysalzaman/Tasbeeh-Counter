@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/audio/audio_service.dart';
 import '../core/haptics/haptics_service.dart';
-import '../core/notifications/notification_service.dart';
 import '../models/dhikr.dart';
 import '../models/app_settings.dart';
 import 'dhikr_provider.dart';
@@ -15,12 +14,13 @@ final currentDhikrProvider = Provider<Dhikr?>((ref) {
   return ref.watch(dhikrByIdProvider(id));
 });
 
-final counterStateProvider = StateNotifierProvider<CounterNotifier, CounterState>((ref) {
-  final dhikrRepo = ref.watch(dhikrRepositoryProvider);
-  final settings = ref.watch(settingsProvider);
-  final dhikrListNotifier = ref.watch(dhikrListNotifierProvider.notifier);
-  return CounterNotifier(dhikrRepo, settings, dhikrListNotifier);
-});
+final counterStateProvider =
+    StateNotifierProvider<CounterNotifier, CounterState>((ref) {
+      final dhikrRepo = ref.watch(dhikrRepositoryProvider);
+      final settings = ref.watch(settingsProvider);
+      final dhikrListNotifier = ref.watch(dhikrListNotifierProvider.notifier);
+      return CounterNotifier(dhikrRepo, settings, dhikrListNotifier);
+    });
 
 class CounterState {
   final bool isCompleted;
@@ -43,7 +43,8 @@ class CounterState {
   }) {
     return CounterState(
       isCompleted: isCompleted ?? this.isCompleted,
-      showCompletionAnimation: showCompletionAnimation ?? this.showCompletionAnimation,
+      showCompletionAnimation:
+          showCompletionAnimation ?? this.showCompletionAnimation,
       displayCount: displayCount ?? this.displayCount,
       roundCount: roundCount ?? this.roundCount,
     );
@@ -58,7 +59,7 @@ class CounterNotifier extends StateNotifier<CounterState> {
   final HapticsService _haptics = HapticsService();
 
   CounterNotifier(this._repository, this._settings, this._listNotifier)
-      : super(const CounterState());
+    : super(const CounterState());
 
   void setDhikr(Dhikr dhikr) {
     state = CounterState(
@@ -103,10 +104,7 @@ class CounterNotifier extends StateNotifier<CounterState> {
     if (dhikr == null) return;
 
     // Show completion animation
-    state = state.copyWith(
-      isCompleted: true,
-      showCompletionAnimation: true,
-    );
+    state = state.copyWith(isCompleted: true, showCompletionAnimation: true);
 
     // Completion haptics
     if (_settings.completionVibration) {
@@ -153,9 +151,7 @@ class CounterNotifier extends StateNotifier<CounterState> {
   Future<void> saveAndExit(String dhikrId) async {
     final dhikr = _repository.getDhikr(dhikrId);
     if (dhikr != null) {
-      final updated = dhikr.copyWith(
-        lastSessionDate: DateTime.now(),
-      );
+      final updated = dhikr.copyWith(lastSessionDate: DateTime.now());
       await _repository.saveDhikr(updated);
       _listNotifier.refresh();
     }

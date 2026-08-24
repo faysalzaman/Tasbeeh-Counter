@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../core/notifications/notification_service.dart';
 import '../../providers/settings_provider.dart';
 
@@ -61,7 +61,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         );
       }
     } catch (e) {
-      _showErrorSnackBar('Could not open review');
+      if (mounted) _showErrorSnackBar(context.l10n.couldNotOpenReview);
     }
   }
 
@@ -71,10 +71,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
         await InAppUpdate.performImmediateUpdate();
       } else {
-        _showInfoSnackBar('You are on the latest version');
+        if (mounted) _showInfoSnackBar(context.l10n.onLatestVersion);
       }
     } catch (e) {
-      _showErrorSnackBar('Could not check for updates');
+      if (mounted) _showErrorSnackBar(context.l10n.couldNotCheckUpdates);
     }
   }
 
@@ -111,8 +111,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
 
     if (time != null) {
-      final timeStr = '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-      await ref.read(settingsProvider.notifier).updateDefaultReminderTime(timeStr);
+      final timeStr =
+          '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+      await ref
+          .read(settingsProvider.notifier)
+          .updateDefaultReminderTime(timeStr);
     }
   }
 
@@ -120,125 +123,136 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(l10n.settings),
       ),
       body: ListView(
         children: [
           // Appearance
-          _buildSectionHeader(context, 'Appearance'),
+          _buildSectionHeader(context, l10n.appearance),
           ListTile(
             leading: const Icon(Icons.palette_outlined),
-            title: const Text('Theme'),
+            title: Text(l10n.theme),
             subtitle: Text(_getThemeLabel(settings.themeMode)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _showThemePicker(context),
           ),
 
           // Counting
-          _buildSectionHeader(context, 'Counting'),
+          _buildSectionHeader(context, l10n.counting),
           SwitchListTile(
             secondary: const Icon(Icons.volume_up),
-            title: const Text('Volume Key Counting'),
-            subtitle: const Text('Use volume buttons to count'),
+            title: Text(l10n.volumeKeyCounting),
+            subtitle: Text(l10n.volumeKeyCountingSubtitle),
             value: settings.volumeKeyCounting,
-            onChanged: (value) => ref.read(settingsProvider.notifier).updateVolumeKeyCounting(value),
+            onChanged: (value) =>
+                ref.read(settingsProvider.notifier).updateVolumeKeyCounting(value),
           ),
           SwitchListTile(
             secondary: const Icon(Icons.vibration),
-            title: const Text('Counting Vibration'),
+            title: Text(l10n.countingVibration),
             value: settings.countingVibration,
-            onChanged: (value) => ref.read(settingsProvider.notifier).updateCountingVibration(value),
+            onChanged: (value) =>
+                ref.read(settingsProvider.notifier).updateCountingVibration(value),
           ),
           SwitchListTile(
             secondary: const Icon(Icons.volume_up),
-            title: const Text('Counting Sound'),
+            title: Text(l10n.countingSound),
             value: settings.countingSound,
-            onChanged: (value) => ref.read(settingsProvider.notifier).updateCountingSound(value),
+            onChanged: (value) =>
+                ref.read(settingsProvider.notifier).updateCountingSound(value),
           ),
 
           // Completion
-          _buildSectionHeader(context, 'Completion'),
+          _buildSectionHeader(context, l10n.completion),
           SwitchListTile(
             secondary: const Icon(Icons.vibration),
-            title: const Text('Completion Vibration'),
+            title: Text(l10n.completionVibration),
             value: settings.completionVibration,
-            onChanged: (value) => ref.read(settingsProvider.notifier).updateCompletionVibration(value),
+            onChanged: (value) =>
+                ref.read(settingsProvider.notifier).updateCompletionVibration(value),
           ),
           SwitchListTile(
             secondary: const Icon(Icons.celebration),
-            title: const Text('Completion Sound'),
+            title: Text(l10n.completionSound),
             value: settings.completionSound,
-            onChanged: (value) => ref.read(settingsProvider.notifier).updateCompletionSound(value),
+            onChanged: (value) =>
+                ref.read(settingsProvider.notifier).updateCompletionSound(value),
           ),
 
           // Notifications
-          _buildSectionHeader(context, 'Notifications'),
+          _buildSectionHeader(context, l10n.notifications),
           ListTile(
             leading: Icon(
-              _notificationsEnabled ? Icons.notifications_active : Icons.notifications_off,
-              color: _notificationsEnabled ? theme.colorScheme.primary : theme.colorScheme.error,
+              _notificationsEnabled
+                  ? Icons.notifications_active
+                  : Icons.notifications_off,
+              color: _notificationsEnabled
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.error,
             ),
-            title: const Text('Notification Permission'),
-            subtitle: Text(_notificationsEnabled ? 'Granted' : 'Not granted'),
+            title: Text(l10n.notificationPermission),
+            subtitle: Text(_notificationsEnabled ? l10n.granted : l10n.notGranted),
             trailing: !_notificationsEnabled
                 ? TextButton(
                     onPressed: _requestNotificationPermission,
-                    child: const Text('Enable'),
+                    child: Text(l10n.enable),
                   )
                 : null,
           ),
           SwitchListTile(
             secondary: const Icon(Icons.alarm),
-            title: const Text('Reminder Notifications'),
-            subtitle: const Text('Receive daily reminders'),
+            title: Text(l10n.reminderNotifications),
+            subtitle: Text(l10n.reminderNotificationsSubtitle),
             value: settings.reminderNotifications,
-            onChanged: (value) => ref.read(settingsProvider.notifier).updateReminderNotifications(value),
+            onChanged: (value) =>
+                ref.read(settingsProvider.notifier).updateReminderNotifications(value),
           ),
           ListTile(
             leading: const Icon(Icons.access_time),
-            title: const Text('Default Reminder Time'),
+            title: Text(l10n.defaultReminderTime),
             subtitle: Text(settings.defaultReminderTime),
             trailing: const Icon(Icons.chevron_right),
             onTap: _showReminderTimePicker,
           ),
 
           // Language
-          _buildSectionHeader(context, 'Language'),
+          _buildSectionHeader(context, l10n.language),
           ListTile(
             leading: const Icon(Icons.language),
-            title: const Text('Language'),
+            title: Text(l10n.language),
             subtitle: Text(_getLanguageLabel(settings.languageCode)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _showLanguagePicker(context),
           ),
 
           // App
-          _buildSectionHeader(context, 'App'),
+          _buildSectionHeader(context, l10n.app),
           ListTile(
             leading: const Icon(Icons.star_outline),
-            title: const Text('Rate App'),
+            title: Text(l10n.rateApp),
             trailing: const Icon(Icons.chevron_right),
             onTap: _rateApp,
           ),
           ListTile(
             leading: const Icon(Icons.system_update),
-            title: const Text('Check for Updates'),
+            title: Text(l10n.checkForUpdates),
             trailing: const Icon(Icons.chevron_right),
             onTap: _checkForUpdate,
           ),
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),
-            title: const Text('Privacy Policy'),
+            title: Text(l10n.privacyPolicy),
             trailing: const Icon(Icons.chevron_right),
             onTap: _openPrivacyPolicy,
           ),
           ListTile(
             leading: const Icon(Icons.info_outline),
-            title: const Text('About'),
-            subtitle: Text('Version $_appVersion'),
+            title: Text(l10n.about),
+            subtitle: Text('${l10n.version} $_appVersion'),
           ),
           const SizedBox(height: 32),
         ],
@@ -260,31 +274,34 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   String _getThemeLabel(String theme) {
+    final l10n = context.l10n;
     switch (theme) {
       case 'light':
-        return 'Light';
+        return l10n.themeLight;
       case 'dark':
-        return 'Dark';
+        return l10n.themeDark;
       default:
-        return 'System';
+        return l10n.themeSystem;
     }
   }
 
   String _getLanguageLabel(String language) {
+    final l10n = context.l10n;
     switch (language) {
       case 'en':
-        return 'English';
+        return l10n.languageEnglish;
       case 'ar':
-        return 'Arabic';
+        return l10n.languageArabic;
       case 'ur':
-        return 'Urdu';
+        return l10n.languageUrdu;
       default:
-        return 'System';
+        return l10n.languageSystem;
     }
   }
 
   void _showThemePicker(BuildContext context) {
     final settings = ref.read(settingsProvider);
+    final l10n = context.l10n;
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -292,14 +309,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: const Text('Theme'),
+              title: Text(l10n.theme),
               trailing: IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
             RadioListTile<String>(
-              title: const Text('System'),
+              title: Text(l10n.themeSystem),
               value: 'system',
               groupValue: settings.themeMode,
               onChanged: (value) {
@@ -308,7 +325,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('Light'),
+              title: Text(l10n.themeLight),
               value: 'light',
               groupValue: settings.themeMode,
               onChanged: (value) {
@@ -317,7 +334,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('Dark'),
+              title: Text(l10n.themeDark),
               value: 'dark',
               groupValue: settings.themeMode,
               onChanged: (value) {
@@ -333,6 +350,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   void _showLanguagePicker(BuildContext context) {
     final settings = ref.read(settingsProvider);
+    final l10n = context.l10n;
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -340,14 +358,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: const Text('Language'),
+              title: Text(l10n.language),
               trailing: IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
             RadioListTile<String>(
-              title: const Text('System'),
+              title: Text(l10n.languageSystem),
               value: 'system',
               groupValue: settings.languageCode,
               onChanged: (value) {
@@ -356,7 +374,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('English'),
+              title: Text(l10n.languageEnglish),
               value: 'en',
               groupValue: settings.languageCode,
               onChanged: (value) {
@@ -365,7 +383,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('Arabic'),
+              title: Text(l10n.languageArabic),
               value: 'ar',
               groupValue: settings.languageCode,
               onChanged: (value) {
@@ -374,7 +392,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('Urdu'),
+              title: Text(l10n.languageUrdu),
               value: 'ur',
               groupValue: settings.languageCode,
               onChanged: (value) {

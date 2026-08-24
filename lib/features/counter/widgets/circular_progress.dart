@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import '../../../core/localization/l10n_extension.dart';
 
 class CircularProgressWidget extends StatelessWidget {
   final double progress;
@@ -18,10 +19,11 @@ class CircularProgressWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final isCompleted = currentCount >= targetCount && targetCount > 0;
 
     return CircularPercentIndicator(
-      radius: 140,
+      radius: 130,
       lineWidth: 12,
       percent: progress.clamp(0.0, 1.0),
       center: Column(
@@ -31,7 +33,7 @@ class CircularProgressWidget extends StatelessWidget {
             '$currentCount',
             style: theme.textTheme.displayLarge?.copyWith(
               fontWeight: FontWeight.bold,
-              fontSize: 72,
+              fontSize: 64,
               color: isCompleted
                   ? theme.colorScheme.primary
                   : theme.colorScheme.onSurface,
@@ -43,17 +45,17 @@ class CircularProgressWidget extends StatelessWidget {
               color: theme.colorScheme.onSurface.withOpacity(0.5),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           if (!isCompleted)
             Text(
-              '$remainingCount remaining',
+              '$remainingCount ${l10n.remaining}',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withOpacity(0.6),
               ),
             ),
           if (isCompleted)
             Text(
-              'Completed!',
+              l10n.completed,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.primary,
                 fontWeight: FontWeight.bold,
@@ -61,9 +63,8 @@ class CircularProgressWidget extends StatelessWidget {
             ),
         ],
       ),
-      progressColor: isCompleted
-          ? theme.colorScheme.primary
-          : theme.colorScheme.primary,
+      progressColor:
+          isCompleted ? theme.colorScheme.primary : theme.colorScheme.primary,
       backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
       circularStrokeCap: CircularStrokeCap.round,
       animation: true,

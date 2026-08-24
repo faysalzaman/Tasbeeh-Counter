@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../providers/settings_provider.dart';
 import '../../router/app_router.dart';
 
@@ -14,32 +15,44 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  String? _selectedLanguage;
 
-  final List<OnboardingPageData> _pages = [
-    OnboardingPageData(
-      icon: Icons.fingerprint,
-      title: 'Digital Tasbeeh',
-      description: 'Count your daily Dhikr with a smooth, beautiful digital counter. Tap the button or use volume keys.',
-    ),
-    OnboardingPageData(
-      icon: Icons.bookmark_border,
-      title: 'Custom Wazifas',
-      description: 'Create your own Wazifas with custom targets, schedules, and reminders.',
-    ),
-    OnboardingPageData(
-      icon: Icons.notifications_active,
-      title: 'Daily Reminders',
-      description: 'Set reminders so you never miss your daily Dhikr practice.',
-    ),
-    OnboardingPageData(
-      icon: Icons.save,
-      title: 'Save & Continue',
-      description: 'Your progress is automatically saved. Continue exactly where you left off.',
-    ),
+  final List<Map<String, String>> _languages = [
+    {'code': 'en', 'name': 'English', 'native': 'English'},
+    {'code': 'ar', 'name': 'Arabic', 'native': 'العربية'},
+    {'code': 'ur', 'name': 'Urdu', 'native': 'اردو'},
   ];
 
+  List<OnboardingPageData> _getPages(BuildContext context) {
+    final l10n = context.l10n;
+    return [
+      OnboardingPageData(
+        icon: Icons.fingerprint,
+        title: l10n.onboardingTitle1,
+        description: l10n.onboardingDesc1,
+      ),
+      OnboardingPageData(
+        icon: Icons.bookmark_border,
+        title: l10n.onboardingTitle2,
+        description: l10n.onboardingDesc2,
+      ),
+      OnboardingPageData(
+        icon: Icons.notifications_active,
+        title: l10n.onboardingTitle3,
+        description: l10n.onboardingDesc3,
+      ),
+      OnboardingPageData(
+        icon: Icons.save,
+        title: l10n.onboardingTitle4,
+        description: l10n.onboardingDesc4,
+      ),
+    ];
+  }
+
+  int get _totalPages => _getPages(context).length + 1; // +1 for language selection
+
   void _nextPage() {
-    if (_currentPage < _pages.length - 1) {
+    if (_currentPage < _totalPages - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -47,6 +60,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     } else {
       _finishOnboarding();
     }
+  }
+
+  void _selectLanguage(String code) {
+    setState(() => _selectedLanguage = code);
+    ref.read(settingsProvider.notifier).updateLanguage(code);
+    _nextPage();
   }
 
   Future<void> _finishOnboarding() async {
@@ -59,6 +78,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final pages = _getPages(context);
 
     return Scaffold(
       body: SafeArea(
@@ -71,7 +92,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: TextButton(
                   onPressed: _finishOnboarding,
-                  child: const Text('Skip'),
+                  child: Text(l10n.skip),
                 ),
               ),
             ),
@@ -80,10 +101,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
                 onPageChanged: (index) => setState(() => _currentPage = index),
-                itemCount: _pages.length,
+                itemCount: _totalPages,
                 itemBuilder: (context, index) {
-                  final page = _pages[index];
+                  // First page is language selection
+                  if (index == 0) {
+                    return _buildLanguageSelection(context);
+                  }
+
+                  final page = pages[index - 1];
                   return Padding(
                     padding: const EdgeInsets.all(32.0),
                     child: Column(
@@ -129,7 +156,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                _pages.length,
+                _totalPages,
                 (index) => Container(
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   width: _currentPage == index ? 24 : 8,
@@ -153,16 +180,119 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 width: double.infinity,
                 height: 56,
                 child: FilledButton(
-                  onPressed: _nextPage,
+                  onPressed: _currentPage == 0 ? null : _nextPage,
                   child: Text(
-                    _currentPage == _pages.length - 1 ? 'Get Started' : 'Next',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    _currentPage == _totalPages - 1
+                        ? l10n.getStarted
+                        : l10n.next,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageSelection(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+
+    return Padding(
+      padding: const EdgeInsets.all(32.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.language,
+              size: 56,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 40),
+          Text(
+            l10n.chooseLanguage,
+            style: theme.textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l10n.chooseLanguageSubtitle,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 40),
+          ..._languages.map((lang) {
+            final isSelected = _selectedLanguage == lang['code'];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Card(
+                elevation: isSelected ? 2 : 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: isSelected
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.outline.withOpacity(0.2),
+                    width: isSelected ? 2 : 1,
+                  ),
+                ),
+                child: ListTile(
+                  onTap: () => _selectLanguage(lang['code']!),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        lang['native']![0],
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    lang['name']!,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  subtitle: Text(
+                    lang['native']!,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    ),
+                  ),
+                  trailing: isSelected
+                      ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+                      : null,
+                ),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

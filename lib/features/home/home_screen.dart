@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
-import '../../models/dhikr.dart';
+import '../../core/localization/l10n_extension.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
 import 'widgets/greeting_widget.dart';
@@ -19,6 +18,7 @@ class HomeScreen extends ConsumerWidget {
     final defaultDhikrs = ref.watch(defaultDhikrsProvider);
     final customDhikrs = ref.watch(customDhikrsProvider);
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Scaffold(
       body: SafeArea(
@@ -38,7 +38,7 @@ class HomeScreen extends ConsumerWidget {
                         IconButton(
                           onPressed: () => context.push(AppRoutes.settings),
                           icon: const Icon(Icons.settings_outlined),
-                          tooltip: 'Settings',
+                          tooltip: l10n.settings,
                         ),
                       ],
                     ),
@@ -47,7 +47,7 @@ class HomeScreen extends ConsumerWidget {
                     // Continue Wazifa Section
                     if (activeDhikrs.isNotEmpty) ...[
                       Text(
-                        'Continue Wazifa',
+                        l10n.continueWazifa,
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -59,7 +59,7 @@ class HomeScreen extends ConsumerWidget {
 
                     // Quick Dhikr Section
                     Text(
-                      'Quick Dhikr',
+                      l10n.quickDhikr,
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -73,7 +73,7 @@ class HomeScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'My Wazifas',
+                          l10n.myWazifas,
                           style: theme.textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -81,7 +81,7 @@ class HomeScreen extends ConsumerWidget {
                         TextButton.icon(
                           onPressed: () => context.push(AppRoutes.createWazifa),
                           icon: const Icon(Icons.add, size: 18),
-                          label: const Text('Create'),
+                          label: Text(l10n.create),
                         ),
                       ],
                     ),
@@ -106,16 +106,23 @@ class HomeScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'No custom wazifas yet',
+                          l10n.noCustomWazifas,
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: theme.colorScheme.onSurface.withOpacity(0.5),
                           ),
                         ),
                         const SizedBox(height: 8),
+                        Text(
+                          l10n.noCustomWazifasSubtitle,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.4),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                         ElevatedButton.icon(
                           onPressed: () => context.push(AppRoutes.createWazifa),
                           icon: const Icon(Icons.add),
-                          label: const Text('Create Wazifa'),
+                          label: Text(l10n.createWazifa),
                         ),
                       ],
                     ),
@@ -143,7 +150,7 @@ class HomeScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(AppRoutes.dhikrSelection),
         icon: const Icon(Icons.menu_book),
-        label: const Text('All Azkaar'),
+        label: Text(l10n.allAzkaar),
       ),
     );
   }

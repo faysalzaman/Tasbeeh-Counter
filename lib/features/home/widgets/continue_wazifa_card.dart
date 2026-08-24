@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/localization/l10n_extension.dart';
 import '../../../models/dhikr.dart';
 import '../../../router/app_router.dart';
 
@@ -11,6 +12,7 @@ class ContinueWazifaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final progress = dhikr.progressPercentage;
 
     return Card(
@@ -82,7 +84,7 @@ class ContinueWazifaCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${dhikr.remainingCount} remaining',
+                    '${dhikr.remainingCount} ${l10n.remaining}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurface.withOpacity(0.6),
                     ),

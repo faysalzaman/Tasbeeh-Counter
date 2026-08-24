@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1787555861823,
@@ -12,6 +12,10 @@
                 {
                     "date": 1787555868669,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -10,9 +10,9 @@\n   // This widget is the root of your application.\n   @override\n   Widget build(BuildContext context) {\n     return MaterialApp(\n-      title: 'Flutter',\n+      title: 'Flutter Demo',\n       theme: ThemeData(\n         // This is the theme of your application.\n         //\n         // TRY THIS: Try running your application with \"flutter run\". You'll see\n"
+                },
+                {
+                    "date": 1787559864418,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -6,9 +6,8 @@\n import 'core/localization/generated/app_localizations.dart';\n import 'core/notifications/notification_service.dart';\n import 'core/storage/local_storage.dart';\n import 'core/theme/app_theme.dart';\n-import 'models/app_settings.dart';\n import 'providers/settings_provider.dart';\n import 'router/app_router.dart';\n \n void main() async {\n"
                 }
             ],
             "date": 1787555861823,

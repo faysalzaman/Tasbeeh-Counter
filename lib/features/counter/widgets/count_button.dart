@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../../core/localization/l10n_extension.dart';
 
 class CountButton extends StatefulWidget {
   final VoidCallback? onTap;
@@ -49,6 +50,7 @@ class _CountButtonState extends State<CountButton>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final isDisabled = widget.onTap == null;
 
     return GestureDetector(
@@ -104,7 +106,7 @@ class _CountButtonState extends State<CountButton>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Tap',
+                      l10n.tap,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
