@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/localization/l10n_extension.dart';
-import '../../models/dhikr_schedule.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
 import 'widgets/greeting_widget.dart';
@@ -15,7 +14,7 @@ class HomeScreen extends ConsumerWidget {
     final activeDhikrs = ref.watch(activeDhikrsProvider);
     final defaultDhikrs = ref.watch(defaultDhikrsProvider);
     final customDhikrs = ref.watch(customDhikrsProvider);
-    final suggestedDhikrs = ref.watch(suggestedDhikrsProvider);
+    final relevantNowDhikrs = ref.watch(relevantNowDhikrsProvider);
     final theme = Theme.of(context);
     final l10n = context.l10n;
 
@@ -63,13 +62,7 @@ class HomeScreen extends ConsumerWidget {
                           icon: Icons.bolt,
                           label: l10n.quickDhikr,
                           count: defaultDhikrs.length,
-                          badgeCount: suggestedDhikrs
-                              .where(
-                                (d) => ScheduleHelper.shouldShowNow(
-                                  d.scheduleEnum,
-                                ),
-                              )
-                              .length,
+                          badgeCount: relevantNowDhikrs.length,
                           color: theme.colorScheme.primary,
                           onTap: () => context.push(AppRoutes.quickDhikr),
                         ),

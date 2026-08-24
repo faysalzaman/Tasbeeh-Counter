@@ -56,9 +56,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (await inAppReview.isAvailable()) {
         await inAppReview.requestReview();
       } else {
-        await inAppReview.openStoreListing(
-          appStoreId: AppConstants.appStoreId,
-        );
+        await inAppReview.openStoreListing(appStoreId: AppConstants.appStoreId);
       }
     } catch (e) {
       if (mounted) _showErrorSnackBar(context.l10n.couldNotOpenReview);
@@ -92,9 +90,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   void _showInfoSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _showReminderTimePicker() async {
@@ -126,9 +124,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.settings),
-      ),
+      appBar: AppBar(title: Text(l10n.settings)),
       body: ListView(
         children: [
           // Appearance
@@ -148,15 +144,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: Text(l10n.volumeKeyCounting),
             subtitle: Text(l10n.volumeKeyCountingSubtitle),
             value: settings.volumeKeyCounting,
-            onChanged: (value) =>
-                ref.read(settingsProvider.notifier).updateVolumeKeyCounting(value),
+            onChanged: (value) => ref
+                .read(settingsProvider.notifier)
+                .updateVolumeKeyCounting(value),
           ),
           SwitchListTile(
             secondary: const Icon(Icons.vibration),
             title: Text(l10n.countingVibration),
             value: settings.countingVibration,
-            onChanged: (value) =>
-                ref.read(settingsProvider.notifier).updateCountingVibration(value),
+            onChanged: (value) => ref
+                .read(settingsProvider.notifier)
+                .updateCountingVibration(value),
           ),
           SwitchListTile(
             secondary: const Icon(Icons.volume_up),
@@ -172,15 +170,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             secondary: const Icon(Icons.vibration),
             title: Text(l10n.completionVibration),
             value: settings.completionVibration,
-            onChanged: (value) =>
-                ref.read(settingsProvider.notifier).updateCompletionVibration(value),
+            onChanged: (value) => ref
+                .read(settingsProvider.notifier)
+                .updateCompletionVibration(value),
           ),
           SwitchListTile(
             secondary: const Icon(Icons.celebration),
             title: Text(l10n.completionSound),
             value: settings.completionSound,
-            onChanged: (value) =>
-                ref.read(settingsProvider.notifier).updateCompletionSound(value),
+            onChanged: (value) => ref
+                .read(settingsProvider.notifier)
+                .updateCompletionSound(value),
           ),
 
           // Notifications
@@ -195,7 +195,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   : theme.colorScheme.error,
             ),
             title: Text(l10n.notificationPermission),
-            subtitle: Text(_notificationsEnabled ? l10n.granted : l10n.notGranted),
+            subtitle: Text(
+              _notificationsEnabled ? l10n.granted : l10n.notGranted,
+            ),
             trailing: !_notificationsEnabled
                 ? TextButton(
                     onPressed: _requestNotificationPermission,
@@ -208,8 +210,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: Text(l10n.reminderNotifications),
             subtitle: Text(l10n.reminderNotificationsSubtitle),
             value: settings.reminderNotifications,
-            onChanged: (value) =>
-                ref.read(settingsProvider.notifier).updateReminderNotifications(value),
+            onChanged: (value) => ref
+                .read(settingsProvider.notifier)
+                .updateReminderNotifications(value),
           ),
           ListTile(
             leading: const Icon(Icons.access_time),
@@ -266,9 +269,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

@@ -72,7 +72,7 @@ class _DhikrCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${dhikr.targetCount}',
+                  '${dhikr.totalTargetCount}',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),

@@ -50,20 +50,26 @@ class DhikrSelectionScreen extends ConsumerWidget {
                         Icon(
                           Icons.bookmark_border,
                           size: 64,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.3,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           l10n.noCustomWazifas,
                           style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.5,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           l10n.noCustomWazifasSubtitle,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.4,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -127,8 +133,7 @@ class _ScheduleChip extends StatelessWidget {
           ? theme.colorScheme.primary.withValues(alpha: 0.1)
           : theme.colorScheme.onSurface.withValues(alpha: 0.05),
       side: isRelevant
-          ? BorderSide(
-              color: theme.colorScheme.primary.withValues(alpha: 0.3))
+          ? BorderSide(color: theme.colorScheme.primary.withValues(alpha: 0.3))
           : BorderSide.none,
     );
   }
@@ -150,6 +155,13 @@ class DhikrListTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
+    final progress = ref.watch(progressByIdProvider(dhikr.id));
+    final targetCount = dhikr.totalTargetCount;
+    final currentCount = progress?.currentCount ?? 0;
+    final isInProgress = currentCount > 0 && currentCount < targetCount;
+    final isCompleted = progress?.isCompleted ?? false;
+    final repeatEnabled = progress?.repeatEnabled ?? false;
+    final scheduleEnum = progress?.scheduleEnum;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -183,10 +195,10 @@ class DhikrListTile extends ConsumerWidget {
                             textDirection: TextDirection.rtl,
                           ),
                         ],
-                        if (dhikr.translation != null) ...[
+                        ...[
                           const SizedBox(height: 4),
                           Text(
-                            dhikr.translation!,
+                            dhikr.translation,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurface.withValues(
                                 alpha: 0.6,
@@ -197,7 +209,7 @@ class DhikrListTile extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  if (dhikr.isInProgress)
+                  if (isInProgress)
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -208,7 +220,7 @@ class DhikrListTile extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '${dhikr.currentCount}/${dhikr.targetCount}',
+                        '$currentCount/$targetCount',
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: theme.colorScheme.primary,
@@ -221,11 +233,11 @@ class DhikrListTile extends ConsumerWidget {
               Row(
                 children: [
                   Chip(
-                    label: Text('${l10n.targetCount}: ${dhikr.targetCount}'),
+                    label: Text('${l10n.targetCount}: $targetCount'),
                     padding: EdgeInsets.zero,
                     visualDensity: VisualDensity.compact,
                   ),
-                  if (dhikr.repeatEnabled)
+                  if (repeatEnabled)
                     Padding(
                       padding: const EdgeInsets.only(left: 8),
                       child: Chip(
@@ -234,10 +246,10 @@ class DhikrListTile extends ConsumerWidget {
                         visualDensity: VisualDensity.compact,
                       ),
                     ),
-                  if (dhikr.schedule != null)
+                  if (scheduleEnum != null)
                     Padding(
                       padding: const EdgeInsets.only(left: 8),
-                      child: _ScheduleChip(schedule: dhikr.scheduleEnum),
+                      child: _ScheduleChip(schedule: scheduleEnum),
                     ),
                   const Spacer(),
                   if (showEdit)
@@ -258,21 +270,25 @@ class DhikrListTile extends ConsumerWidget {
                       tooltip: l10n.delete,
                     ),
                   if (!showEdit && !showDelete)
-                    if (dhikr.isCompleted)
+                    if (isCompleted)
                       Chip(
-                        avatar: Icon(Icons.check_circle, color: theme.colorScheme.primary, size: 18),
+                        avatar: Icon(
+                          Icons.check_circle,
+                          color: theme.colorScheme.primary,
+                          size: 18,
+                        ),
                         label: Text(l10n.completed),
                         padding: EdgeInsets.zero,
                         visualDensity: VisualDensity.compact,
-                        backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+                        backgroundColor: theme.colorScheme.primary.withValues(
+                          alpha: 0.1,
+                        ),
                       )
                     else
                       FilledButton(
                         onPressed: () =>
                             context.push(AppRoutes.counter, extra: dhikr.id),
-                        child: Text(
-                          dhikr.isInProgress ? l10n.continue_ : l10n.start,
-                        ),
+                        child: Text(isInProgress ? l10n.continue_ : l10n.start),
                       ),
                 ],
               ),

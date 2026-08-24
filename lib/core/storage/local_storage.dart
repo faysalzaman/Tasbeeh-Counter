@@ -1,24 +1,33 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import '../../models/dhikr.dart';
 import '../../models/app_settings.dart';
+import '../../models/dhikr.dart';
+import '../../models/dhikr_progress.dart';
 import '../constants/app_constants.dart';
 
 class LocalStorage {
   static LocalStorage? _instance;
   static LocalStorage get instance => _instance!;
 
-  late Box<Dhikr> _dhikrBox;
+  /// Stores custom (user-created) dhikrs as serialized maps.
+  late Box _customDhikrBox;
+
+  /// Stores per-dhikr counting/tracking state.
+  late Box<DhikrProgress> _progressBox;
+
   late Box<AppSettings> _settingsBox;
+
+  /// In-memory default dhikr content, parsed once from [AppConstants].
+  late final List<Dhikr> _defaultDhikrs;
 
   static Future<void> initialize() async {
     await Hive.initFlutter();
 
     // Register adapters
-    if (!Hive.isAdapterRegistered(0)) {
-      Hive.registerAdapter(DhikrAdapter());
-    }
     if (!Hive.isAdapterRegistered(1)) {
       Hive.registerAdapter(AppSettingsAdapter());
+    }
+    if (!Hive.isAdapterRegistered(2)) {
+      Hive.registerAdapter(DhikrProgressAdapter());
     }
 
     _instance = LocalStorage._();
@@ -28,7 +37,8 @@ class LocalStorage {
   LocalStorage._();
 
   Future<void> _initBoxes() async {
-    _dhikrBox = await Hive.openBox<Dhikr>(AppConstants.dhikrBox);
+    _customDhikrBox = await Hive.openBox(AppConstants.customDhikrBox);
+    _progressBox = await Hive.openBox<DhikrProgress>(AppConstants.dhikrProgressBox);
     _settingsBox = await Hive.openBox<AppSettings>(AppConstants.settingsBox);
 
     // Initialize default settings if not present
@@ -36,55 +46,57 @@ class LocalStorage {
       await _settingsBox.put('settings', AppSettings.defaultSettings());
     }
 
-    // Seed any missing default dhikrs (by name) so newly added
-    // defaults appear for existing installs without wiping user data.
-    final existingDefaultNames = _dhikrBox.values
-        .where((d) => d.isDefault)
-        .map((d) => d.name)
-        .toSet();
-
-    for (final dhikrData in AppConstants.defaultDhikrs) {
-      final name = dhikrData['name'] as String;
-      if (existingDefaultNames.contains(name)) continue;
-
-      final dhikr = Dhikr(
-        id: DateTime.now().millisecondsSinceEpoch.toString() + name,
-        name: name,
-        arabicText: dhikrData['arabicText'] as String?,
-        transliteration: dhikrData['transliteration'] as String?,
-        translation: dhikrData['translation'] as String?,
-        targetCount: dhikrData['targetCount'] as int,
-        isDefault: dhikrData['isDefault'] as bool,
-        schedule: dhikrData['schedule'] as String?,
-      );
-      await _dhikrBox.put(dhikr.id, dhikr);
-    }
+    _defaultDhikrs = AppConstants.defaultDhikrs
+        .map((map) => Dhikr.fromMap(Map<String, dynamic>.from(map)))
+        .toList();
   }
 
-  // Dhikr operations
-  List<Dhikr> getAllDhikrs() => _dhikrBox.values.toList();
+  // --- Dhikr content ---
 
-  List<Dhikr> getDefaultDhikrs() =>
-      _dhikrBox.values.where((d) => d.isDefault).toList();
+  List<Dhikr> getDefaultDhikrs() => List.unmodifiable(_defaultDhikrs);
 
-  List<Dhikr> getCustomDhikrs() =>
-      _dhikrBox.values.where((d) => !d.isDefault).toList();
+  List<Dhikr> getCustomDhikrs() => _customDhikrBox.values
+      .map((raw) => Dhikr.fromMap(Map<String, dynamic>.from(raw as Map)))
+      .toList();
 
-  List<Dhikr> getActiveDhikrs() =>
-      _dhikrBox.values.where((d) => d.currentCount > 0 && d.currentCount < d.targetCount).toList();
+  List<Dhikr> getAllDhikrs() => [..._defaultDhikrs, ...getCustomDhikrs()];
 
-  Dhikr? getDhikr(String id) => _dhikrBox.get(id);
+  Dhikr? getDhikr(String id) {
+    for (final d in _defaultDhikrs) {
+      if (d.id == id) return d;
+    }
+    final raw = _customDhikrBox.get(id);
+    if (raw != null) {
+      return Dhikr.fromMap(Map<String, dynamic>.from(raw as Map));
+    }
+    return null;
+  }
 
-  Future<void> saveDhikr(Dhikr dhikr) async {
-    await _dhikrBox.put(dhikr.id, dhikr);
+  Future<void> saveCustomDhikr(Dhikr dhikr) async {
+    await _customDhikrBox.put(dhikr.id, dhikr.toMap());
   }
 
   Future<void> deleteDhikr(String id) async {
-    await _dhikrBox.delete(id);
+    await _customDhikrBox.delete(id);
+    await _progressBox.delete(id);
   }
 
-  // Settings operations
-  AppSettings getSettings() => _settingsBox.get('settings') ?? AppSettings.defaultSettings();
+  // --- Dhikr progress (tracking state) ---
+
+  DhikrProgress? getProgress(String id) => _progressBox.get(id);
+
+  Map<String, DhikrProgress> getAllProgress() {
+    return {for (final p in _progressBox.values) p.id: p};
+  }
+
+  Future<void> saveProgress(DhikrProgress progress) async {
+    await _progressBox.put(progress.id, progress);
+  }
+
+  // --- Settings ---
+
+  AppSettings getSettings() =>
+      _settingsBox.get('settings') ?? AppSettings.defaultSettings();
 
   Future<void> saveSettings(AppSettings settings) async {
     await _settingsBox.put('settings', settings);

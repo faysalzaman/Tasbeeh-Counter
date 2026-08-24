@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../models/dhikr.dart';
+import '../../../providers/dhikr_provider.dart';
 import '../../../router/app_router.dart';
 
-class ContinueWazifaCard extends StatelessWidget {
+class ContinueWazifaCard extends ConsumerWidget {
   final Dhikr dhikr;
 
   const ContinueWazifaCard({super.key, required this.dhikr});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
-    final progress = dhikr.progressPercentage;
+    final progress = ref.watch(progressByIdProvider(dhikr.id));
+    final targetCount = dhikr.totalTargetCount;
+    final currentCount = progress?.currentCount ?? 0;
+    final remainingCount = (targetCount - currentCount).clamp(0, targetCount);
+    final progressPct =
+        targetCount > 0 ? (currentCount / targetCount).clamp(0.0, 1.0) : 0.0;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -56,11 +63,11 @@ class ContinueWazifaCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.1),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '${dhikr.currentCount} / ${dhikr.targetCount}',
+                      '$currentCount / $targetCount',
                       style: theme.textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.primary,
@@ -73,9 +80,9 @@ class ContinueWazifaCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
-                  value: progress,
+                  value: progressPct,
                   minHeight: 8,
-                  backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                  backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
                   valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
                 ),
               ),
@@ -84,13 +91,13 @@ class ContinueWazifaCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${dhikr.remainingCount} ${l10n.remaining}',
+                    '$remainingCount ${l10n.remaining}',
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   Text(
-                    '${(progress * 100).toInt()}%',
+                    '${(progressPct * 100).toInt()}%',
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.primary,

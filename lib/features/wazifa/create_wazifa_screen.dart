@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/localization/l10n_extension.dart';
+import '../../models/dhikr.dart';
+import '../../models/dhikr_progress.dart';
 import '../../models/dhikr_schedule.dart';
 import '../../providers/dhikr_provider.dart';
 
@@ -45,25 +47,28 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
 
   void _loadDhikr() {
     final dhikr = ref.read(dhikrByIdProvider(widget.dhikrId!));
+    final progress = ref.read(progressByIdProvider(widget.dhikrId!));
     if (dhikr != null) {
+      final azkar = dhikr.firstAzkar;
       _nameController.text = dhikr.name;
-      _arabicController.text = dhikr.arabicText ?? '';
-      _transliterationController.text = dhikr.transliteration ?? '';
-      _translationController.text = dhikr.translation ?? '';
-      _targetController.text = dhikr.targetCount.toString();
-      _daysController.text = dhikr.numberOfDays?.toString() ?? '';
-      _notesController.text = dhikr.notes ?? '';
-      _repeatEnabled = dhikr.repeatEnabled;
-      _reminderEnabled = dhikr.reminderEnabled;
-      if (dhikr.reminderTime != null) {
-        final parts = dhikr.reminderTime!.split(':');
+      _arabicController.text = azkar?.arabicText ?? '';
+      _transliterationController.text = azkar?.transliteration ?? '';
+      _translationController.text = dhikr.translation;
+      _targetController.text = (azkar?.targetCount ?? dhikr.totalTargetCount)
+          .toString();
+      _daysController.text = progress?.numberOfDays?.toString() ?? '';
+      _notesController.text = progress?.notes ?? '';
+      _repeatEnabled = progress?.repeatEnabled ?? false;
+      _reminderEnabled = progress?.reminderEnabled ?? false;
+      if (progress?.reminderTime != null) {
+        final parts = progress!.reminderTime!.split(':');
         _reminderTime = TimeOfDay(
           hour: int.parse(parts[0]),
           minute: int.parse(parts[1]),
         );
       }
-      _startDate = dhikr.startDate;
-      _schedule = dhikr.scheduleEnum;
+      _startDate = progress?.startDate;
+      _schedule = progress?.scheduleEnum;
       setState(() {});
     }
   }
@@ -94,6 +99,9 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final name = _nameController.text.trim();
+    final arabicText = _arabicController.text.trim();
+    final transliteration = _transliterationController.text.trim();
+    final translation = _translationController.text.trim();
     final targetCount = int.tryParse(_targetController.text) ?? 100;
     final numberOfDays = int.tryParse(_daysController.text);
     final reminderTimeStr = _reminderTime != null
@@ -101,20 +109,37 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
         : null;
 
     if (_isEditing && widget.dhikrId != null) {
+      final repository = ref.read(dhikrRepositoryProvider);
       final existing = ref.read(dhikrByIdProvider(widget.dhikrId!));
       if (existing != null) {
-        final updated = existing.copyWith(
+        final baseAzkar = existing.firstAzkar ??
+            AzkarItem(
+              id: existing.id,
+              arabicText: arabicText,
+              transliteration: transliteration,
+              translation: translation,
+              targetCount: targetCount,
+            );
+
+        final updatedDhikr = existing.copyWith(
           name: name,
-          arabicText: _arabicController.text.trim().isEmpty
-              ? null
-              : _arabicController.text.trim(),
-          transliteration: _transliterationController.text.trim().isEmpty
-              ? null
-              : _transliterationController.text.trim(),
-          translation: _translationController.text.trim().isEmpty
-              ? null
-              : _translationController.text.trim(),
-          targetCount: targetCount,
+          arabicTitle: name,
+          translation: translation,
+          azkar: [
+            baseAzkar.copyWith(
+              arabicText: arabicText,
+              transliteration: transliteration,
+              translation: translation,
+              targetCount: targetCount,
+            ),
+          ],
+        );
+        await repository.saveDhikr(updatedDhikr);
+
+        final existingProgress =
+            repository.getProgress(widget.dhikrId!) ??
+            DhikrProgress(id: widget.dhikrId!);
+        var updatedProgress = existingProgress.copyWith(
           repeatEnabled: _repeatEnabled,
           reminderEnabled: _reminderEnabled,
           reminderTime: reminderTimeStr,
@@ -125,22 +150,24 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
               : _notesController.text.trim(),
           schedule: _schedule?.name,
         );
-        await ref.read(dhikrListNotifierProvider.notifier).saveDhikr(updated);
+        if (numberOfDays != null && _startDate != null) {
+          updatedProgress = updatedProgress.copyWith(
+            endDate: _startDate!.add(Duration(days: numberOfDays)),
+          );
+        }
+        await repository.saveProgress(updatedProgress);
+
+        ref.read(dhikrListNotifierProvider.notifier).refresh();
+        ref.read(progressListNotifierProvider.notifier).refresh();
       }
     } else {
       await ref
           .read(dhikrListNotifierProvider.notifier)
           .createCustomDhikr(
             name: name,
-            arabicText: _arabicController.text.trim().isEmpty
-                ? null
-                : _arabicController.text.trim(),
-            transliteration: _transliterationController.text.trim().isEmpty
-                ? null
-                : _transliterationController.text.trim(),
-            translation: _translationController.text.trim().isEmpty
-                ? null
-                : _translationController.text.trim(),
+            arabicText: arabicText,
+            transliteration: transliteration,
+            translation: translation,
             targetCount: targetCount,
             repeatEnabled: _repeatEnabled,
             reminderEnabled: _reminderEnabled,

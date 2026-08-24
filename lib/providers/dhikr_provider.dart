@@ -1,11 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/storage/local_storage.dart';
 import '../models/dhikr.dart';
-import '../models/dhikr_schedule.dart';
+import '../models/dhikr_progress.dart';
 import '../repositories/dhikr_repository.dart';
 
 final dhikrRepositoryProvider = Provider<DhikrRepository>((ref) {
   return DhikrRepository(LocalStorage.instance);
+});
+
+// --- Content ---
+
+final dhikrListNotifierProvider =
+    StateNotifierProvider<DhikrListNotifier, List<Dhikr>>((ref) {
+  return DhikrListNotifier(ref.watch(dhikrRepositoryProvider));
 });
 
 final allDhikrsProvider = Provider<List<Dhikr>>((ref) {
@@ -19,61 +26,63 @@ final defaultDhikrsProvider = Provider<List<Dhikr>>((ref) {
 
 final customDhikrsProvider = Provider<List<Dhikr>>((ref) {
   final all = ref.watch(dhikrListNotifierProvider);
-  return all.where((d) => !d.isDefault).toList();
-});
-
-final activeDhikrsProvider = Provider<List<Dhikr>>((ref) {
-  final all = ref.watch(dhikrListNotifierProvider);
-  return all
-      .where((d) => d.currentCount > 0 && d.currentCount < d.targetCount)
-      .toList();
+  return all.where((d) => d.isCustom).toList();
 });
 
 final dhikrByIdProvider = Provider.family<Dhikr?, String>((ref, id) {
   final all = ref.watch(dhikrListNotifierProvider);
-  try {
-    return all.firstWhere((d) => d.id == id);
-  } catch (e) {
-    return null;
+  for (final d in all) {
+    if (d.id == id) return d;
   }
+  return null;
+});
+
+// --- Progress ---
+
+final progressListNotifierProvider =
+    StateNotifierProvider<ProgressListNotifier, Map<String, DhikrProgress>>(
+        (ref) {
+  return ProgressListNotifier(ref.watch(dhikrRepositoryProvider));
+});
+
+final progressByIdProvider =
+    Provider.family<DhikrProgress?, String>((ref, id) {
+  return ref.watch(progressListNotifierProvider)[id];
+});
+
+// --- Joined views ---
+
+final activeDhikrsProvider = Provider<List<Dhikr>>((ref) {
+  final all = ref.watch(dhikrListNotifierProvider);
+  final progress = ref.watch(progressListNotifierProvider);
+  return all.where((d) {
+    final p = progress[d.id];
+    if (p == null) return false;
+    return p.currentCount > 0 && p.currentCount < d.totalTargetCount;
+  }).toList();
 });
 
 final suggestedDhikrsProvider = Provider<List<Dhikr>>((ref) {
-  final all = ref.watch(dhikrListNotifierProvider);
-  final activeSchedules = ScheduleHelper.activeSchedulesNow;
-
-  final defaults = all.where((d) => d.isDefault).toList();
-
-  // Sort: relevant schedules first, then daily, then others
-  defaults.sort((a, b) {
-    final aSchedule = a.scheduleEnum;
-    final bSchedule = b.scheduleEnum;
-
-    final aRelevant = aSchedule == null || activeSchedules.contains(aSchedule);
-    final bRelevant = bSchedule == null || activeSchedules.contains(bSchedule);
-
+  final defaults = ref.watch(defaultDhikrsProvider);
+  final list = [...defaults];
+  list.sort((a, b) {
+    final aRelevant = isDhikrCategoryRelevantNow(a.category);
+    final bRelevant = isDhikrCategoryRelevantNow(b.category);
     if (aRelevant && !bRelevant) return -1;
     if (!aRelevant && bRelevant) return 1;
-
-    // Both relevant: daily first, then specific schedules
-    if (aSchedule == DhikrSchedule.daily && bSchedule != DhikrSchedule.daily) {
-      return -1;
-    }
-    if (aSchedule != DhikrSchedule.daily && bSchedule == DhikrSchedule.daily) {
-      return 1;
-    }
-
     return 0;
   });
-
-  return defaults;
+  return list;
 });
 
-final dhikrListNotifierProvider =
-    StateNotifierProvider<DhikrListNotifier, List<Dhikr>>((ref) {
-      final repository = ref.watch(dhikrRepositoryProvider);
-      return DhikrListNotifier(repository);
-    });
+final relevantNowDhikrsProvider = Provider<List<Dhikr>>((ref) {
+  return ref
+      .watch(defaultDhikrsProvider)
+      .where((d) => isDhikrCategoryRelevantNow(d.category))
+      .toList();
+});
+
+// --- Notifiers ---
 
 class DhikrListNotifier extends StateNotifier<List<Dhikr>> {
   final DhikrRepository _repository;
@@ -94,11 +103,13 @@ class DhikrListNotifier extends StateNotifier<List<Dhikr>> {
     refresh();
   }
 
-  Future<void> createCustomDhikr({
+  Future<Dhikr> createCustomDhikr({
     required String name,
+    String? arabicTitle,
+    String? translation,
+    String? description,
     String? arabicText,
     String? transliteration,
-    String? translation,
     required int targetCount,
     bool repeatEnabled = false,
     bool reminderEnabled = false,
@@ -108,11 +119,13 @@ class DhikrListNotifier extends StateNotifier<List<Dhikr>> {
     String? notes,
     String? schedule,
   }) async {
-    await _repository.createCustomDhikr(
+    final dhikr = await _repository.createCustomDhikr(
       name: name,
+      arabicTitle: arabicTitle,
+      translation: translation,
+      description: description,
       arabicText: arabicText,
       transliteration: transliteration,
-      translation: translation,
       targetCount: targetCount,
       repeatEnabled: repeatEnabled,
       reminderEnabled: reminderEnabled,
@@ -123,5 +136,16 @@ class DhikrListNotifier extends StateNotifier<List<Dhikr>> {
       schedule: schedule,
     );
     refresh();
+    return dhikr;
+  }
+}
+
+class ProgressListNotifier extends StateNotifier<Map<String, DhikrProgress>> {
+  final DhikrRepository _repository;
+
+  ProgressListNotifier(this._repository) : super(_repository.getAllProgress());
+
+  void refresh() {
+    state = _repository.getAllProgress();
   }
 }

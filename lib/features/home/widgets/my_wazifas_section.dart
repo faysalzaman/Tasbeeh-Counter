@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/localization/l10n_extension.dart';
 import '../../../models/dhikr.dart';
+import '../../../providers/dhikr_provider.dart';
 import '../../../router/app_router.dart';
 
 class MyWazifaCard extends ConsumerWidget {
@@ -14,8 +15,14 @@ class MyWazifaCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
-    final progress = dhikr.progressPercentage;
-    final isCompleted = dhikr.isCompleted;
+    final progress = ref.watch(progressByIdProvider(dhikr.id));
+    final targetCount = dhikr.totalTargetCount;
+    final currentCount = progress?.currentCount ?? 0;
+    final isCompleted = progress?.isCompleted ?? false;
+    final reminderEnabled = progress?.reminderEnabled ?? false;
+    final repeatEnabled = progress?.repeatEnabled ?? false;
+    final progressPct =
+        targetCount > 0 ? (currentCount / targetCount).clamp(0.0, 1.0) : 0.0;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -74,7 +81,7 @@ class MyWazifaCard extends ConsumerWidget {
                               size: 24,
                             )
                           : Text(
-                              '${(progress * 100).toInt()}%',
+                              '${(progressPct * 100).toInt()}%',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: theme.colorScheme.primary,
@@ -88,15 +95,13 @@ class MyWazifaCard extends ConsumerWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(
-                  value: progress.clamp(0.0, 1.0),
+                  value: progressPct,
                   minHeight: 6,
                   backgroundColor: theme.colorScheme.primary.withValues(
                     alpha: 0.1,
                   ),
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    isCompleted
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.primary,
+                    theme.colorScheme.primary,
                   ),
                 ),
               ),
@@ -105,7 +110,7 @@ class MyWazifaCard extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${dhikr.currentCount} / ${dhikr.targetCount}',
+                    '$currentCount / $targetCount',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
@@ -113,7 +118,7 @@ class MyWazifaCard extends ConsumerWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (dhikr.reminderEnabled)
+                      if (reminderEnabled)
                         Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: Icon(
@@ -124,7 +129,7 @@ class MyWazifaCard extends ConsumerWidget {
                             ),
                           ),
                         ),
-                      if (dhikr.repeatEnabled)
+                      if (repeatEnabled)
                         Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: Icon(

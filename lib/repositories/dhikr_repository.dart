@@ -1,10 +1,13 @@
 import '../core/storage/local_storage.dart';
 import '../models/dhikr.dart';
+import '../models/dhikr_progress.dart';
 
 class DhikrRepository {
   final LocalStorage _storage;
 
   DhikrRepository(this._storage);
+
+  // --- Content ---
 
   List<Dhikr> getAllDhikrs() => _storage.getAllDhikrs();
 
@@ -12,71 +15,78 @@ class DhikrRepository {
 
   List<Dhikr> getCustomDhikrs() => _storage.getCustomDhikrs();
 
-  List<Dhikr> getActiveDhikrs() => _storage.getActiveDhikrs();
-
   Dhikr? getDhikr(String id) => _storage.getDhikr(id);
 
   Future<void> saveDhikr(Dhikr dhikr) async {
-    await _storage.saveDhikr(dhikr);
+    if (dhikr.isDefault) return;
+    await _storage.saveCustomDhikr(dhikr);
   }
 
   Future<void> deleteDhikr(String id) async {
     await _storage.deleteDhikr(id);
   }
 
-  Future<void> incrementCount(String id) async {
-    final dhikr = _storage.getDhikr(id);
-    if (dhikr == null) return;
+  // --- Progress ---
 
-    final newCount = dhikr.currentCount + 1;
-    final updated = dhikr.copyWith(
-      currentCount: newCount,
+  DhikrProgress? getProgress(String id) => _storage.getProgress(id);
+
+  Map<String, DhikrProgress> getAllProgress() => _storage.getAllProgress();
+
+  Future<void> saveProgress(DhikrProgress progress) async {
+    await _storage.saveProgress(progress);
+  }
+
+  Future<DhikrProgress> incrementCount(String id) async {
+    final progress = _storage.getProgress(id) ?? DhikrProgress(id: id);
+    final updated = progress.copyWith(
+      currentCount: progress.currentCount + 1,
       lastSessionDate: DateTime.now(),
     );
-    await _storage.saveDhikr(updated);
+    await _storage.saveProgress(updated);
+    return updated;
   }
 
   Future<void> resetCount(String id) async {
-    final dhikr = _storage.getDhikr(id);
-    if (dhikr == null) return;
-
-    final updated = dhikr.copyWith(
+    final progress = _storage.getProgress(id);
+    if (progress == null) return;
+    final updated = progress.copyWith(
       currentCount: 0,
       roundCount: 1,
       isCompleted: false,
       lastSessionDate: DateTime.now(),
     );
-    await _storage.saveDhikr(updated);
+    await _storage.saveProgress(updated);
   }
 
-  Future<void> completeDhikr(String id) async {
-    final dhikr = _storage.getDhikr(id);
-    if (dhikr == null) return;
+  Future<void> completeDhikr(String id, int targetCount) async {
+    final progress = _storage.getProgress(id);
+    if (progress == null) return;
 
-    if (dhikr.repeatEnabled) {
-      // Start next round
-      final updated = dhikr.copyWith(
+    if (progress.repeatEnabled) {
+      final updated = progress.copyWith(
         currentCount: 0,
-        roundCount: dhikr.roundCount + 1,
+        roundCount: progress.roundCount + 1,
         lastSessionDate: DateTime.now(),
       );
-      await _storage.saveDhikr(updated);
+      await _storage.saveProgress(updated);
     } else {
-      final updated = dhikr.copyWith(
+      final updated = progress.copyWith(
         isCompleted: true,
-        currentCount: dhikr.targetCount,
+        currentCount: targetCount,
         lastSessionDate: DateTime.now(),
       );
-      await _storage.saveDhikr(updated);
+      await _storage.saveProgress(updated);
     }
   }
 
-  Future<void> createCustomDhikr({
+  Future<Dhikr> createCustomDhikr({
     required String name,
+    String? arabicTitle,
+    String? translation,
+    String? description,
     String? arabicText,
     String? transliteration,
-    String? translation,
-    required int targetCount,
+    int targetCount = 100,
     bool repeatEnabled = false,
     bool reminderEnabled = false,
     String? reminderTime,
@@ -89,11 +99,27 @@ class DhikrRepository {
     final dhikr = Dhikr(
       id: id,
       name: name,
-      arabicText: arabicText,
-      transliteration: transliteration,
-      translation: translation,
-      targetCount: targetCount,
+      arabicTitle: arabicTitle?.isNotEmpty == true ? arabicTitle! : name,
+      translation: translation ?? '',
+      description: description ?? '',
+      type: DhikrType.single,
+      category: DhikrCategory.general,
+      azkar: [
+        AzkarItem(
+          id: id,
+          arabicText: arabicText ?? '',
+          transliteration: transliteration ?? '',
+          translation: translation ?? '',
+          targetCount: targetCount,
+        ),
+      ],
       isDefault: false,
+      isCustom: true,
+      createdAt: DateTime.now(),
+    );
+
+    final progress = DhikrProgress(
+      id: id,
       repeatEnabled: repeatEnabled,
       reminderEnabled: reminderEnabled,
       reminderTime: reminderTime,
@@ -104,13 +130,11 @@ class DhikrRepository {
     );
 
     if (numberOfDays != null && startDate != null) {
-      dhikr.endDate = startDate.add(Duration(days: numberOfDays));
+      progress.endDate = startDate.add(Duration(days: numberOfDays));
     }
 
-    await _storage.saveDhikr(dhikr);
-  }
-
-  Future<void> updateDhikr(Dhikr dhikr) async {
-    await _storage.saveDhikr(dhikr);
+    await _storage.saveCustomDhikr(dhikr);
+    await _storage.saveProgress(progress);
+    return dhikr;
   }
 }

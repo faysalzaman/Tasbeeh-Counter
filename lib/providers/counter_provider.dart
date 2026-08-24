@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/audio/audio_service.dart';
 import '../core/haptics/haptics_service.dart';
-import '../models/dhikr.dart';
 import '../models/app_settings.dart';
+import '../models/dhikr.dart';
+import '../models/dhikr_progress.dart';
+import '../repositories/dhikr_repository.dart';
 import 'dhikr_provider.dart';
 import 'settings_provider.dart';
 
@@ -16,11 +18,11 @@ final currentDhikrProvider = Provider<Dhikr?>((ref) {
 
 final counterStateProvider =
     StateNotifierProvider<CounterNotifier, CounterState>((ref) {
-      final dhikrRepo = ref.watch(dhikrRepositoryProvider);
-      final settings = ref.watch(settingsProvider);
-      final dhikrListNotifier = ref.watch(dhikrListNotifierProvider.notifier);
-      return CounterNotifier(dhikrRepo, settings, dhikrListNotifier);
-    });
+  final dhikrRepo = ref.watch(dhikrRepositoryProvider);
+  final settings = ref.watch(settingsProvider);
+  final progressNotifier = ref.watch(progressListNotifierProvider.notifier);
+  return CounterNotifier(dhikrRepo, settings, progressNotifier);
+});
 
 class CounterState {
   final bool isCompleted;
@@ -52,30 +54,35 @@ class CounterState {
 }
 
 class CounterNotifier extends StateNotifier<CounterState> {
-  final dynamic _repository;
+  final DhikrRepository _repository;
   final AppSettings _settings;
-  final dynamic _listNotifier;
+  final ProgressListNotifier _progressNotifier;
   final AudioService _audio = AudioService();
   final HapticsService _haptics = HapticsService();
 
-  CounterNotifier(this._repository, this._settings, this._listNotifier)
-    : super(const CounterState());
+  CounterNotifier(this._repository, this._settings, this._progressNotifier)
+      : super(const CounterState());
 
   void setDhikr(Dhikr dhikr) {
+    final progress = _repository.getProgress(dhikr.id);
     state = CounterState(
-      displayCount: dhikr.currentCount,
-      roundCount: dhikr.roundCount,
-      isCompleted: dhikr.isCompleted,
+      displayCount: progress?.currentCount ?? 0,
+      roundCount: progress?.roundCount ?? 1,
+      isCompleted: progress?.isCompleted ?? false,
     );
   }
 
   Future<void> increment(String dhikrId) async {
     final dhikr = _repository.getDhikr(dhikrId);
     if (dhikr == null) return;
-    if (dhikr.isCompleted && !dhikr.repeatEnabled) return;
 
-    final newCount = dhikr.currentCount + 1;
-    final isTargetReached = newCount >= dhikr.targetCount;
+    var progress = _repository.getProgress(dhikrId);
+    progress ??= DhikrProgress(id: dhikrId);
+    if (progress.isCompleted && !progress.repeatEnabled) return;
+
+    final target = dhikr.totalTargetCount;
+    final newCount = progress.currentCount + 1;
+    final isTargetReached = target > 0 && newCount >= target;
 
     // Update state immediately for smooth UI
     state = state.copyWith(displayCount: newCount);
@@ -92,16 +99,18 @@ class CounterNotifier extends StateNotifier<CounterState> {
 
     // Persist to storage
     await _repository.incrementCount(dhikrId);
-    _listNotifier.refresh();
+    _progressNotifier.refresh();
 
     if (isTargetReached) {
-      await _handleCompletion(dhikrId);
+      await _handleCompletion(dhikrId, target);
     }
   }
 
-  Future<void> _handleCompletion(String dhikrId) async {
+  Future<void> _handleCompletion(String dhikrId, int target) async {
     final dhikr = _repository.getDhikr(dhikrId);
     if (dhikr == null) return;
+    final progress = _repository.getProgress(dhikrId);
+    if (progress == null) return;
 
     // Show completion animation
     state = state.copyWith(isCompleted: true, showCompletionAnimation: true);
@@ -117,43 +126,44 @@ class CounterNotifier extends StateNotifier<CounterState> {
     }
 
     // Complete dhikr / start next round
-    await _repository.completeDhikr(dhikrId);
-    _listNotifier.refresh();
+    await _repository.completeDhikr(dhikrId, target);
+    _progressNotifier.refresh();
 
     // If repeat mode, reset after animation
-    if (dhikr.repeatEnabled) {
+    if (progress.repeatEnabled) {
       await Future.delayed(const Duration(seconds: 2));
       final updatedDhikr = _repository.getDhikr(dhikrId);
       if (updatedDhikr != null) {
-        state = CounterState(
-          displayCount: updatedDhikr.currentCount,
-          roundCount: updatedDhikr.roundCount,
-          isCompleted: false,
-          showCompletionAnimation: false,
-        );
+        final updated = _repository.getProgress(dhikrId);
+        if (updated != null) {
+          state = CounterState(
+            displayCount: updated.currentCount,
+            roundCount: updated.roundCount,
+            isCompleted: false,
+            showCompletionAnimation: false,
+          );
+        }
       }
     }
   }
 
   Future<void> reset(String dhikrId) async {
     await _repository.resetCount(dhikrId);
-    _listNotifier.refresh();
+    _progressNotifier.refresh();
 
-    final dhikr = _repository.getDhikr(dhikrId);
-    if (dhikr != null) {
-      state = CounterState(
-        displayCount: dhikr.currentCount,
-        roundCount: dhikr.roundCount,
-      );
-    }
+    final progress = _repository.getProgress(dhikrId);
+    state = CounterState(
+      displayCount: progress?.currentCount ?? 0,
+      roundCount: progress?.roundCount ?? 1,
+    );
   }
 
   Future<void> saveAndExit(String dhikrId) async {
-    final dhikr = _repository.getDhikr(dhikrId);
-    if (dhikr != null) {
-      final updated = dhikr.copyWith(lastSessionDate: DateTime.now());
-      await _repository.saveDhikr(updated);
-      _listNotifier.refresh();
+    final progress = _repository.getProgress(dhikrId);
+    if (progress != null) {
+      final updated = progress.copyWith(lastSessionDate: DateTime.now());
+      await _repository.saveProgress(updated);
+      _progressNotifier.refresh();
     }
   }
 

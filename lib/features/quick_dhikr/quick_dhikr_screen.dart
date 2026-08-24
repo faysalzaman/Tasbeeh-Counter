@@ -72,14 +72,20 @@ class _ScheduleChip extends StatelessWidget {
   }
 }
 
-class _DhikrListTile extends StatelessWidget {
+class _DhikrListTile extends ConsumerWidget {
   final Dhikr dhikr;
 
   const _DhikrListTile({required this.dhikr});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final progress = ref.watch(progressByIdProvider(dhikr.id));
+    final targetCount = dhikr.totalTargetCount;
+    final currentCount = progress?.currentCount ?? 0;
+    final isInProgress = currentCount > 0 && currentCount < targetCount;
+    final isCompleted = progress?.isCompleted ?? false;
+    final scheduleEnum = progress?.scheduleEnum;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -113,10 +119,10 @@ class _DhikrListTile extends StatelessWidget {
                             textDirection: TextDirection.rtl,
                           ),
                         ],
-                        if (dhikr.translation != null) ...[
+                        if (dhikr.translation.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
-                            dhikr.translation!,
+                            dhikr.translation,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurface.withValues(
                                 alpha: 0.6,
@@ -133,16 +139,16 @@ class _DhikrListTile extends StatelessWidget {
               Row(
                 children: [
                   Chip(
-                    label: Text('${context.l10n.targetCount}: ${dhikr.targetCount}'),
+                    label: Text('${context.l10n.targetCount}: $targetCount'),
                     padding: EdgeInsets.zero,
                     visualDensity: VisualDensity.compact,
                   ),
-                  if (dhikr.schedule != null) ...[
+                  if (scheduleEnum != null) ...[
                     const SizedBox(width: 8),
-                    _ScheduleChip(schedule: dhikr.scheduleEnum),
+                    _ScheduleChip(schedule: scheduleEnum),
                   ],
                   const Spacer(),
-                  if (dhikr.isCompleted)
+                  if (isCompleted)
                     Chip(
                       avatar: Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary, size: 18),
                       label: Text(context.l10n.completed),
@@ -153,7 +159,7 @@ class _DhikrListTile extends StatelessWidget {
                   else
                     FilledButton(
                       onPressed: () => context.push(AppRoutes.counter, extra: dhikr.id),
-                      child: Text(dhikr.isInProgress ? context.l10n.continue_ : context.l10n.start),
+                      child: Text(isInProgress ? context.l10n.continue_ : context.l10n.start),
                     ),
                 ],
               ),

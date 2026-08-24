@@ -48,7 +48,6 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
       ref.read(counterStateProvider.notifier).setDhikr(dhikr);
     }
   }
-
   void _setupVolumeKeys() {
     final settings = ref.read(settingsProvider);
     if (!settings.volumeKeyCounting) return;
@@ -70,7 +69,9 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
 
   void _handleCount() {
     final dhikr = ref.read(dhikrByIdProvider(widget.dhikrId));
-    if (dhikr != null && !dhikr.isCompleted) {
+    final progress = ref.read(progressByIdProvider(widget.dhikrId));
+    final isCompleted = progress?.isCompleted ?? false;
+    if (dhikr != null && !isCompleted) {
       ref.read(counterStateProvider.notifier).increment(widget.dhikrId);
     }
   }
@@ -115,12 +116,17 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
   @override
   Widget build(BuildContext context) {
     final dhikr = ref.watch(dhikrByIdProvider(widget.dhikrId));
+    final progress = ref.watch(progressByIdProvider(widget.dhikrId));
     final counterState = ref.watch(counterStateProvider);
     final l10n = context.l10n;
 
     if (dhikr == null) {
       return Scaffold(body: Center(child: Text(l10n.noCustomWazifas)));
     }
+
+    final targetCount = dhikr.totalTargetCount;
+    final isCompleted = progress?.isCompleted ?? false;
+    final repeatEnabled = progress?.repeatEnabled ?? false;
 
     // Trigger confetti on completion
     if (counterState.showCompletionAnimation &&
@@ -132,7 +138,7 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
       appBar: AppBar(
         title: Text(dhikr.name),
         actions: [
-          if (dhikr.repeatEnabled)
+          if (repeatEnabled)
             Padding(
               padding: const EdgeInsets.only(right: 16),
               child: Center(
@@ -210,19 +216,19 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
 
                           // Circular Progress & Counter
                           CircularProgressWidget(
-                            progress: dhikr.targetCount > 0
-                                ? counterState.displayCount / dhikr.targetCount
+                            progress: targetCount > 0
+                                ? counterState.displayCount / targetCount
                                 : 0,
                             currentCount: counterState.displayCount,
-                            targetCount: dhikr.targetCount,
+                            targetCount: targetCount,
                             remainingCount:
-                                dhikr.targetCount - counterState.displayCount,
+                                targetCount - counterState.displayCount,
                           ),
 
                           const SizedBox(height: 24),
 
                           // Completion message
-                          if (counterState.isCompleted && !dhikr.repeatEnabled)
+                          if (counterState.isCompleted && !repeatEnabled)
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 24,
@@ -259,7 +265,7 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
                     children: [
                       // Count button
                       CountButton(
-                        onTap: dhikr.isCompleted && !dhikr.repeatEnabled
+                        onTap: isCompleted && !repeatEnabled
                             ? null
                             : _handleCount,
                       ),
