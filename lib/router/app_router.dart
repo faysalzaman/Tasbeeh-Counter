@@ -5,6 +5,9 @@ import '../features/dhikr_selection/dhikr_selection_screen.dart';
 import '../features/wazifa/create_wazifa_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
+import '../features/quick_dhikr/quick_dhikr_screen.dart';
+import '../features/my_wazifas/my_wazifas_screen.dart';
+import '../features/continue_wazifa/continue_wazifa_screen.dart';
 
 class AppRoutes {
   static const String home = '/';
@@ -13,6 +16,9 @@ class AppRoutes {
   static const String dhikrSelection = '/dhikr-selection';
   static const String createWazifa = '/create-wazifa';
   static const String settings = '/settings';
+  static const String quickDhikr = '/quick-dhikr';
+  static const String myWazifas = '/my-wazifas';
+  static const String continueWazifa = '/continue-wazifa';
 }
 
 final appRouter = GoRouter(
@@ -47,6 +53,18 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.settings,
       builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.quickDhikr,
+      builder: (context, state) => const QuickDhikrScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.myWazifas,
+      builder: (context, state) => const MyWazifasScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.continueWazifa,
+      builder: (context, state) => const ContinueWazifaScreen(),
     ),
   ],
 );

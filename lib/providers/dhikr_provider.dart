@@ -8,34 +8,40 @@ final dhikrRepositoryProvider = Provider<DhikrRepository>((ref) {
 });
 
 final allDhikrsProvider = Provider<List<Dhikr>>((ref) {
-  final repository = ref.watch(dhikrRepositoryProvider);
-  return repository.getAllDhikrs();
+  return ref.watch(dhikrListNotifierProvider);
 });
 
 final defaultDhikrsProvider = Provider<List<Dhikr>>((ref) {
-  final repository = ref.watch(dhikrRepositoryProvider);
-  return repository.getDefaultDhikrs();
+  final all = ref.watch(dhikrListNotifierProvider);
+  return all.where((d) => d.isDefault).toList();
 });
 
 final customDhikrsProvider = Provider<List<Dhikr>>((ref) {
-  final repository = ref.watch(dhikrRepositoryProvider);
-  return repository.getCustomDhikrs();
+  final all = ref.watch(dhikrListNotifierProvider);
+  return all.where((d) => !d.isDefault).toList();
 });
 
 final activeDhikrsProvider = Provider<List<Dhikr>>((ref) {
-  final repository = ref.watch(dhikrRepositoryProvider);
-  return repository.getActiveDhikrs();
+  final all = ref.watch(dhikrListNotifierProvider);
+  return all
+      .where((d) => d.currentCount > 0 && d.currentCount < d.targetCount)
+      .toList();
 });
 
 final dhikrByIdProvider = Provider.family<Dhikr?, String>((ref, id) {
-  final repository = ref.watch(dhikrRepositoryProvider);
-  return repository.getDhikr(id);
+  final all = ref.watch(dhikrListNotifierProvider);
+  try {
+    return all.firstWhere((d) => d.id == id);
+  } catch (e) {
+    return null;
+  }
 });
 
-final dhikrListNotifierProvider = StateNotifierProvider<DhikrListNotifier, List<Dhikr>>((ref) {
-  final repository = ref.watch(dhikrRepositoryProvider);
-  return DhikrListNotifier(repository);
-});
+final dhikrListNotifierProvider =
+    StateNotifierProvider<DhikrListNotifier, List<Dhikr>>((ref) {
+      final repository = ref.watch(dhikrRepositoryProvider);
+      return DhikrListNotifier(repository);
+    });
 
 class DhikrListNotifier extends StateNotifier<List<Dhikr>> {
   final DhikrRepository _repository;
