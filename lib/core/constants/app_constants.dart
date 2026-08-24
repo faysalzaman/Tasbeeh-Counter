@@ -1,3 +1,5 @@
+// app_constants.dart
+
 class AppConstants {
   AppConstants._();
 
@@ -19,6 +21,9 @@ class AppConstants {
       'Reminders for your daily dhikr and wazifas';
 
   static const List<Map<String, dynamic>> defaultDhikrs = [
+    // ============================================================
+    // 1. SUBHANALLAH
+    // ============================================================
     {
       'id': 'subhanallah',
       'name': 'SubhanAllah',
@@ -50,6 +55,9 @@ class AppConstants {
       'isCustom': false,
     },
 
+    // ============================================================
+    // 2. ALHAMDULILLAH
+    // ============================================================
     {
       'id': 'alhamdulillah',
       'name': 'Alhamdulillah',
@@ -80,6 +88,9 @@ class AppConstants {
       'isCustom': false,
     },
 
+    // ============================================================
+    // 3. ALLAHU AKBAR
+    // ============================================================
     {
       'id': 'allahu_akbar',
       'name': 'Allahu Akbar',
@@ -111,6 +122,9 @@ class AppConstants {
       'isCustom': false,
     },
 
+    // ============================================================
+    // 4. ASTAGHFIRULLAH
+    // ============================================================
     {
       'id': 'astaghfirullah',
       'name': 'Astaghfirullah',
@@ -139,6 +153,9 @@ class AppConstants {
       'isCustom': false,
     },
 
+    // ============================================================
+    // 5. LA ILAHA ILLALLAH
+    // ============================================================
     {
       'id': 'la_ilaha_illallah',
       'name': 'La ilaha illallah',
@@ -174,6 +191,9 @@ class AppConstants {
       'isCustom': false,
     },
 
+    // ============================================================
+    // 6. SUBHANALLAHI WA BIHAMDIHI
+    // ============================================================
     {
       'id': 'subhanallahi_wa_bihamdihi',
       'name': 'SubhanAllahi wa bihamdihi',
@@ -208,6 +228,9 @@ class AppConstants {
       'isCustom': false,
     },
 
+    // ============================================================
+    // 7. SALAWAT / DUROOD
+    // ============================================================
     {
       'id': 'salawat',
       'name': 'Salawat / Durood',
@@ -238,6 +261,9 @@ class AppConstants {
       'isCustom': false,
     },
 
+    // ============================================================
+    // 8. LA HAWLA WA LA QUWWATA ILLA BILLAH
+    // ============================================================
     {
       'id': 'la_hawla',
       'name': 'La hawla wa la quwwata illa billah',
@@ -274,6 +300,9 @@ class AppConstants {
       'isCustom': false,
     },
 
+    // ============================================================
+    // 9. DUA YUNUS
+    // ============================================================
     {
       'id': 'dua_yunus',
       'name': 'Dua Yunus',
@@ -313,6 +342,9 @@ class AppConstants {
       'isCustom': false,
     },
 
+    // ============================================================
+    // 10. HASBUNALLAHU WA NI'MAL WAKEEL
+    // ============================================================
     {
       'id': 'hasbunallahu',
       'name': 'Hasbunallahu wa ni\'mal wakeel',
@@ -350,6 +382,85 @@ class AppConstants {
       'isCustom': false,
     },
 
+    // ============================================================
+    // 11. SALAT AL-HAJAH
+    // ============================================================
+    {
+      'id': 'salat_al_hajah',
+      'name': 'Salat al-Hajah',
+      'arabicTitle': 'صَلَاةُ الْحَاجَةِ',
+      'translation': 'Prayer for a need',
+      'description':
+          'A voluntary prayer performed when a person wishes to ask Allah for a particular need.',
+      'type': 'prayer',
+      'category': 'general',
+      'azkar': [
+        {
+          'id': 'salat_al_hajah_instruction',
+          'arabicText': 'صَلَاةُ الْحَاجَةِ',
+          'transliteration': 'Salat al-Hajah',
+          'translation':
+              'Pray voluntary prayer and supplicate to Allah for your need.',
+          'targetCount': 1,
+          'isSunnahCount': false,
+          'note':
+              'This item is informational and should not be treated as a normal tasbeeh counter.',
+        },
+      ],
+      'references': [],
+      'benefits': [
+        'A reminder to turn to Allah and make dua when seeking help.',
+      ],
+      'recommendedTimes': ['When needed'],
+      'isDefault': true,
+      'isCustom': false,
+    },
+
+    // ============================================================
+    // 12. AYATUL KURSI
+    // ============================================================
+    {
+      'id': 'ayatul_kursi',
+      'name': 'Ayatul Kursi',
+      'arabicTitle': 'آيَةُ الْكُرْسِيِّ',
+      'translation': 'The Throne Verse',
+      'description':
+          'One of the greatest verses of the Quran, found in Surah Al-Baqarah.',
+      'type': 'quran',
+      'category': 'protection',
+      'azkar': [
+        {
+          'id': 'ayatul_kursi',
+          'arabicText':
+              'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ',
+          'transliteration': 'Allahu la ilaha illa huwal-hayyul-qayyum...',
+          'translation':
+              'Allah—there is no god worthy of worship except Him, the Ever-Living, the Sustainer of all.',
+          'targetCount': 1,
+          'isSunnahCount': true,
+        },
+      ],
+      'references': [
+        {
+          'type': 'quran',
+          'source': 'The Quran',
+          'surah': 'Al-Baqarah',
+          'verse': '255',
+        },
+        {'type': 'hadith', 'source': 'Sahih al-Bukhari', 'grade': 'Sahih'},
+      ],
+      'benefits': [
+        'The Prophet ﷺ described it as the greatest verse in the Book of Allah.',
+        'Protection through the night when recited before sleeping.',
+      ],
+      'recommendedTimes': ['Before sleeping', 'After Salah'],
+      'isDefault': true,
+      'isCustom': false,
+    },
+
+    // ============================================================
+    // 13. TASBIH FATIMAH
+    // ============================================================
     {
       'id': 'tasbih_fatimah',
       'name': 'Tasbih Fatimah',
@@ -398,6 +509,253 @@ class AppConstants {
         'Recommended as remembrance before sleeping.',
       ],
       'recommendedTimes': ['Before sleeping'],
+      'isDefault': true,
+      'isCustom': false,
+    },
+
+    // ============================================================
+    // 14. SURAH AL-KAHF
+    // ============================================================
+    {
+      'id': 'surah_al_kahf',
+      'name': 'Surah Al-Kahf',
+      'arabicTitle': 'سُورَةُ الْكَهْفِ',
+      'translation': 'The Cave',
+      'description': 'The eighteenth chapter of the Quran.',
+      'type': 'quran',
+      'category': 'friday',
+      'azkar': [
+        {
+          'id': 'surah_al_kahf',
+          'arabicText': 'سُورَةُ الْكَهْفِ',
+          'transliteration': 'Surah Al-Kahf',
+          'translation': 'Recitation of Surah Al-Kahf.',
+          'targetCount': 1,
+          'isSunnahCount': false,
+          'note':
+              'This should open a Quran reader rather than work as a normal tasbeeh counter.',
+        },
+      ],
+      'references': [
+        {'type': 'quran', 'source': 'The Quran', 'surah': 'Al-Kahf'},
+      ],
+      'benefits': [
+        'Reciting Surah Al-Kahf on Friday brings special virtues and illumination.',
+      ],
+      'recommendedTimes': ['Friday'],
+      'isDefault': true,
+      'isCustom': false,
+    },
+
+    // ============================================================
+    // 15. SAYYIDUL ISTIGHFAR
+    // ============================================================
+    {
+      'id': 'sayyidul_istighfar',
+      'name': 'Sayyidul Istighfar',
+      'arabicTitle': 'سَيِّدُ الِاسْتِغْفَارِ',
+      'translation': 'The master of seeking forgiveness',
+      'description':
+          'A comprehensive supplication for seeking Allah’s forgiveness.',
+      'type': 'dua',
+      'category': 'forgiveness',
+      'azkar': [
+        {
+          'id': 'sayyidul_istighfar',
+          'arabicText':
+              'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَٰهَ إِلَّا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ',
+          'transliteration':
+              'Allahumma anta Rabbi la ilaha illa anta, khalaqtani wa ana abduka, wa ana ala ahdika wa wadika mastatatu...',
+          'translation':
+              'O Allah, You are my Lord. There is no god worthy of worship except You. You created me and I am Your servant...',
+          'targetCount': 1,
+          'isSunnahCount': true,
+        },
+      ],
+      'references': [
+        {
+          'type': 'hadith',
+          'source': 'Sahih al-Bukhari',
+          'narrator': 'Shaddad ibn Aws رضي الله عنه',
+          'grade': 'Sahih',
+        },
+      ],
+      'benefits': [
+        'The Prophet ﷺ described it as the best form of seeking forgiveness.',
+      ],
+      'recommendedTimes': ['Morning', 'Evening'],
+      'isDefault': true,
+      'isCustom': false,
+    },
+
+    // ============================================================
+    // 16. ADHKAR AFTER SALAH
+    // ============================================================
+    {
+      'id': 'adhkar_after_salah',
+      'name': 'Adhkar after Salah',
+      'arabicTitle': 'أَذْكَارُ بَعْدَ الصَّلَاةِ',
+      'translation': 'Remembrance after prayer',
+      'description':
+          'A collection of authentic remembrances recited after the obligatory prayers.',
+      'type': 'collection',
+      'category': 'afterSalah',
+      'azkar': [
+        {
+          'id': 'after_salah_astaghfirullah',
+          'arabicText': 'أَسْتَغْفِرُ اللَّهَ',
+          'transliteration': 'Astaghfirullah',
+          'translation': 'I seek forgiveness from Allah.',
+          'targetCount': 3,
+          'isSunnahCount': true,
+        },
+        {
+          'id': 'after_salah_allahumma_antas_salam',
+          'arabicText':
+              'اللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ',
+          'transliteration':
+              'Allahumma antas-salam wa minkas-salam tabarakta ya dhal-jalali wal-ikram',
+          'translation':
+              'O Allah, You are Peace and from You comes peace. Blessed are You, O Possessor of majesty and honor.',
+          'targetCount': 1,
+          'isSunnahCount': true,
+        },
+        {
+          'id': 'after_salah_subhanallah',
+          'arabicText': 'سُبْحَانَ اللَّهِ',
+          'transliteration': 'SubhanAllah',
+          'translation': 'Glory be to Allah.',
+          'targetCount': 33,
+          'isSunnahCount': true,
+        },
+        {
+          'id': 'after_salah_alhamdulillah',
+          'arabicText': 'الْحَمْدُ لِلَّهِ',
+          'transliteration': 'Alhamdulillah',
+          'translation': 'All praise is due to Allah.',
+          'targetCount': 33,
+          'isSunnahCount': true,
+        },
+        {
+          'id': 'after_salah_allahu_akbar',
+          'arabicText': 'اللَّهُ أَكْبَرُ',
+          'transliteration': 'Allahu Akbar',
+          'translation': 'Allah is the Greatest.',
+          'targetCount': 33,
+          'isSunnahCount': true,
+        },
+      ],
+      'references': [
+        {'type': 'hadith', 'source': 'Sahih Muslim', 'grade': 'Sahih'},
+      ],
+      'benefits': ['Authentic adhkar prescribed after obligatory prayers.'],
+      'recommendedTimes': ['After Salah'],
+      'isDefault': true,
+      'isCustom': false,
+    },
+
+    // ============================================================
+    // 17. MORNING ADHKAR
+    // ============================================================
+    {
+      'id': 'morning_adhkar',
+      'name': 'Morning Adhkar',
+      'arabicTitle': 'أَذْكَارُ الصَّبَاحِ',
+      'translation': 'Morning remembrance',
+      'description':
+          'A collection of Quranic and prophetic supplications and remembrances for the morning.',
+      'type': 'collection',
+      'category': 'morning',
+      'azkar': [
+        {
+          'id': 'morning_ayatul_kursi',
+          'arabicText': 'آيَةُ الْكُرْسِيِّ',
+          'transliteration': 'Ayatul Kursi',
+          'translation': 'The Throne Verse.',
+          'targetCount': 1,
+          'isSunnahCount': true,
+        },
+        {
+          'id': 'morning_sayyidul_istighfar',
+          'arabicText': 'سَيِّدُ الِاسْتِغْفَارِ',
+          'transliteration': 'Sayyidul Istighfar',
+          'translation': 'The master of seeking forgiveness.',
+          'targetCount': 1,
+          'isSunnahCount': true,
+        },
+        {
+          'id': 'morning_subhanallahi_bihamdihi',
+          'arabicText': 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
+          'transliteration': 'SubhanAllahi wa bihamdihi',
+          'translation': 'Glory be to Allah and praise be to Him.',
+          'targetCount': 100,
+          'isSunnahCount': true,
+        },
+      ],
+      'references': [
+        {
+          'type': 'hadith',
+          'source': 'Sahih al-Bukhari and Sahih Muslim',
+          'grade': 'Sahih',
+        },
+      ],
+      'benefits': [
+        'Helps establish a regular habit of remembering Allah at the beginning of the day.',
+      ],
+      'recommendedTimes': ['Morning'],
+      'isDefault': true,
+      'isCustom': false,
+    },
+
+    // ============================================================
+    // 18. EVENING ADHKAR
+    // ============================================================
+    {
+      'id': 'evening_adhkar',
+      'name': 'Evening Adhkar',
+      'arabicTitle': 'أَذْكَارُ الْمَسَاءِ',
+      'translation': 'Evening remembrance',
+      'description':
+          'A collection of Quranic and prophetic supplications and remembrances for the evening.',
+      'type': 'collection',
+      'category': 'evening',
+      'azkar': [
+        {
+          'id': 'evening_ayatul_kursi',
+          'arabicText': 'آيَةُ الْكُرْسِيِّ',
+          'transliteration': 'Ayatul Kursi',
+          'translation': 'The Throne Verse.',
+          'targetCount': 1,
+          'isSunnahCount': true,
+        },
+        {
+          'id': 'evening_sayyidul_istighfar',
+          'arabicText': 'سَيِّدُ الِاسْتِغْفَارِ',
+          'transliteration': 'Sayyidul Istighfar',
+          'translation': 'The master of seeking forgiveness.',
+          'targetCount': 1,
+          'isSunnahCount': true,
+        },
+        {
+          'id': 'evening_subhanallahi_bihamdihi',
+          'arabicText': 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
+          'transliteration': 'SubhanAllahi wa bihamdihi',
+          'translation': 'Glory be to Allah and praise be to Him.',
+          'targetCount': 100,
+          'isSunnahCount': true,
+        },
+      ],
+      'references': [
+        {
+          'type': 'hadith',
+          'source': 'Sahih al-Bukhari and Sahih Muslim',
+          'grade': 'Sahih',
+        },
+      ],
+      'benefits': [
+        'Helps establish a regular habit of remembering Allah in the evening.',
+      ],
+      'recommendedTimes': ['Evening'],
       'isDefault': true,
       'isCustom': false,
     },

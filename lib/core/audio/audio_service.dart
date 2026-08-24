@@ -40,7 +40,10 @@ class AudioService {
   Future<void> playCompletionSound() async {
     if (!_initialized) return;
     try {
-      await _completionPlayer.play(AssetSource('sounds/complete.mp3'), volume: 0.5);
+      await _completionPlayer.play(
+        AssetSource('sounds/completion_sound_effect.mp3'),
+        volume: 0.5,
+      );
     } catch (e) {
       // Silently fail - sound is optional
     }

@@ -75,9 +75,8 @@ flutter:
   uses-material-design: true
 
   # Add assets for sounds
-  # assets:
-  #   - assets/sounds/
-  #   - assets/fonts/
+  assets:
+    - assets/sounds/
 
   # fonts:
   #   - family: Amiri
