@@ -12,7 +12,7 @@ class QuickDhikrScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final suggestedDhikrs = ref.watch(suggestedDhikrsProvider);
+    final quickDhikrs = ref.watch(quickDhikrsProvider);
     final l10n = context.l10n;
     final theme = Theme.of(context);
 
@@ -27,7 +27,7 @@ class QuickDhikrScreen extends ConsumerWidget {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      body: suggestedDhikrs.isEmpty
+      body: quickDhikrs.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -50,9 +50,9 @@ class QuickDhikrScreen extends ConsumerWidget {
           : ListView.builder(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              itemCount: suggestedDhikrs.length,
+              itemCount: quickDhikrs.length,
               itemBuilder: (context, index) {
-                final dhikr = suggestedDhikrs[index];
+                final dhikr = quickDhikrs[index];
                 return _DhikrListTile(dhikr: dhikr);
               },
             ),

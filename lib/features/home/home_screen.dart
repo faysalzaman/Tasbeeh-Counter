@@ -14,7 +14,8 @@ class HomeScreen extends ConsumerWidget {
     final activeDhikrs = ref.watch(activeDhikrsProvider);
     final defaultDhikrs = ref.watch(defaultDhikrsProvider);
     final customDhikrs = ref.watch(customDhikrsProvider);
-    final relevantNowDhikrs = ref.watch(relevantNowDhikrsProvider);
+    final quickDhikrs = ref.watch(quickDhikrsProvider);
+    final relevantNowQuickDhikrs = ref.watch(relevantNowQuickDhikrsProvider);
     final theme = Theme.of(context);
     final l10n = context.l10n;
 
@@ -78,10 +79,10 @@ class HomeScreen extends ConsumerWidget {
                       childAspectRatio: 0.98,
                       children: [
                         _CategoryCard(
-                          icon: Icons.bolt_rounded,
+                          icon: Icons.bolt,
                           label: l10n.quickDhikr,
-                          count: defaultDhikrs.length,
-                          badgeCount: relevantNowDhikrs.length,
+                          count: quickDhikrs.length,
+                          badgeCount: relevantNowQuickDhikrs.length,
                           containerColor: theme.colorScheme.primaryContainer,
                           iconColor: theme.colorScheme.onPrimaryContainer,
                           onTap: () => context.push(AppRoutes.quickDhikr),

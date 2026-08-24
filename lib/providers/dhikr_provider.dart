@@ -75,9 +75,32 @@ final suggestedDhikrsProvider = Provider<List<Dhikr>>((ref) {
   return list;
 });
 
+/// A curated subset of short, important single-phrase dhikrs for the
+/// "Quick Dhikr" screen. Collections and longer duas are excluded so only
+/// quick-to-recite phrases are shown.
+final quickDhikrsProvider = Provider<List<Dhikr>>((ref) {
+  final defaults = ref.watch(defaultDhikrsProvider);
+  final list = defaults.where((d) => d.type == DhikrType.single).toList();
+  list.sort((a, b) {
+    final aRelevant = isDhikrCategoryRelevantNow(a.category);
+    final bRelevant = isDhikrCategoryRelevantNow(b.category);
+    if (aRelevant && !bRelevant) return -1;
+    if (!aRelevant && bRelevant) return 1;
+    return 0;
+  });
+  return list;
+});
+
 final relevantNowDhikrsProvider = Provider<List<Dhikr>>((ref) {
   return ref
       .watch(defaultDhikrsProvider)
+      .where((d) => isDhikrCategoryRelevantNow(d.category))
+      .toList();
+});
+
+final relevantNowQuickDhikrsProvider = Provider<List<Dhikr>>((ref) {
+  return ref
+      .watch(quickDhikrsProvider)
       .where((d) => isDhikrCategoryRelevantNow(d.category))
       .toList();
 });

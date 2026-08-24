@@ -516,13 +516,16 @@ class DhikrDetailScreen extends ConsumerWidget {
       return Container(
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
           ),
         ),
-        child: ListTile(
+        child: Material(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(14),
+          clipBehavior: Clip.antiAlias,
+          child: ListTile(
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 8,
@@ -607,6 +610,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                 )
               : null,
         ),
+        ),
       );
     }).toList();
   }
@@ -615,47 +619,51 @@ class DhikrDetailScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
         ),
       ),
-      child: Column(
-        children: dhikr.benefits.asMap().entries.map((entry) {
-          final isLast = entry.key == dhikr.benefits.length - 1;
-          return Column(
-            children: [
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.shade500.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
+      child: Material(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: dhikr.benefits.asMap().entries.map((entry) {
+            final isLast = entry.key == dhikr.benefits.length - 1;
+            return Column(
+              children: [
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade500.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.star_rounded,
+                      size: 18,
+                      color: Colors.amber.shade800,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.star_rounded,
-                    size: 18,
-                    color: Colors.amber.shade800,
+                  title: Text(
+                    entry.value,
+                    style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
                   ),
+                  dense: true,
                 ),
-                title: Text(
-                  entry.value,
-                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.4),
-                ),
-                dense: true,
-              ),
-              if (!isLast)
-                Divider(
-                  height: 1,
-                  indent: 56,
-                  color: theme.colorScheme.outlineVariant.withValues(
-                    alpha: 0.3,
+                if (!isLast)
+                  Divider(
+                    height: 1,
+                    indent: 56,
+                    color: theme.colorScheme.outlineVariant.withValues(
+                      alpha: 0.3,
+                    ),
                   ),
-                ),
-            ],
-          );
-        }).toList(),
+              ],
+            );
+          }).toList(),
+        ),
       ),
     );
   }

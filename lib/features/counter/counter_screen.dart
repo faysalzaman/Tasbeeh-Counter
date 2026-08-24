@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:confetti/confetti.dart';
-import 'package:volume_controller/volume_controller.dart';
 import '../../core/localization/l10n_extension.dart';
+import '../../core/volume/volume_key_service.dart';
 import '../../providers/counter_provider.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../providers/settings_provider.dart';
@@ -25,8 +25,7 @@ class CounterScreen extends ConsumerStatefulWidget {
 class _CounterScreenState extends ConsumerState<CounterScreen>
     with SingleTickerProviderStateMixin {
   late final ConfettiController _confettiController;
-  StreamSubscription<double>? _volumeSubscription;
-  double _currentVolume = 0.5;
+  StreamSubscription<String>? _volumeSubscription;
   bool _isVolumeKeyPressed = false;
   final FocusNode _focusNode = FocusNode();
 
@@ -51,26 +50,20 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
     }
   }
 
-  void _setupVolumeKeys() {
+  Future<void> _setupVolumeKeys() async {
     final settings = ref.read(settingsProvider);
     if (!settings.volumeKeyCounting) return;
 
-    _volumeSubscription = VolumeController.instance.addListener((volume) {
-      if (!mounted) return;
+    final supported = await VolumeKeyService.instance.enable();
+    if (!supported || !mounted) return;
 
-      if ((volume - _currentVolume).abs() > 0.01 && !_isVolumeKeyPressed) {
-        _isVolumeKeyPressed = true;
-        _handleCount();
-
-        // Optional: restore system volume to keep hardware levels steady
-        VolumeController.instance.setVolume(_currentVolume);
-
-        Future.delayed(const Duration(milliseconds: 150), () {
-          if (mounted) _isVolumeKeyPressed = false;
-        });
-      } else {
-        _currentVolume = volume;
-      }
+    _volumeSubscription = VolumeKeyService.instance.events?.listen((_) {
+      if (!mounted || _isVolumeKeyPressed) return;
+      _isVolumeKeyPressed = true;
+      _handleCount();
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (mounted) _isVolumeKeyPressed = false;
+      });
     });
   }
 
@@ -120,6 +113,7 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
     _focusNode.dispose();
     _confettiController.dispose();
     _volumeSubscription?.cancel();
+    VolumeKeyService.instance.disable();
     super.dispose();
   }
 
