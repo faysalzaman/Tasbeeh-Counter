@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/storage/local_storage.dart';
 import '../models/app_settings.dart';
+import '../repositories/dhikr_repository.dart';
 import '../repositories/settings_repository.dart';
 
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
@@ -55,6 +56,9 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   Future<void> updateReminderNotifications(bool enabled) async {
     await _repository.updateReminderNotifications(enabled);
     state = _repository.getSettings();
+    // Reschedule (if enabled) or cancel every wazifa reminder based on the
+    // new global setting.
+    await DhikrRepository(LocalStorage.instance).syncAllReminders();
   }
 
   Future<void> updateDefaultReminderTime(String time) async {

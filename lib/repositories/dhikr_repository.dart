@@ -1,3 +1,4 @@
+import '../core/notifications/notification_service.dart';
 import '../core/storage/local_storage.dart';
 import '../models/dhikr.dart';
 import '../models/dhikr_progress.dart';
@@ -23,6 +24,7 @@ class DhikrRepository {
   }
 
   Future<void> deleteDhikr(String id) async {
+    await NotificationService().cancelReminder(id.hashCode);
     await _storage.deleteDhikr(id);
   }
 
@@ -135,6 +137,57 @@ class DhikrRepository {
 
     await _storage.saveCustomDhikr(dhikr);
     await _storage.saveProgress(progress);
+    await _syncReminderFor(progress, name);
     return dhikr;
+  }
+
+  // --- Reminders ---
+
+  Future<void> _syncReminderFor(DhikrProgress progress, String name) async {
+    final id = progress.id.hashCode;
+    final settings = _storage.getSettings();
+    final shouldRemind = progress.reminderEnabled &&
+        progress.reminderTime != null &&
+        progress.reminderTime!.isNotEmpty &&
+        settings.reminderNotifications;
+
+    if (shouldRemind) {
+      final parts = progress.reminderTime!.split(':');
+      final hour = int.tryParse(parts[0]) ?? 0;
+      final minute = parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0;
+      await NotificationService().scheduleDailyReminder(
+        id: id,
+        title: name,
+        body: "It's time for your dhikr: $name",
+        hour: hour,
+        minute: minute,
+      );
+    } else {
+      await NotificationService().cancelReminder(id);
+    }
+  }
+
+  /// Reschedules or cancels the reminder for a single dhikr based on its
+  /// current progress and the global reminder setting.
+  Future<void> syncReminder(String id) async {
+    final dhikr = getDhikr(id);
+    final progress = getProgress(id);
+    if (dhikr == null || progress == null) {
+      await NotificationService().cancelReminder(id.hashCode);
+      return;
+    }
+    await _syncReminderFor(progress, dhikr.name);
+  }
+
+  /// Syncs reminders for every dhikr that has tracking state. Call on app
+  /// start and whenever the global reminder setting changes.
+  Future<void> syncAllReminders() async {
+    final all = getAllDhikrs();
+    for (final dhikr in all) {
+      final progress = getProgress(dhikr.id);
+      if (progress != null) {
+        await _syncReminderFor(progress, dhikr.name);
+      }
+    }
   }
 }

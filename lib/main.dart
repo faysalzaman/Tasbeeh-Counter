@@ -8,6 +8,7 @@ import 'core/notifications/notification_service.dart';
 import 'core/storage/local_storage.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/settings_provider.dart';
+import 'repositories/dhikr_repository.dart';
 import 'router/app_router.dart';
 
 void main() async {
@@ -20,6 +21,9 @@ void main() async {
   await AudioService().initialize();
   await HapticsService().initialize();
   await NotificationService().initialize();
+
+  // Sync wazifa reminders (reschedule/cancel based on current settings)
+  await DhikrRepository(LocalStorage.instance).syncAllReminders();
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([

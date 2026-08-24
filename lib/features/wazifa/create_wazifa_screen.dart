@@ -161,6 +161,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
 
         ref.read(dhikrListNotifierProvider.notifier).refresh();
         ref.read(progressListNotifierProvider.notifier).refresh();
+        await repository.syncReminder(widget.dhikrId!);
       }
     } else {
       await ref

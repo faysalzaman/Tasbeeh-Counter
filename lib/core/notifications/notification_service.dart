@@ -133,6 +133,55 @@ class NotificationService {
     }
   }
 
+  /// Schedules a daily-repeating reminder at the given [hour]:[minute].
+  Future<bool> scheduleDailyReminder({
+    required int id,
+    required String title,
+    required String body,
+    required int hour,
+    required int minute,
+  }) async {
+    if (!_initialized) return false;
+
+    try {
+      final now = tz.TZDateTime.now(tz.local);
+      var scheduled =
+          tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
+      if (!scheduled.isAfter(now)) {
+        scheduled = scheduled.add(const Duration(days: 1));
+      }
+
+      await _notifications.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduled,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            AppConstants.reminderChannelId,
+            AppConstants.reminderChannelName,
+            channelDescription: AppConstants.reminderChannelDescription,
+            importance: Importance.high,
+            priority: Priority.high,
+            showWhen: true,
+          ),
+          iOS: DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
+        ),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> showImmediateNotification({
     required int id,
     required String title,
