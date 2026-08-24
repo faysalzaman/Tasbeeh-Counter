@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/localization/l10n_extension.dart';
+import '../../models/dhikr_schedule.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
 import 'widgets/greeting_widget.dart';
@@ -14,6 +15,7 @@ class HomeScreen extends ConsumerWidget {
     final activeDhikrs = ref.watch(activeDhikrsProvider);
     final defaultDhikrs = ref.watch(defaultDhikrsProvider);
     final customDhikrs = ref.watch(customDhikrsProvider);
+    final suggestedDhikrs = ref.watch(suggestedDhikrsProvider);
     final theme = Theme.of(context);
     final l10n = context.l10n;
 
@@ -61,6 +63,7 @@ class HomeScreen extends ConsumerWidget {
                           icon: Icons.bolt,
                           label: l10n.quickDhikr,
                           count: defaultDhikrs.length,
+                          badgeCount: suggestedDhikrs.where((d) => ScheduleHelper.shouldShowNow(d.scheduleEnum)).length,
                           color: theme.colorScheme.primary,
                           onTap: () => context.push(AppRoutes.quickDhikr),
                         ),
@@ -165,6 +168,7 @@ class _CategoryCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final int count;
+  final int? badgeCount;
   final Color color;
   final VoidCallback onTap;
 
@@ -172,6 +176,7 @@ class _CategoryCard extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.count,
+    this.badgeCount,
     required this.color,
     required this.onTap,
   });
@@ -189,18 +194,46 @@ class _CategoryCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 32,
-                ),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      icon,
+                      color: color,
+                      size: 32,
+                    ),
+                  ),
+                  if (badgeCount != null && badgeCount! > 0)
+                    Positioned(
+                      top: -4,
+                      right: -4,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          '$badgeCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(height: 12),
               Text(

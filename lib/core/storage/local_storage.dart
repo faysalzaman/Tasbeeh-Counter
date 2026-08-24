@@ -47,6 +47,7 @@ class LocalStorage {
           translation: dhikrData['translation'] as String?,
           targetCount: dhikrData['targetCount'] as int,
           isDefault: dhikrData['isDefault'] as bool,
+          schedule: dhikrData['schedule'] as String?,
         );
         await _dhikrBox.put(dhikr.id, dhikr);
       }

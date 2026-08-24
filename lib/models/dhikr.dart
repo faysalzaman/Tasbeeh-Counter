@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'dhikr_schedule.dart';
 
 part 'dhikr.g.dart';
 
@@ -64,6 +65,9 @@ class Dhikr extends HiveObject {
   @HiveField(19)
   DateTime updatedAt;
 
+  @HiveField(20)
+  String? schedule;
+
   Dhikr({
     required this.id,
     required this.name,
@@ -85,8 +89,18 @@ class Dhikr extends HiveObject {
     this.lastSessionDate,
     DateTime? createdAt,
     DateTime? updatedAt,
+    this.schedule,
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
+
+  DhikrSchedule? get scheduleEnum {
+    if (schedule == null) return null;
+    try {
+      return DhikrSchedule.values.byName(schedule!);
+    } catch (_) {
+      return null;
+    }
+  }
 
   Dhikr copyWith({
     String? id,
@@ -108,6 +122,7 @@ class Dhikr extends HiveObject {
     bool? isCompleted,
     DateTime? lastSessionDate,
     DateTime? updatedAt,
+    String? schedule,
   }) {
     return Dhikr(
       id: id ?? this.id,
@@ -130,6 +145,7 @@ class Dhikr extends HiveObject {
       lastSessionDate: lastSessionDate ?? this.lastSessionDate,
       createdAt: createdAt,
       updatedAt: updatedAt ?? DateTime.now(),
+      schedule: schedule ?? this.schedule,
     );
   }
 

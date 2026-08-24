@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../models/dhikr.dart';
+import '../../models/dhikr_schedule.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
 
@@ -11,7 +12,7 @@ class DhikrSelectionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final defaultDhikrs = ref.watch(defaultDhikrsProvider);
+    final suggestedDhikrs = ref.watch(suggestedDhikrsProvider);
     final customDhikrs = ref.watch(customDhikrsProvider);
     final theme = Theme.of(context);
     final l10n = context.l10n;
@@ -33,9 +34,9 @@ class DhikrSelectionScreen extends ConsumerWidget {
             // Default Azkaar Tab
             ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: defaultDhikrs.length,
+              itemCount: suggestedDhikrs.length,
               itemBuilder: (context, index) {
-                final dhikr = defaultDhikrs[index];
+                final dhikr = suggestedDhikrs[index];
                 return DhikrListTile(dhikr: dhikr);
               },
             ),
@@ -49,20 +50,20 @@ class DhikrSelectionScreen extends ConsumerWidget {
                         Icon(
                           Icons.bookmark_border,
                           size: 64,
-                          color: theme.colorScheme.onSurface.withOpacity(0.3),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           l10n.noCustomWazifas,
                           style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.5),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           l10n.noCustomWazifasSubtitle,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.4),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -93,6 +94,42 @@ class DhikrSelectionScreen extends ConsumerWidget {
           child: const Icon(Icons.add),
         ),
       ),
+    );
+  }
+}
+
+class _ScheduleChip extends StatelessWidget {
+  final DhikrSchedule? schedule;
+
+  const _ScheduleChip({this.schedule});
+
+  @override
+  Widget build(BuildContext context) {
+    if (schedule == null) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+    final isRelevant = ScheduleHelper.shouldShowNow(schedule);
+
+    return Chip(
+      label: Text(
+        schedule!.label,
+        style: TextStyle(
+          fontSize: 11,
+          color: isRelevant
+              ? theme.colorScheme.primary
+              : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+          fontWeight: isRelevant ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      padding: EdgeInsets.zero,
+      visualDensity: VisualDensity.compact,
+      backgroundColor: isRelevant
+          ? theme.colorScheme.primary.withValues(alpha: 0.1)
+          : theme.colorScheme.onSurface.withValues(alpha: 0.05),
+      side: isRelevant
+          ? BorderSide(
+              color: theme.colorScheme.primary.withValues(alpha: 0.3))
+          : BorderSide.none,
     );
   }
 }
@@ -151,8 +188,8 @@ class DhikrListTile extends ConsumerWidget {
                           Text(
                             dhikr.translation!,
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withOpacity(
-                                0.6,
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.6,
                               ),
                             ),
                           ),
@@ -167,7 +204,7 @@ class DhikrListTile extends ConsumerWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withOpacity(0.1),
+                        color: theme.colorScheme.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -196,6 +233,11 @@ class DhikrListTile extends ConsumerWidget {
                         padding: EdgeInsets.zero,
                         visualDensity: VisualDensity.compact,
                       ),
+                    ),
+                  if (dhikr.schedule != null)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: _ScheduleChip(schedule: dhikr.scheduleEnum),
                     ),
                   const Spacer(),
                   if (showEdit)

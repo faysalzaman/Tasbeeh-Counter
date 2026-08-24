@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/storage/local_storage.dart';
 import '../models/dhikr.dart';
+import '../models/dhikr_schedule.dart';
 import '../repositories/dhikr_repository.dart';
 
 final dhikrRepositoryProvider = Provider<DhikrRepository>((ref) {
@@ -35,6 +36,37 @@ final dhikrByIdProvider = Provider.family<Dhikr?, String>((ref, id) {
   } catch (e) {
     return null;
   }
+});
+
+final suggestedDhikrsProvider = Provider<List<Dhikr>>((ref) {
+  final all = ref.watch(dhikrListNotifierProvider);
+  final activeSchedules = ScheduleHelper.activeSchedulesNow;
+
+  final defaults = all.where((d) => d.isDefault).toList();
+
+  // Sort: relevant schedules first, then daily, then others
+  defaults.sort((a, b) {
+    final aSchedule = a.scheduleEnum;
+    final bSchedule = b.scheduleEnum;
+
+    final aRelevant = aSchedule == null || activeSchedules.contains(aSchedule);
+    final bRelevant = bSchedule == null || activeSchedules.contains(bSchedule);
+
+    if (aRelevant && !bRelevant) return -1;
+    if (!aRelevant && bRelevant) return 1;
+
+    // Both relevant: daily first, then specific schedules
+    if (aSchedule == DhikrSchedule.daily && bSchedule != DhikrSchedule.daily) {
+      return -1;
+    }
+    if (aSchedule != DhikrSchedule.daily && bSchedule == DhikrSchedule.daily) {
+      return 1;
+    }
+
+    return 0;
+  });
+
+  return defaults;
 });
 
 final dhikrListNotifierProvider =
@@ -74,6 +106,7 @@ class DhikrListNotifier extends StateNotifier<List<Dhikr>> {
     DateTime? startDate,
     int? numberOfDays,
     String? notes,
+    String? schedule,
   }) async {
     await _repository.createCustomDhikr(
       name: name,
@@ -87,6 +120,7 @@ class DhikrListNotifier extends StateNotifier<List<Dhikr>> {
       startDate: startDate,
       numberOfDays: numberOfDays,
       notes: notes,
+      schedule: schedule,
     );
     refresh();
   }

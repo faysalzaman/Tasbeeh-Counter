@@ -33,13 +33,14 @@ class DhikrAdapter extends TypeAdapter<Dhikr> {
       lastSessionDate: fields[17] as DateTime?,
       createdAt: fields[18] as DateTime,
       updatedAt: fields[19] as DateTime,
+      schedule: fields[20] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Dhikr obj) {
     writer
-      ..writeByte(20)
+      ..writeByte(21)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -79,7 +80,9 @@ class DhikrAdapter extends TypeAdapter<Dhikr> {
       ..writeByte(18)
       ..write(obj.createdAt)
       ..writeByte(19)
-      ..write(obj.updatedAt);
+      ..write(obj.updatedAt)
+      ..writeByte(20)
+      ..write(obj.schedule);
   }
 
   @override

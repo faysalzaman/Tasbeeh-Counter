@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/localization/l10n_extension.dart';
+import '../../models/dhikr_schedule.dart';
 import '../../providers/dhikr_provider.dart';
 
 class CreateWazifaScreen extends ConsumerStatefulWidget {
@@ -27,6 +28,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
   bool _reminderEnabled = false;
   TimeOfDay? _reminderTime;
   DateTime? _startDate;
+  DhikrSchedule? _schedule;
 
   bool _isEditing = false;
 
@@ -61,6 +63,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
         );
       }
       _startDate = dhikr.startDate;
+      _schedule = dhikr.scheduleEnum;
       setState(() {});
     }
   }
@@ -120,6 +123,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
           notes: _notesController.text.trim().isEmpty
               ? null
               : _notesController.text.trim(),
+          schedule: _schedule?.name,
         );
         await ref.read(dhikrListNotifierProvider.notifier).saveDhikr(updated);
       }
@@ -146,6 +150,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
             notes: _notesController.text.trim().isEmpty
                 ? null
                 : _notesController.text.trim(),
+            schedule: _schedule?.name,
           );
     }
 
@@ -236,6 +241,36 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                 }
                 return null;
               },
+            ),
+            const SizedBox(height: 24),
+
+            // Schedule
+            InputDecorator(
+              decoration: InputDecoration(
+                labelText: 'Schedule',
+                hintText: 'When should this dhikr be done?',
+                prefixIcon: const Icon(Icons.schedule),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<DhikrSchedule?>(
+                  value: _schedule,
+                  isDense: true,
+                  items: [
+                    const DropdownMenuItem<DhikrSchedule?>(
+                      value: null,
+                      child: Text('Any time'),
+                    ),
+                    ...DhikrSchedule.values.map((s) => DropdownMenuItem(
+                          value: s,
+                          child: Text('${s.label} — ${s.description}'),
+                        )),
+                  ],
+                  onChanged: (value) => setState(() => _schedule = value),
+                ),
+              ),
             ),
             const SizedBox(height: 24),
 

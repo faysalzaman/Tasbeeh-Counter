@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../models/dhikr.dart';
+import '../../models/dhikr_schedule.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
 
@@ -11,13 +12,13 @@ class QuickDhikrScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final defaultDhikrs = ref.watch(defaultDhikrsProvider);
+    final suggestedDhikrs = ref.watch(suggestedDhikrsProvider);
     final l10n = context.l10n;
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.quickDhikr)),
-      body: defaultDhikrs.isEmpty
+      body: suggestedDhikrs.isEmpty
           ? Center(
               child: Text(
                 l10n.noCustomWazifas,
@@ -28,12 +29,45 @@ class QuickDhikrScreen extends ConsumerWidget {
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: defaultDhikrs.length,
+              itemCount: suggestedDhikrs.length,
               itemBuilder: (context, index) {
-                final dhikr = defaultDhikrs[index];
+                final dhikr = suggestedDhikrs[index];
                 return _DhikrListTile(dhikr: dhikr);
               },
             ),
+    );
+  }
+}
+
+class _ScheduleChip extends StatelessWidget {
+  final DhikrSchedule? schedule;
+
+  const _ScheduleChip({this.schedule});
+
+  @override
+  Widget build(BuildContext context) {
+    if (schedule == null) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+    final isRelevant = ScheduleHelper.shouldShowNow(schedule);
+
+    return Chip(
+      label: Text(
+        schedule!.label,
+        style: TextStyle(
+          fontSize: 11,
+          color: isRelevant ? theme.colorScheme.primary : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+          fontWeight: isRelevant ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      padding: EdgeInsets.zero,
+      visualDensity: VisualDensity.compact,
+      backgroundColor: isRelevant
+          ? theme.colorScheme.primary.withValues(alpha: 0.1)
+          : theme.colorScheme.onSurface.withValues(alpha: 0.05),
+      side: isRelevant
+          ? BorderSide(color: theme.colorScheme.primary.withValues(alpha: 0.3))
+          : BorderSide.none,
     );
   }
 }
@@ -103,6 +137,10 @@ class _DhikrListTile extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     visualDensity: VisualDensity.compact,
                   ),
+                  if (dhikr.schedule != null) ...[
+                    const SizedBox(width: 8),
+                    _ScheduleChip(schedule: dhikr.scheduleEnum),
+                  ],
                   const Spacer(),
                   if (dhikr.isCompleted)
                     Chip(

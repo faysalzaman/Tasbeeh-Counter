@@ -83,6 +83,7 @@ class DhikrRepository {
     DateTime? startDate,
     int? numberOfDays,
     String? notes,
+    String? schedule,
   }) async {
     final id = '${DateTime.now().millisecondsSinceEpoch}_$name';
     final dhikr = Dhikr(
@@ -99,6 +100,7 @@ class DhikrRepository {
       startDate: startDate,
       numberOfDays: numberOfDays,
       notes: notes,
+      schedule: schedule,
     );
 
     if (numberOfDays != null && startDate != null) {
