@@ -216,13 +216,22 @@ class DhikrListTile extends ConsumerWidget {
                       tooltip: l10n.delete,
                     ),
                   if (!showEdit && !showDelete)
-                    FilledButton(
-                      onPressed: () =>
-                          context.push(AppRoutes.counter, extra: dhikr.id),
-                      child: Text(
-                        dhikr.isInProgress ? l10n.continue_ : l10n.start,
+                    if (dhikr.isCompleted)
+                      Chip(
+                        avatar: Icon(Icons.check_circle, color: theme.colorScheme.primary, size: 18),
+                        label: Text(l10n.completed),
+                        padding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                        backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+                      )
+                    else
+                      FilledButton(
+                        onPressed: () =>
+                            context.push(AppRoutes.counter, extra: dhikr.id),
+                        child: Text(
+                          dhikr.isInProgress ? l10n.continue_ : l10n.start,
+                        ),
                       ),
-                    ),
                 ],
               ),
             ],

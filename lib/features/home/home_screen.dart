@@ -55,7 +55,7 @@ class HomeScreen extends ConsumerWidget {
                       crossAxisCount: 2,
                       mainAxisSpacing: 16,
                       crossAxisSpacing: 16,
-                      childAspectRatio: 0.85,
+                      childAspectRatio: 0.92,
                       children: [
                         _CategoryCard(
                           icon: Icons.bolt,
@@ -190,8 +190,8 @@ class _CategoryCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 64,
+                height: 64,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
@@ -199,7 +199,7 @@ class _CategoryCard extends StatelessWidget {
                 child: Icon(
                   icon,
                   color: color,
-                  size: 24,
+                  size: 32,
                 ),
               ),
               const SizedBox(height: 12),

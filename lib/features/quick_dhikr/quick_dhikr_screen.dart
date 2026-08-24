@@ -104,10 +104,19 @@ class _DhikrListTile extends StatelessWidget {
                     visualDensity: VisualDensity.compact,
                   ),
                   const Spacer(),
-                  FilledButton(
-                    onPressed: () => context.push(AppRoutes.counter, extra: dhikr.id),
-                    child: Text(dhikr.isInProgress ? context.l10n.continue_ : context.l10n.start),
-                  ),
+                  if (dhikr.isCompleted)
+                    Chip(
+                      avatar: Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary, size: 18),
+                      label: Text(context.l10n.completed),
+                      padding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
+                      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                    )
+                  else
+                    FilledButton(
+                      onPressed: () => context.push(AppRoutes.counter, extra: dhikr.id),
+                      child: Text(dhikr.isInProgress ? context.l10n.continue_ : context.l10n.start),
+                    ),
                 ],
               ),
             ],
