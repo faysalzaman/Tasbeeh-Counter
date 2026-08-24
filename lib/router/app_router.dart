@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import '../core/storage/local_storage.dart';
 import '../features/home/home_screen.dart';
 import '../features/counter/counter_screen.dart';
 import '../features/dhikr_detail/dhikr_detail_screen.dart';
@@ -25,6 +26,19 @@ class AppRoutes {
 
 final appRouter = GoRouter(
   initialLocation: AppRoutes.home,
+  redirect: (context, state) {
+    final hasCompletedOnboarding =
+        LocalStorage.instance.getSettings().hasCompletedOnboarding;
+    final isOnboarding = state.matchedLocation == AppRoutes.onboarding;
+
+    if (!hasCompletedOnboarding && !isOnboarding) {
+      return AppRoutes.onboarding;
+    }
+    if (hasCompletedOnboarding && isOnboarding) {
+      return AppRoutes.home;
+    }
+    return null;
+  },
   routes: [
     GoRoute(
       path: AppRoutes.home,
