@@ -166,7 +166,7 @@ class DhikrListTile extends ConsumerWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () => context.push(AppRoutes.counter, extra: dhikr.id),
+        onTap: () => context.push(AppRoutes.dhikrDetail, extra: dhikr.id),
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -230,67 +230,79 @@ class DhikrListTile extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              Row(
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
                 children: [
                   Chip(
                     label: Text('${l10n.targetCount}: $targetCount'),
                     padding: EdgeInsets.zero,
                     visualDensity: VisualDensity.compact,
                   ),
+                  Chip(
+                    label: Text(dhikr.category.label),
+                    padding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                  ),
                   if (repeatEnabled)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Chip(
-                        label: Text(l10n.repeatMode),
-                        padding: EdgeInsets.zero,
-                        visualDensity: VisualDensity.compact,
-                      ),
+                    Chip(
+                      label: Text(l10n.repeatMode),
+                      padding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
                     ),
                   if (scheduleEnum != null)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: _ScheduleChip(schedule: scheduleEnum),
-                    ),
-                  const Spacer(),
-                  if (showEdit)
-                    IconButton(
-                      onPressed: () =>
-                          context.push(AppRoutes.createWazifa, extra: dhikr.id),
-                      icon: const Icon(Icons.edit_outlined, size: 20),
-                      tooltip: l10n.edit,
-                    ),
-                  if (showDelete)
-                    IconButton(
-                      onPressed: () => _showDeleteDialog(context, ref),
-                      icon: Icon(
-                        Icons.delete_outline,
-                        size: 20,
-                        color: theme.colorScheme.error,
-                      ),
-                      tooltip: l10n.delete,
-                    ),
-                  if (!showEdit && !showDelete)
-                    if (isCompleted)
-                      Chip(
-                        avatar: Icon(
-                          Icons.check_circle,
-                          color: theme.colorScheme.primary,
-                          size: 18,
-                        ),
-                        label: Text(l10n.completed),
-                        padding: EdgeInsets.zero,
-                        visualDensity: VisualDensity.compact,
-                        backgroundColor: theme.colorScheme.primary.withValues(
-                          alpha: 0.1,
-                        ),
-                      )
-                    else
-                      FilledButton(
-                        onPressed: () =>
-                            context.push(AppRoutes.counter, extra: dhikr.id),
-                        child: Text(isInProgress ? l10n.continue_ : l10n.start),
-                      ),
+                    _ScheduleChip(schedule: scheduleEnum),
                 ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (showEdit)
+                      IconButton(
+                        onPressed: () => context.push(
+                          AppRoutes.createWazifa,
+                          extra: dhikr.id,
+                        ),
+                        icon: const Icon(Icons.edit_outlined, size: 20),
+                        tooltip: l10n.edit,
+                      ),
+                    if (showDelete)
+                      IconButton(
+                        onPressed: () => _showDeleteDialog(context, ref),
+                        icon: Icon(
+                          Icons.delete_outline,
+                          size: 20,
+                          color: theme.colorScheme.error,
+                        ),
+                        tooltip: l10n.delete,
+                      ),
+                    if (!showEdit && !showDelete)
+                      if (isCompleted)
+                        Chip(
+                          avatar: Icon(
+                            Icons.check_circle,
+                            color: theme.colorScheme.primary,
+                            size: 18,
+                          ),
+                          label: Text(l10n.completed),
+                          padding: EdgeInsets.zero,
+                          visualDensity: VisualDensity.compact,
+                          backgroundColor: theme.colorScheme.primary.withValues(
+                            alpha: 0.1,
+                          ),
+                        )
+                      else
+                        FilledButton(
+                          onPressed: () =>
+                              context.push(AppRoutes.counter, extra: dhikr.id),
+                          child: Text(
+                            isInProgress ? l10n.continue_ : l10n.start,
+                          ),
+                        ),
+                  ],
+                ),
               ),
             ],
           ),

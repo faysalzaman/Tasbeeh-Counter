@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import '../features/home/home_screen.dart';
 import '../features/counter/counter_screen.dart';
+import '../features/dhikr_detail/dhikr_detail_screen.dart';
 import '../features/dhikr_selection/dhikr_selection_screen.dart';
 import '../features/wazifa/create_wazifa_screen.dart';
 import '../features/settings/settings_screen.dart';
@@ -13,6 +14,7 @@ class AppRoutes {
   static const String home = '/';
   static const String onboarding = '/onboarding';
   static const String counter = '/counter';
+  static const String dhikrDetail = '/dhikr-detail';
   static const String dhikrSelection = '/dhikr-selection';
   static const String createWazifa = '/create-wazifa';
   static const String settings = '/settings';
@@ -37,6 +39,13 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final dhikrId = state.extra as String?;
         return CounterScreen(dhikrId: dhikrId ?? '');
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.dhikrDetail,
+      builder: (context, state) {
+        final dhikrId = state.extra as String?;
+        return DhikrDetailScreen(dhikrId: dhikrId ?? '');
       },
     ),
     GoRoute(

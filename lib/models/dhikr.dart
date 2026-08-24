@@ -13,6 +13,33 @@ enum DhikrCategory {
   salawat,
 }
 
+extension DhikrCategoryLabel on DhikrCategory {
+  String get label {
+    switch (this) {
+      case DhikrCategory.general:
+        return 'General';
+      case DhikrCategory.morning:
+        return 'Morning';
+      case DhikrCategory.evening:
+        return 'Evening';
+      case DhikrCategory.afterSalah:
+        return 'After Salah';
+      case DhikrCategory.beforeSleep:
+        return 'Before Sleep';
+      case DhikrCategory.friday:
+        return 'Friday';
+      case DhikrCategory.forgiveness:
+        return 'Forgiveness';
+      case DhikrCategory.protection:
+        return 'Protection';
+      case DhikrCategory.praise:
+        return 'Praise';
+      case DhikrCategory.salawat:
+        return 'Salawat';
+    }
+  }
+}
+
 enum ReferenceType { hadith, quran }
 
 class Dhikr {

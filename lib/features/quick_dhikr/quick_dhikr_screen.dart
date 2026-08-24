@@ -90,7 +90,7 @@ class _DhikrListTile extends ConsumerWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () => context.push(AppRoutes.counter, extra: dhikr.id),
+        onTap: () => context.push(AppRoutes.dhikrDetail, extra: dhikr.id),
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -140,6 +140,12 @@ class _DhikrListTile extends ConsumerWidget {
                 children: [
                   Chip(
                     label: Text('${context.l10n.targetCount}: $targetCount'),
+                    padding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  const SizedBox(width: 8),
+                  Chip(
+                    label: Text(dhikr.category.label),
                     padding: EdgeInsets.zero,
                     visualDensity: VisualDensity.compact,
                   ),
