@@ -1,15 +1,17 @@
 import 'dart:async';
 
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:confetti/confetti.dart';
+
 import '../../core/localization/l10n_extension.dart';
 import '../../core/volume/volume_key_service.dart';
 import '../../providers/counter_provider.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../widgets/custom_scaffold.dart';
 import 'widgets/circular_progress.dart';
 import 'widgets/count_button.dart';
 
@@ -95,7 +97,9 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
               ref.read(counterStateProvider.notifier).reset(widget.dhikrId);
               Navigator.pop(dialogContext);
             },
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
             child: Text(l10n.reset),
           ),
         ],
@@ -155,154 +159,143 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
           _handleCount();
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(dhikr.name),
-          actions: [
-            if (repeatEnabled)
-              Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.secondary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '${l10n.round} ${counterState.roundCount}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+      child: CustomScaffold(
+        title: dhikr.name,
+        actions: [
+          if (repeatEnabled)
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${l10n.round} ${counterState.roundCount}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
         body: Stack(
           children: [
             SafeArea(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight:
-                              MediaQuery.sizeOf(context).height -
-                              MediaQuery.paddingOf(context).top -
-                              kToolbarHeight -
-                              240,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                child: Column(
+                  children: [
+                    // Text header area
+                    if (dhikr.arabicText != null) ...[
+                      Text(
+                        dhikr.arabicText!,
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (dhikr.arabicText != null) ...[
-                              Text(
-                                dhikr.arabicText!,
-                                style: const TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                                textDirection: TextDirection.rtl,
-                              ),
-                              const SizedBox(height: 6),
-                            ],
-                            if (dhikr.transliteration != null)
-                              Text(
-                                dhikr.transliteration!,
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface
-                                          .withValues(alpha: 0.7),
-                                    ),
-                                textAlign: TextAlign.center,
-                              ),
-                            const SizedBox(height: 24),
-                            CircularProgressWidget(
-                              progress: targetCount > 0
-                                  ? counterState.displayCount / targetCount
-                                  : 0,
-                              currentCount: counterState.displayCount,
-                              targetCount: targetCount,
-                              remainingCount:
-                                  targetCount - counterState.displayCount,
-                            ),
-                            const SizedBox(height: 24),
-                            if (counterState.isCompleted && !repeatEnabled)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  l10n.mashaAllahCompleted,
-                                  style: Theme.of(context).textTheme.titleMedium
-                                      ?.copyWith(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primary,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                ),
-                              ),
-                          ],
+                        textAlign: TextAlign.center,
+                        textDirection: TextDirection.rtl,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                    if (dhikr.transliteration != null)
+                      Text(
+                        dhikr.transliteration!,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                    // Centered Circular Progress takes available screen space
+                    Expanded(
+                      child: Center(
+                        child: CircularProgressWidget(
+                          progress: targetCount > 0
+                              ? counterState.displayCount / targetCount
+                              : 0,
+                          currentCount: counterState.displayCount,
+                          targetCount: targetCount,
+                          remainingCount:
+                              targetCount - counterState.displayCount,
                         ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CountButton(
-                          onTap: isCompleted && !repeatEnabled
-                              ? null
-                              : _handleCount,
+
+                    // Completion Text Badge
+                    if (counterState.isCompleted && !repeatEnabled)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            l10n.mashaAllahCompleted,
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
                         ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: _showResetDialog,
-                                icon: const Icon(Icons.restart_alt, size: 18),
-                                label: Text(l10n.reset),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: FilledButton.icon(
-                                onPressed: _saveAndExit,
-                                icon: const Icon(Icons.save, size: 18),
-                                label: Text(l10n.saveAndExit),
-                              ),
-                            ),
-                          ],
+                      ),
+
+                    // Fixed Bottom Controls
+                    CountButton(
+                      onTap: isCompleted && !repeatEnabled
+                          ? null
+                          : _handleCount,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: _showResetDialog,
+                            icon: const Icon(Icons.restart_alt, size: 18),
+                            label: Text(l10n.reset),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FilledButton.icon(
+                            onPressed: _saveAndExit,
+                            icon: const Icon(Icons.save, size: 18),
+                            label: Text(l10n.saveAndExit),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             Align(

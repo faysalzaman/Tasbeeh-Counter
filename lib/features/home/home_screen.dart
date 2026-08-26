@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/localization/l10n_extension.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
+import '../../widgets/custom_scaffold.dart';
 import 'widgets/greeting_widget.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -19,183 +21,167 @@ class HomeScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final l10n = context.l10n;
 
-    return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      body: SafeArea(
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20.0,
-                  vertical: 16.0,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return CustomScaffold(
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top App Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Top App Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const GreetingWidget(),
-                        IconButton.filledTonal(
-                          onPressed: () => context.push(AppRoutes.settings),
-                          icon: const Icon(Icons.settings_outlined),
-                          tooltip: l10n.settings,
-                        ),
-                      ],
+                    const GreetingWidget(),
+                    IconButton.filledTonal(
+                      onPressed: () => context.push(AppRoutes.settings),
+                      icon: const Icon(Icons.settings_outlined),
+                      tooltip: l10n.settings,
                     ),
-                    const SizedBox(height: 28),
-
-                    // Category Section Title
-                    Row(
-                      children: [
-                        Text(
-                          'Categories',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          '${defaultDhikrs.length + customDhikrs.length} Total',
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Categories Grid
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 14,
-                      crossAxisSpacing: 14,
-                      childAspectRatio: 0.98,
-                      children: [
-                        _CategoryCard(
-                          icon: Icons.bolt,
-                          label: l10n.quickDhikr,
-                          count: quickDhikrs.length,
-                          badgeCount: relevantNowQuickDhikrs.length,
-                          containerColor: theme.colorScheme.primaryContainer,
-                          iconColor: theme.colorScheme.onPrimaryContainer,
-                          onTap: () => context.push(AppRoutes.quickDhikr),
-                        ),
-                        _CategoryCard(
-                          icon: Icons.bookmark_rounded,
-                          label: l10n.myWazifas,
-                          count: customDhikrs.length,
-                          containerColor: theme.colorScheme.secondaryContainer,
-                          iconColor: theme.colorScheme.onSecondaryContainer,
-                          onTap: () => context.push(AppRoutes.myWazifas),
-                        ),
-                        if (activeDhikrs.isNotEmpty)
-                          _CategoryCard(
-                            icon: Icons.play_circle_filled_rounded,
-                            label: l10n.continueWazifa,
-                            count: activeDhikrs.length,
-                            containerColor: theme.colorScheme.tertiaryContainer,
-                            iconColor: theme.colorScheme.onTertiaryContainer,
-                            onTap: () => context.push(AppRoutes.continueWazifa),
-                          ),
-                        _CategoryCard(
-                          icon: Icons.menu_book_rounded,
-                          label: l10n.allAzkaar,
-                          count: defaultDhikrs.length + customDhikrs.length,
-                          containerColor:
-                              theme.colorScheme.surfaceContainerHigh,
-                          iconColor: theme.colorScheme.primary,
-                          onTap: () => context.push(AppRoutes.dhikrSelection),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Create New Wazifa Banner
-                    Container(
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: theme.colorScheme.outlineVariant.withValues(
-                            alpha: 0.4,
-                          ),
-                        ),
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(20),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(20),
-                          onTap: () => context.push(AppRoutes.createWazifa),
-                          child: Padding(
-                            padding: const EdgeInsets.all(18.0),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 52,
-                                  height: 52,
-                                  decoration: BoxDecoration(
-                                    color: theme.colorScheme.primary.withValues(
-                                      alpha: 0.12,
-                                    ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.add_rounded,
-                                    color: theme.colorScheme.primary,
-                                    size: 28,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        l10n.createWazifa,
-                                        style: theme.textTheme.titleMedium
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        'Set your own target and schedule',
-                                        style: theme.textTheme.bodySmall
-                                            ?.copyWith(
-                                              color: theme
-                                                  .colorScheme
-                                                  .onSurfaceVariant,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.chevron_right_rounded,
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
                   ],
                 ),
-              ),
+                const SizedBox(height: 28),
+
+                // Category Section Title
+                Row(
+                  children: [
+                    Text(
+                      'Categories',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${defaultDhikrs.length + customDhikrs.length} Total',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Categories Grid
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 14,
+                  crossAxisSpacing: 14,
+                  childAspectRatio: 0.98,
+                  children: [
+                    _CategoryCard(
+                      icon: Icons.bolt,
+                      label: l10n.quickDhikr,
+                      count: quickDhikrs.length,
+                      badgeCount: relevantNowQuickDhikrs.length,
+                      containerColor: theme.colorScheme.primaryContainer,
+                      iconColor: theme.colorScheme.onPrimaryContainer,
+                      onTap: () => context.push(AppRoutes.quickDhikr),
+                    ),
+                    _CategoryCard(
+                      icon: Icons.bookmark_rounded,
+                      label: l10n.myWazifas,
+                      count: customDhikrs.length,
+                      containerColor: theme.colorScheme.secondaryContainer,
+                      iconColor: theme.colorScheme.onSecondaryContainer,
+                      onTap: () => context.push(AppRoutes.myWazifas),
+                    ),
+                    if (activeDhikrs.isNotEmpty)
+                      _CategoryCard(
+                        icon: Icons.play_circle_filled_rounded,
+                        label: l10n.continueWazifa,
+                        count: activeDhikrs.length,
+                        containerColor: theme.colorScheme.tertiaryContainer,
+                        iconColor: theme.colorScheme.onTertiaryContainer,
+                        onTap: () => context.push(AppRoutes.continueWazifa),
+                      ),
+                    _CategoryCard(
+                      icon: Icons.menu_book_rounded,
+                      label: l10n.allAzkaar,
+                      count: defaultDhikrs.length + customDhikrs.length,
+                      containerColor: theme.colorScheme.surfaceContainerHigh,
+                      iconColor: theme.colorScheme.primary,
+                      onTap: () => context.push(AppRoutes.dhikrSelection),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Create New Wazifa Banner
+                Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: theme.colorScheme.outlineVariant.withValues(
+                        alpha: 0.4,
+                      ),
+                    ),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () => context.push(AppRoutes.createWazifa),
+                      child: Padding(
+                        padding: const EdgeInsets.all(18.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.primary.withValues(
+                                  alpha: 0.12,
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.add_rounded,
+                                color: theme.colorScheme.primary,
+                                size: 28,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.createWazifa,
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Set your own target and schedule',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Icons.chevron_right_rounded,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
