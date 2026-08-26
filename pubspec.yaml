@@ -60,6 +60,8 @@ dependencies:
   # For detecting system theme
   dynamic_color: ^1.7.0
 
+  material_ui: ^1.1.0
+  cupertino_ui: ^1.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

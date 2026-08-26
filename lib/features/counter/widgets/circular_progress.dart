@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import '../../../core/localization/l10n_extension.dart';
 

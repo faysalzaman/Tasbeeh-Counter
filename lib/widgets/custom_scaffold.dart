@@ -1,21 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 
-/// A professional, drop-in replacement for [Scaffold].
+/// A professional, platform-adaptive drop-in replacement for [Scaffold].
 ///
 /// Automatically:
+/// - Applies adaptive Navigation/App Bars (iOS [CupertinoNavigationBar] / Android [AppBar])
 /// - Applies default content padding
 /// - Wraps content in [SafeArea] (top/bottom aware, notch & gesture-bar safe)
 /// - Adapts to current theme (light/dark, colors, surface)
-/// - Supports scrollable bodies, pull-to-refresh, loading overlay,
-///   and empty states — without any extra boilerplate per screen.
-///
-/// Usage:
-/// ```dart
-/// CustomScaffold(
-///   title: 'Home',
-///   body: Text('Hello'),
-/// )
-/// ```
+/// - Supports scrollable bodies, pull-to-refresh, and loading overlays
 class CustomScaffold extends StatelessWidget {
   const CustomScaffold({
     super.key,
@@ -88,7 +81,7 @@ class CustomScaffold extends StatelessWidget {
   final double elevation;
   final bool extendBodyBehindAppBar;
 
-  /// Widget to place at the bottom of the AppBar (e.g. a [TabBar]).
+  /// Widget to place at the bottom of the AppBar (Material only, e.g. a [TabBar]).
   final PreferredSizeWidget? bottom;
 
   bool get _hasAppBar =>
@@ -98,6 +91,61 @@ class CustomScaffold extends StatelessWidget {
           actions != null ||
           leading != null ||
           bottom != null);
+
+  PreferredSizeWidget? _buildAdaptiveAppBar(BuildContext context) {
+    if (!_hasAppBar) return null;
+
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isIOS =
+        theme.platform == TargetPlatform.iOS ||
+        theme.platform == TargetPlatform.macOS;
+
+    final effectiveTitle = titleWidget ?? (title != null ? Text(title!) : null);
+
+    if (isIOS) {
+      final appBarColor =
+          backgroundColor ??
+          theme.appBarTheme.backgroundColor ??
+          colorScheme.surface;
+
+      return CupertinoNavigationBar(
+        middle: effectiveTitle,
+        leading: leading,
+        automaticallyImplyLeading: automaticallyImplyLeading,
+        trailing: actions != null && actions!.isNotEmpty
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: actions!,
+              )
+            : null,
+        backgroundColor: appBarColor.withValues(alpha: 0.85),
+        border: elevation > 0
+            ? Border(
+                bottom: BorderSide(
+                  color: theme.dividerColor.withValues(alpha: 0.2),
+                  width: 0.0,
+                ),
+              )
+            : null,
+      );
+    }
+
+    return AppBar(
+      title: effectiveTitle,
+      actions: actions,
+      leading: leading,
+      automaticallyImplyLeading: automaticallyImplyLeading,
+      centerTitle: centerTitle,
+      elevation: elevation,
+      bottom: bottom,
+      backgroundColor: theme.appBarTheme.backgroundColor ?? colorScheme.surface,
+      foregroundColor:
+          theme.appBarTheme.foregroundColor ?? colorScheme.onSurface,
+      surfaceTintColor: Colors.transparent,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +165,7 @@ class CustomScaffold extends StatelessWidget {
     }
 
     if (onRefresh != null) {
-      content = RefreshIndicator(
+      content = RefreshIndicator.adaptive(
         onRefresh: onRefresh!,
         color: colorScheme.primary,
         backgroundColor: colorScheme.surface,
@@ -138,9 +186,7 @@ class CustomScaffold extends StatelessWidget {
           Positioned.fill(
             child: Container(
               color: colorScheme.surface.withValues(alpha: 0.6),
-              child: Center(
-                child: CircularProgressIndicator(color: colorScheme.primary),
-              ),
+              child: const Center(child: CircularProgressIndicator.adaptive()),
             ),
           ),
         ],
@@ -151,22 +197,7 @@ class CustomScaffold extends StatelessWidget {
       backgroundColor: backgroundColor ?? theme.scaffoldBackgroundColor,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       extendBodyBehindAppBar: extendBodyBehindAppBar,
-      appBar: _hasAppBar
-          ? AppBar(
-              title: titleWidget ?? (title != null ? Text(title!) : null),
-              actions: actions,
-              leading: leading,
-              automaticallyImplyLeading: automaticallyImplyLeading,
-              centerTitle: centerTitle,
-              elevation: elevation,
-              bottom: bottom,
-              backgroundColor:
-                  theme.appBarTheme.backgroundColor ?? colorScheme.surface,
-              foregroundColor:
-                  theme.appBarTheme.foregroundColor ?? colorScheme.onSurface,
-              surfaceTintColor: Colors.transparent,
-            )
-          : null,
+      appBar: _buildAdaptiveAppBar(context),
       drawer: drawer,
       endDrawer: endDrawer,
       floatingActionButton: floatingActionButton,
