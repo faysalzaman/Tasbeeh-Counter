@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/localization/l10n_extension.dart';
+import '../../core/theme/app_colors.dart';
 import '../../core/volume/volume_key_service.dart';
 import '../../providers/counter_provider.dart';
 import '../../providers/dhikr_provider.dart';
@@ -307,8 +308,8 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
                 colors: [
                   Theme.of(context).colorScheme.primary,
                   Theme.of(context).colorScheme.secondary,
-                  Colors.green,
-                  Colors.amber,
+                  AppColors.success,
+                  AppColors.secondaryLight,
                 ],
                 numberOfParticles: 30,
                 gravity: 0.2,
