@@ -8,6 +8,7 @@ import '../../core/constants/app_constants.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/notifications/notification_service.dart';
 import '../../providers/settings_provider.dart';
+import '../../widgets/custom_scaffold.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -136,9 +137,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final theme = Theme.of(context);
     final l10n = context.l10n;
 
-    return Scaffold(
+    return CustomScaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(title: Text(l10n.settings), centerTitle: true),
+      title: l10n.settings,
+      padding: EdgeInsets.zero,
       body: ListView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

@@ -5,6 +5,7 @@ import '../../core/localization/l10n_extension.dart';
 import '../../models/dhikr.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
+import '../../widgets/custom_scaffold.dart';
 
 class MyWazifasScreen extends ConsumerWidget {
   const MyWazifasScreen({super.key});
@@ -15,17 +16,13 @@ class MyWazifasScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
 
-    return Scaffold(
+    return CustomScaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        centerTitle: true,
-        elevation: 0,
-        scrolledUnderElevation: 2,
-        title: Text(
-          l10n.myWazifas,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+      titleWidget: Text(
+        l10n.myWazifas,
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
+      padding: EdgeInsets.zero,
       body: customDhikrs.isEmpty
           ? Center(
               child: Padding(

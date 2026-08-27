@@ -6,6 +6,7 @@ import '../../models/dhikr.dart';
 import '../../models/dhikr_progress.dart';
 import '../../models/dhikr_schedule.dart';
 import '../../providers/dhikr_provider.dart';
+import '../../widgets/custom_scaffold.dart';
 
 class CreateWazifaScreen extends ConsumerStatefulWidget {
   final String? dhikrId;
@@ -194,12 +195,10 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
     final theme = Theme.of(context);
     final l10n = context.l10n;
 
-    return Scaffold(
+    return CustomScaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        title: Text(_isEditing ? l10n.edit : l10n.createWazifa),
-        centerTitle: true,
-      ),
+      title: _isEditing ? l10n.edit : l10n.createWazifa,
+      padding: EdgeInsets.zero,
       body: Form(
         key: _formKey,
         child: ListView(

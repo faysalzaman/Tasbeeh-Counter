@@ -1,11 +1,14 @@
 import 'dart:ui';
-import 'package:material_ui/material_ui.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '../../core/localization/l10n_extension.dart';
 import '../../models/dhikr.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
+import '../../widgets/custom_scaffold.dart';
 
 class DhikrDetailScreen extends ConsumerWidget {
   final String dhikrId;
@@ -20,8 +23,9 @@ class DhikrDetailScreen extends ConsumerWidget {
     final l10n = context.l10n;
 
     if (dhikr == null) {
-      return Scaffold(
-        appBar: AppBar(),
+      return CustomScaffold(
+        showAppBar: false,
+        padding: EdgeInsets.zero,
         body: Center(
           child: Text(l10n.noCustomWazifas, style: theme.textTheme.titleMedium),
         ),
@@ -33,8 +37,12 @@ class DhikrDetailScreen extends ConsumerWidget {
     final isInProgress = currentCount > 0 && currentCount < targetCount;
     final isCompleted = progress?.isCompleted ?? false;
 
-    return Scaffold(
+    return CustomScaffold(
       backgroundColor: theme.colorScheme.surface,
+      showAppBar: false,
+      padding: EdgeInsets.zero,
+      safeAreaTop: false,
+      safeAreaBottom: false,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -526,90 +534,90 @@ class DhikrDetailScreen extends ConsumerWidget {
           borderRadius: BorderRadius.circular(14),
           clipBehavior: Clip.antiAlias,
           child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 8,
-          ),
-          leading: Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: badgeColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
             ),
-            child: Icon(
-              isQuran ? Icons.auto_stories_rounded : Icons.menu_book_rounded,
-              size: 20,
-              color: badgeColor,
+            leading: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: badgeColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                isQuran ? Icons.auto_stories_rounded : Icons.menu_book_rounded,
+                size: 20,
+                color: badgeColor,
+              ),
             ),
-          ),
-          title: Text(
-            ref.source,
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
+            title: Text(
+              ref.source,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          subtitle: Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (ref.text != null && ref.text!.isNotEmpty)
-                  Text(
-                    ref.text!,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (ref.text != null && ref.text!.isNotEmpty)
+                    Text(
+                      ref.text!,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                const SizedBox(height: 2),
-                if (ref.narrator != null && ref.narrator!.isNotEmpty)
-                  Text(
-                    'Narrated by: ${ref.narrator}',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.outline,
+                  const SizedBox(height: 2),
+                  if (ref.narrator != null && ref.narrator!.isNotEmpty)
+                    Text(
+                      'Narrated by: ${ref.narrator}',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                      ),
                     ),
-                  ),
-                if (ref.surah != null)
-                  Text(
-                    'Surah ${ref.surah}${ref.verse != null ? ' [Verse ${ref.verse}]' : ''}',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.outline,
+                  if (ref.surah != null)
+                    Text(
+                      'Surah ${ref.surah}${ref.verse != null ? ' [Verse ${ref.verse}]' : ''}',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                      ),
                     ),
-                  ),
-                if (ref.referenceNumber != null)
-                  Text(
-                    'Ref No: #${ref.referenceNumber}',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.outline,
+                  if (ref.referenceNumber != null)
+                    Text(
+                      'Ref No: #${ref.referenceNumber}',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
+            trailing: ref.grade != null && ref.grade!.isNotEmpty
+                ? Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Text(
+                      ref.grade!,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  )
+                : null,
           ),
-          trailing: ref.grade != null && ref.grade!.isNotEmpty
-              ? Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: Text(
-                    ref.grade!,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                )
-              : null,
-        ),
         ),
       );
     }).toList();

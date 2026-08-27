@@ -6,6 +6,7 @@ import '../../models/dhikr.dart';
 import '../../models/dhikr_schedule.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
+import '../../widgets/custom_scaffold.dart';
 
 class QuickDhikrScreen extends ConsumerWidget {
   const QuickDhikrScreen({super.key});
@@ -16,17 +17,13 @@ class QuickDhikrScreen extends ConsumerWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
 
-    return Scaffold(
+    return CustomScaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        centerTitle: true,
-        elevation: 0,
-        scrolledUnderElevation: 2,
-        title: Text(
-          l10n.quickDhikr,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+      titleWidget: Text(
+        l10n.quickDhikr,
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
+      padding: EdgeInsets.zero,
       body: quickDhikrs.isEmpty
           ? Center(
               child: Column(

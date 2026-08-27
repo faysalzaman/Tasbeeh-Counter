@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../providers/settings_provider.dart';
 import '../../router/app_router.dart';
+import '../../widgets/custom_scaffold.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -80,10 +81,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final l10n = context.l10n;
     final pages = _getPages(context);
 
-    return Scaffold(
+    return CustomScaffold(
       backgroundColor: theme.colorScheme.surface,
-      body: SafeArea(
-        child: Column(
+      showAppBar: false,
+      padding: EdgeInsets.zero,
+      body: Column(
           children: [
             // Top Bar with Skip Option
             Padding(
@@ -245,7 +247,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 

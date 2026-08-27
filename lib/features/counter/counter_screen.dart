@@ -141,7 +141,11 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
     });
 
     if (dhikr == null) {
-      return Scaffold(body: Center(child: Text(l10n.noCustomWazifas)));
+      return CustomScaffold(
+        showAppBar: false,
+        padding: EdgeInsets.zero,
+        body: Center(child: Text(l10n.noCustomWazifas)),
+      );
     }
 
     final targetCount = dhikr.totalTargetCount;

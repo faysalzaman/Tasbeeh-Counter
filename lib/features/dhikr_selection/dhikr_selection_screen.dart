@@ -6,6 +6,7 @@ import '../../models/dhikr.dart';
 import '../../models/dhikr_schedule.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
+import '../../widgets/custom_scaffold.dart';
 
 class DhikrSelectionScreen extends ConsumerWidget {
   const DhikrSelectionScreen({super.key});
@@ -19,53 +20,49 @@ class DhikrSelectionScreen extends ConsumerWidget {
 
     return DefaultTabController(
       length: 2,
-      child: Scaffold(
+      child: CustomScaffold(
         backgroundColor: theme.colorScheme.surface,
-        appBar: AppBar(
-          centerTitle: true,
-          elevation: 0,
-          scrolledUnderElevation: 2,
-          title: Text(
-            l10n.selectDhikr,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(52),
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHigh,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: TabBar(
-                dividerColor: Colors.transparent,
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicator: BoxDecoration(
-                  color: theme.colorScheme.primary,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.25),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                labelColor: theme.colorScheme.onPrimary,
-                unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
-                labelStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-                unselectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 14,
-                ),
-                tabs: [
-                  Tab(text: l10n.defaultAzkaar),
-                  Tab(text: l10n.myWazifas),
+        titleWidget: Text(
+          l10n.selectDhikr,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        padding: EdgeInsets.zero,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(52),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: TabBar(
+              dividerColor: Colors.transparent,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicator: BoxDecoration(
+                color: theme.colorScheme.primary,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.25),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
                 ],
               ),
+              labelColor: theme.colorScheme.onPrimary,
+              unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+              ),
+              tabs: [
+                Tab(text: l10n.defaultAzkaar),
+                Tab(text: l10n.myWazifas),
+              ],
             ),
           ),
         ),
