@@ -1,10 +1,12 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '../../core/localization/l10n_extension.dart';
 import '../../models/dhikr.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
+import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
 
 class MyWazifasScreen extends ConsumerWidget {
@@ -61,19 +63,10 @@ class MyWazifasScreen extends ConsumerWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
-                    FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                    AppButton.primary(
+                      icon: Icons.add_rounded,
+                      label: l10n.createWazifa,
                       onPressed: () => context.push(AppRoutes.createWazifa),
-                      icon: const Icon(Icons.add_rounded),
-                      label: Text(l10n.createWazifa),
                     ),
                   ],
                 ),
@@ -88,11 +81,10 @@ class MyWazifasScreen extends ConsumerWidget {
                 return _WazifaListTile(dhikr: dhikr);
               },
             ),
-      floatingActionButton: FloatingActionButton.extended(
-        elevation: 3,
+      floatingActionButton: AppFab(
+        icon: Icons.add_rounded,
+        label: l10n.createWazifa,
         onPressed: () => context.push(AppRoutes.createWazifa),
-        icon: const Icon(Icons.add_rounded),
-        label: Text(l10n.createWazifa),
       ),
     );
   }
@@ -367,7 +359,6 @@ class _WazifaListTile extends ConsumerWidget {
 
   void _showDeleteDialog(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final theme = Theme.of(context);
 
     showDialog(
       context: context,
@@ -378,22 +369,18 @@ class _WazifaListTile extends ConsumerWidget {
           l10n.deleteWazifaMessage.toString().replaceAll('{name}', dhikr.name),
         ),
         actions: [
-          TextButton(
+          AppButton.text(
+            label: l10n.cancel,
             onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
           ),
-          FilledButton(
+          AppButton.danger(
+            label: l10n.delete,
             onPressed: () {
               ref
                   .read(dhikrListNotifierProvider.notifier)
                   .deleteDhikr(dhikr.id);
               Navigator.pop(context);
             },
-            style: FilledButton.styleFrom(
-              backgroundColor: theme.colorScheme.error,
-              foregroundColor: theme.colorScheme.onError,
-            ),
-            child: Text(l10n.delete),
           ),
         ],
       ),
