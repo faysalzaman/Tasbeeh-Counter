@@ -5,6 +5,7 @@ import '../../../core/localization/l10n_extension.dart';
 import '../../../models/dhikr.dart';
 import '../../../providers/dhikr_provider.dart';
 import '../../../router/app_router.dart';
+import 'package:iconsax/iconsax.dart';
 
 class MyWazifaCard extends ConsumerWidget {
   final Dhikr dhikr;
@@ -104,7 +105,7 @@ class MyWazifaCard extends ConsumerWidget {
                       child: Center(
                         child: isCompleted
                             ? Icon(
-                                Icons.check_circle_rounded,
+                                Iconsax.tick_circle,
                                 color: theme.colorScheme.onTertiaryContainer,
                                 size: 26,
                               )
@@ -158,7 +159,7 @@ class MyWazifaCard extends ConsumerWidget {
                           Padding(
                             padding: const EdgeInsets.only(right: 6),
                             child: Icon(
-                              Icons.alarm_on_rounded,
+                              Iconsax.alarm,
                               size: 16,
                               color: theme.colorScheme.primary,
                             ),
@@ -167,7 +168,7 @@ class MyWazifaCard extends ConsumerWidget {
                           Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: Icon(
-                              Icons.repeat_rounded,
+                              Iconsax.repeat,
                               size: 16,
                               color: theme.colorScheme.secondary,
                             ),

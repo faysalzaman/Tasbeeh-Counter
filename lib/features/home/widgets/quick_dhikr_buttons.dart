@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 import '../../../models/dhikr.dart';
 import '../../../router/app_router.dart';
+import 'package:iconsax/iconsax.dart';
 
 class QuickDhikrButtons extends StatelessWidget {
   final List<Dhikr> dhikrs;
@@ -67,7 +68,7 @@ class _DhikrCard extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.fingerprint_rounded,
+                      Iconsax.finger_scan,
                       color: theme.colorScheme.onPrimaryContainer,
                       size: 22,
                     ),

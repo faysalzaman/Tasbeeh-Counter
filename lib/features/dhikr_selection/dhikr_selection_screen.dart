@@ -6,7 +6,9 @@ import '../../models/dhikr.dart';
 import '../../models/dhikr_schedule.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
+import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
+import 'package:iconsax/iconsax.dart';
 
 class DhikrSelectionScreen extends ConsumerWidget {
   const DhikrSelectionScreen({super.key});
@@ -95,7 +97,7 @@ class DhikrSelectionScreen extends ConsumerWidget {
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              Icons.bookmark_add_outlined,
+                              Iconsax.archive_add,
                               size: 56,
                               color: theme.colorScheme.primary,
                             ),
@@ -117,20 +119,10 @@ class DhikrSelectionScreen extends ConsumerWidget {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 24),
-                          FilledButton.icon(
-                            style: FilledButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            onPressed: () =>
-                                context.push(AppRoutes.createWazifa),
-                            icon: const Icon(Icons.add_rounded),
-                            label: Text(l10n.createWazifa),
+                          AppButton.primary(
+                            icon: Iconsax.add,
+                            label: l10n.createWazifa,
+                            onPressed: () => context.push(AppRoutes.createWazifa),
                           ),
                         ],
                       ),
@@ -151,11 +143,10 @@ class DhikrSelectionScreen extends ConsumerWidget {
                   ),
           ],
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          elevation: 3,
+        floatingActionButton: AppFab(
+          icon: Iconsax.add,
+          label: l10n.createWazifa,
           onPressed: () => context.push(AppRoutes.createWazifa),
-          icon: const Icon(Icons.add_rounded),
-          label: Text(l10n.createWazifa),
         ),
       ),
     );
@@ -315,16 +306,16 @@ class DhikrListTile extends ConsumerWidget {
                   children: [
                     _MetaBadge(
                       label: '${l10n.targetCount}: $targetCount',
-                      icon: Icons.flag_outlined,
+                      icon: Iconsax.flag,
                     ),
                     _MetaBadge(
                       label: dhikr.category.label,
-                      icon: Icons.category_outlined,
+                      icon: Iconsax.category,
                     ),
                     if (repeatEnabled)
                       _MetaBadge(
                         label: l10n.repeatMode,
-                        icon: Icons.repeat_rounded,
+                        icon: Iconsax.repeat,
                         color: theme.colorScheme.secondary,
                       ),
                     if (scheduleEnum != null)
@@ -339,39 +330,26 @@ class DhikrListTile extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (showEdit)
-                      IconButton.outlined(
-                        style: IconButton.styleFrom(
-                          side: BorderSide(
-                            color: theme.colorScheme.outlineVariant.withValues(
-                              alpha: 0.5,
-                            ),
-                          ),
-                          visualDensity: VisualDensity.compact,
+                      AppIconButton.outlined(
+                        icon: Iconsax.edit,
+                        borderColor: theme.colorScheme.outlineVariant.withValues(
+                          alpha: 0.5,
                         ),
                         onPressed: () => context.push(
                           AppRoutes.createWazifa,
                           extra: dhikr.id,
                         ),
-                        icon: const Icon(Icons.edit_outlined, size: 18),
                         tooltip: l10n.edit,
                       ),
                     if (showDelete) ...[
                       const SizedBox(width: 8),
-                      IconButton.outlined(
-                        style: IconButton.styleFrom(
-                          side: BorderSide(
-                            color: theme.colorScheme.error.withValues(
-                              alpha: 0.3,
-                            ),
-                          ),
-                          visualDensity: VisualDensity.compact,
+                      AppIconButton.outlined(
+                        icon: Iconsax.trash,
+                        borderColor: theme.colorScheme.error.withValues(
+                          alpha: 0.3,
                         ),
+                        color: theme.colorScheme.error,
                         onPressed: () => _showDeleteDialog(context, ref),
-                        icon: Icon(
-                          Icons.delete_outline,
-                          size: 18,
-                          color: theme.colorScheme.error,
-                        ),
                         tooltip: l10n.delete,
                       ),
                     ],
@@ -391,7 +369,7 @@ class DhikrListTile extends ConsumerWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
-                                Icons.check_circle_rounded,
+                                Iconsax.tick_circle,
                                 color: theme.colorScheme.primary,
                                 size: 16,
                               ),
@@ -408,19 +386,12 @@ class DhikrListTile extends ConsumerWidget {
                           ),
                         )
                       else
-                        FilledButton.icon(
-                          style: FilledButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            visualDensity: VisualDensity.compact,
-                          ),
+                        AppButton.primary(
+                          icon: Iconsax.finger_scan,
+                          label: isInProgress ? l10n.continue_ : l10n.start,
+                          height: 40,
                           onPressed: () =>
                               context.push(AppRoutes.counter, extra: dhikr.id),
-                          icon: const Icon(Icons.fingerprint_rounded, size: 18),
-                          label: Text(
-                            isInProgress ? l10n.continue_ : l10n.start,
-                          ),
                         ),
                     ],
                   ],
@@ -435,7 +406,6 @@ class DhikrListTile extends ConsumerWidget {
 
   void _showDeleteDialog(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final theme = Theme.of(context);
 
     showDialog(
       context: context,
@@ -446,22 +416,18 @@ class DhikrListTile extends ConsumerWidget {
           l10n.deleteWazifaMessage.toString().replaceAll('{name}', dhikr.name),
         ),
         actions: [
-          TextButton(
+          AppButton.text(
+            label: l10n.cancel,
             onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
           ),
-          FilledButton(
+          AppButton.danger(
+            label: l10n.delete,
             onPressed: () {
               ref
                   .read(dhikrListNotifierProvider.notifier)
                   .deleteDhikr(dhikr.id);
               Navigator.pop(context);
             },
-            style: FilledButton.styleFrom(
-              backgroundColor: theme.colorScheme.error,
-              foregroundColor: theme.colorScheme.onError,
-            ),
-            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -535,7 +501,7 @@ class _ScheduleBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.schedule_rounded,
+            Iconsax.clock,
             size: 12,
             color: isRelevant
                 ? theme.colorScheme.primary

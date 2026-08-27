@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
+import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
 import 'widgets/greeting_widget.dart';
+import 'package:iconsax/iconsax.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -34,9 +36,9 @@ class HomeScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const GreetingWidget(),
-                    IconButton.filledTonal(
+                    AppIconButton(
+                      icon: Iconsax.setting,
                       onPressed: () => context.push(AppRoutes.settings),
-                      icon: const Icon(Icons.settings_outlined),
                       tooltip: l10n.settings,
                     ),
                   ],
@@ -74,7 +76,7 @@ class HomeScreen extends ConsumerWidget {
                   childAspectRatio: 0.98,
                   children: [
                     _CategoryCard(
-                      icon: Icons.bolt,
+                      icon: Iconsax.flash,
                       label: l10n.quickDhikr,
                       count: quickDhikrs.length,
                       badgeCount: relevantNowQuickDhikrs.length,
@@ -83,7 +85,7 @@ class HomeScreen extends ConsumerWidget {
                       onTap: () => context.push(AppRoutes.quickDhikr),
                     ),
                     _CategoryCard(
-                      icon: Icons.bookmark_rounded,
+                      icon: Iconsax.bookmark,
                       label: l10n.myWazifas,
                       count: customDhikrs.length,
                       containerColor: theme.colorScheme.secondaryContainer,
@@ -92,7 +94,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     if (activeDhikrs.isNotEmpty)
                       _CategoryCard(
-                        icon: Icons.play_circle_filled_rounded,
+                        icon: Iconsax.play_circle,
                         label: l10n.continueWazifa,
                         count: activeDhikrs.length,
                         containerColor: theme.colorScheme.tertiaryContainer,
@@ -100,7 +102,7 @@ class HomeScreen extends ConsumerWidget {
                         onTap: () => context.push(AppRoutes.continueWazifa),
                       ),
                     _CategoryCard(
-                      icon: Icons.menu_book_rounded,
+                      icon: Iconsax.book,
                       label: l10n.allAzkaar,
                       count: defaultDhikrs.length + customDhikrs.length,
                       containerColor: theme.colorScheme.surfaceContainerHigh,
@@ -142,7 +144,7 @@ class HomeScreen extends ConsumerWidget {
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
-                                Icons.add_rounded,
+                                Iconsax.add,
                                 color: theme.colorScheme.primary,
                                 size: 28,
                               ),
@@ -168,7 +170,7 @@ class HomeScreen extends ConsumerWidget {
                               ),
                             ),
                             Icon(
-                              Icons.chevron_right_rounded,
+                              Iconsax.arrow_right_3,
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ],

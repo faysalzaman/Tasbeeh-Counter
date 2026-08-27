@@ -6,7 +6,9 @@ import '../../core/localization/l10n_extension.dart';
 import '../../models/dhikr.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
+import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ContinueWazifaScreen extends ConsumerWidget {
   const ContinueWazifaScreen({super.key});
@@ -33,7 +35,7 @@ class ContinueWazifaScreen extends ConsumerWidget {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.play_circle_outline_rounded,
+                      Iconsax.play_circle,
                       size: 56,
                       color: theme.colorScheme.primary,
                     ),
@@ -55,19 +57,10 @@ class ContinueWazifaScreen extends ConsumerWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
-                  FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
+                  AppButton.primary(
+                    icon: Iconsax.search_normal,
+                    label: l10n.selectDhikr,
                     onPressed: () => context.push(AppRoutes.dhikrSelection),
-                    icon: const Icon(Icons.search_rounded),
-                    label: const Text('Browse Azkar'),
                   ),
                 ],
               ),
@@ -225,7 +218,7 @@ class _ActiveWazifaCard extends ConsumerWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.hourglass_bottom_rounded,
+                          Iconsax.timer,
                           size: 14,
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -247,24 +240,12 @@ class _ActiveWazifaCard extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 6,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
+                    AppButton.primary(
+                      icon: Iconsax.play,
+                      label: l10n.continue_,
+                      height: 40,
                       onPressed: () =>
                           context.push(AppRoutes.counter, extra: dhikr.id),
-                      icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                      label: Text(
-                        l10n.continue_,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
                     ),
                   ],
                 ),

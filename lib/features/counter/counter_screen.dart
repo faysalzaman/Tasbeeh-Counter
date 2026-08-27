@@ -12,9 +12,11 @@ import '../../core/volume/volume_key_service.dart';
 import '../../providers/counter_provider.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
 import 'widgets/circular_progress.dart';
 import 'widgets/count_button.dart';
+import 'package:iconsax/iconsax.dart';
 
 class CounterScreen extends ConsumerStatefulWidget {
   final String dhikrId;
@@ -89,19 +91,16 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
         title: Text(l10n.resetProgressTitle),
         content: Text(l10n.resetProgressMessage),
         actions: [
-          TextButton(
+          AppButton.text(
+            label: l10n.cancel,
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text(l10n.cancel),
           ),
-          FilledButton(
+          AppButton.danger(
+            label: l10n.reset,
             onPressed: () {
               ref.read(counterStateProvider.notifier).reset(widget.dhikrId);
               Navigator.pop(dialogContext);
             },
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: Text(l10n.reset),
           ),
         ],
       ),
@@ -283,18 +282,18 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
                     Row(
                       children: [
                         Expanded(
-                          child: OutlinedButton.icon(
+                          child: AppButton.outlined(
+                            icon: Iconsax.refresh,
+                            label: l10n.reset,
                             onPressed: _showResetDialog,
-                            icon: const Icon(Icons.restart_alt, size: 18),
-                            label: Text(l10n.reset),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: FilledButton.icon(
+                          child: AppButton.primary(
+                            icon: Iconsax.save_2,
+                            label: l10n.saveAndExit,
                             onPressed: _saveAndExit,
-                            icon: const Icon(Icons.save, size: 18),
-                            label: Text(l10n.saveAndExit),
                           ),
                         ),
                       ],

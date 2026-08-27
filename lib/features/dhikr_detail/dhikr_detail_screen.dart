@@ -8,7 +8,9 @@ import '../../core/localization/l10n_extension.dart';
 import '../../models/dhikr.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
+import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
+import 'package:iconsax/iconsax.dart';
 
 class DhikrDetailScreen extends ConsumerWidget {
   final String dhikrId;
@@ -55,15 +57,19 @@ class DhikrDetailScreen extends ConsumerWidget {
             backgroundColor: theme.colorScheme.primary,
             iconTheme: const IconThemeData(color: Colors.white),
             actions: [
-              IconButton(
-                icon: const Icon(Icons.bookmark_border_rounded),
+              AppIconButton(
+                icon: Iconsax.bookmark,
                 onPressed: () {},
                 tooltip: 'Save',
+                color: Colors.white,
+                backgroundColor: Colors.white.withValues(alpha: 0.15),
               ),
-              IconButton(
-                icon: const Icon(Icons.share_outlined),
+              AppIconButton(
+                icon: Iconsax.share,
                 onPressed: () {},
                 tooltip: 'Share',
+                color: Colors.white,
+                backgroundColor: Colors.white.withValues(alpha: 0.15),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -113,7 +119,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                     child: Opacity(
                       opacity: 0.08,
                       child: Icon(
-                        Icons.auto_awesome,
+                        Iconsax.star1,
                         size: 280,
                         color: theme.colorScheme.onPrimary,
                       ),
@@ -167,7 +173,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                     _SectionHeader(
                       title: 'Azkar Recitations',
                       count: dhikr.azkar.length,
-                      icon: Icons.menu_book_rounded,
+                      icon: Iconsax.book,
                     ),
                     const SizedBox(height: 12),
                     ..._buildAzkar(context, dhikr),
@@ -177,7 +183,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                     _SectionHeader(
                       title: 'References',
                       count: dhikr.references.length,
-                      icon: Icons.verified_outlined,
+                      icon: Iconsax.verify,
                     ),
                     const SizedBox(height: 12),
                     ..._buildReferences(context, dhikr),
@@ -186,7 +192,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                   if (dhikr.benefits.isNotEmpty) ...[
                     const _SectionHeader(
                       title: 'Benefits & Virtues',
-                      icon: Icons.star_outline_rounded,
+                      icon: Iconsax.star,
                     ),
                     const SizedBox(height: 12),
                     _buildBenefits(context, dhikr),
@@ -195,7 +201,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                   if (dhikr.recommendedTimes.isNotEmpty) ...[
                     const _SectionHeader(
                       title: 'Recommended Times',
-                      icon: Icons.schedule_rounded,
+                      icon: Iconsax.clock,
                     ),
                     const SizedBox(height: 12),
                     _buildRecommendedTimes(context, dhikr),
@@ -260,13 +266,14 @@ class DhikrDetailScreen extends ConsumerWidget {
                     flex: 3,
                     child: SizedBox(
                       height: 52,
-                      child: FilledButton.icon(
-                        style: FilledButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          elevation: 2,
-                        ),
+                      child: AppButton.primary(
+                        icon: Iconsax.finger_scan,
+                        label: isCompleted
+                            ? l10n.completed
+                            : isInProgress
+                            ? l10n.continue_
+                            : l10n.start,
+                        isExpanded: true,
                         onPressed:
                             isCompleted &&
                                 (progress?.repeatEnabled ?? false) == false
@@ -275,18 +282,6 @@ class DhikrDetailScreen extends ConsumerWidget {
                                 AppRoutes.counter,
                                 extra: dhikr.id,
                               ),
-                        icon: const Icon(Icons.fingerprint_rounded, size: 22),
-                        label: Text(
-                          isCompleted
-                              ? l10n.completed
-                              : isInProgress
-                              ? l10n.continue_
-                              : l10n.start,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                       ),
                     ),
                   ),
@@ -342,11 +337,11 @@ class DhikrDetailScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.volume_up_outlined, size: 20),
+                    AppIconButton(
+                      icon: Iconsax.volume_high,
                       color: theme.colorScheme.primary,
                       onPressed: () {},
-                      visualDensity: VisualDensity.compact,
+                      size: 36,
                     ),
                   ],
                 ),
@@ -420,7 +415,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          Icons.repeat_rounded,
+                          Iconsax.repeat,
                           size: 16,
                           color: theme.colorScheme.primary,
                         ),
@@ -450,7 +445,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Icons.verified_rounded,
+                            Iconsax.verify,
                             size: 16,
                             color: Colors.amber.shade800,
                           ),
@@ -490,7 +485,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(
-                        Icons.lightbulb_outline_rounded,
+                        Iconsax.lamp,
                         size: 18,
                         color: theme.colorScheme.secondary,
                       ),
@@ -546,7 +541,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
-                isQuran ? Icons.auto_stories_rounded : Icons.menu_book_rounded,
+                isQuran ? Iconsax.book : Iconsax.book,
                 size: 20,
                 color: badgeColor,
               ),
@@ -649,7 +644,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.star_rounded,
+                      Iconsax.star1,
                       size: 18,
                       color: Colors.amber.shade800,
                     ),
@@ -698,7 +693,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    Icons.access_time_rounded,
+                    Iconsax.clock,
                     size: 16,
                     color: theme.colorScheme.primary,
                   ),
@@ -763,16 +758,16 @@ class _HeaderSection extends StatelessWidget {
           children: [
             _MetaChip(
               label: _categoryLabel(dhikr.category),
-              icon: Icons.category_outlined,
+              icon: Iconsax.category,
             ),
             _MetaChip(
               label: _typeLabel(dhikr.type),
-              icon: Icons.layers_outlined,
+              icon: Iconsax.layer,
             ),
             if (dhikr.totalTargetCount > 0)
               _MetaChip(
                 label: 'Target: ${dhikr.totalTargetCount}',
-                icon: Icons.adjust_rounded,
+                icon: Iconsax.setting_4,
               ),
           ],
         ),

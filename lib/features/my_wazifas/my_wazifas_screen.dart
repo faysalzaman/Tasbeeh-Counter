@@ -8,6 +8,7 @@ import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
 import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
+import 'package:iconsax/iconsax.dart';
 
 class MyWazifasScreen extends ConsumerWidget {
   const MyWazifasScreen({super.key});
@@ -41,7 +42,7 @@ class MyWazifasScreen extends ConsumerWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        Icons.bookmark_add_outlined,
+                        Iconsax.archive_add,
                         size: 56,
                         color: theme.colorScheme.primary,
                       ),
@@ -64,7 +65,7 @@ class MyWazifasScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 24),
                     AppButton.primary(
-                      icon: Icons.add_rounded,
+                      icon: Iconsax.add,
                       label: l10n.createWazifa,
                       onPressed: () => context.push(AppRoutes.createWazifa),
                     ),
@@ -82,7 +83,7 @@ class MyWazifasScreen extends ConsumerWidget {
               },
             ),
       floatingActionButton: AppFab(
-        icon: Icons.add_rounded,
+        icon: Iconsax.add,
         label: l10n.createWazifa,
         onPressed: () => context.push(AppRoutes.createWazifa),
       ),
@@ -173,7 +174,7 @@ class _WazifaListTile extends ConsumerWidget {
                       child: Center(
                         child: isCompleted
                             ? Icon(
-                                Icons.check_rounded,
+                                Iconsax.tick_circle,
                                 color: theme.colorScheme.onPrimaryContainer,
                                 size: 22,
                               )
@@ -188,7 +189,7 @@ class _WazifaListTile extends ConsumerWidget {
                     ),
                     PopupMenuButton<_WazifaAction>(
                       icon: Icon(
-                        Icons.more_vert_rounded,
+                        Iconsax.more,
                         size: 20,
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -216,7 +217,7 @@ class _WazifaListTile extends ConsumerWidget {
                           value: _WazifaAction.info,
                           child: Row(
                             children: [
-                              const Icon(Icons.info_outline_rounded, size: 18),
+                              const Icon(Iconsax.info_circle, size: 18),
                               const SizedBox(width: 8),
                             ],
                           ),
@@ -225,7 +226,7 @@ class _WazifaListTile extends ConsumerWidget {
                           value: _WazifaAction.edit,
                           child: Row(
                             children: [
-                              const Icon(Icons.edit_outlined, size: 18),
+                              const Icon(Iconsax.edit, size: 18),
                               const SizedBox(width: 8),
                               Text(l10n.edit),
                             ],
@@ -236,7 +237,7 @@ class _WazifaListTile extends ConsumerWidget {
                           child: Row(
                             children: [
                               Icon(
-                                Icons.delete_outline_rounded,
+                                Iconsax.trash,
                                 size: 18,
                                 color: theme.colorScheme.error,
                               ),
@@ -318,7 +319,7 @@ class _WazifaListTile extends ConsumerWidget {
                           Padding(
                             padding: const EdgeInsets.only(right: 6),
                             child: Icon(
-                              Icons.notifications_active_outlined,
+                              Iconsax.notification,
                               size: 16,
                               color: theme.colorScheme.primary,
                             ),
@@ -327,7 +328,7 @@ class _WazifaListTile extends ConsumerWidget {
                           Padding(
                             padding: const EdgeInsets.only(right: 6),
                             child: Icon(
-                              Icons.repeat_rounded,
+                              Iconsax.repeat,
                               size: 16,
                               color: theme.colorScheme.secondary,
                             ),
@@ -341,7 +342,7 @@ class _WazifaListTile extends ConsumerWidget {
                         ),
                         const SizedBox(width: 2),
                         Icon(
-                          Icons.chevron_right_rounded,
+                          Iconsax.arrow_right_3,
                           size: 18,
                           color: theme.colorScheme.primary,
                         ),

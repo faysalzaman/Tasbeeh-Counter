@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import '../../../core/localization/l10n_extension.dart';
+import 'package:iconsax/iconsax.dart';
 
 class GreetingWidget extends StatelessWidget {
   const GreetingWidget({super.key});
@@ -13,21 +14,21 @@ class GreetingWidget extends StatelessWidget {
     final (_GreetingData data) = switch (hour) {
       < 5 => _GreetingData(
         text: l10n.goodNight,
-        icon: Icons.nightlight_round_rounded,
+        icon: Iconsax.moon,
       ),
       < 12 => _GreetingData(
         text: l10n.goodMorning,
-        icon: Icons.wb_sunny_rounded,
+        icon: Iconsax.sun,
       ),
       < 17 => _GreetingData(
         text: l10n.goodAfternoon,
-        icon: Icons.wb_twilight_rounded,
+        icon: Iconsax.sun_fog,
       ),
       < 20 => _GreetingData(
         text: l10n.goodEvening,
-        icon: Icons.bedtime_rounded,
+        icon: Iconsax.moon,
       ),
-      _ => _GreetingData(text: l10n.goodNight, icon: Icons.dark_mode_rounded),
+      _ => _GreetingData(text: l10n.goodNight, icon: Iconsax.moon),
     };
 
     return Row(

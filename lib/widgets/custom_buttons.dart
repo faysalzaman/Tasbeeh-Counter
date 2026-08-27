@@ -5,11 +5,11 @@ import 'package:material_ui/material_ui.dart';
 // =============================================================================
 // Only the buttons actually repeated across screens. Keep it minimal.
 //
-//   AppButton.primary(label: 'Save', icon: Icons.save, onPressed: _save)
+//   AppButton.primary(label: 'Save', icon: Iconsax.save_2, onPressed: _save)
 //   AppButton.outlined(label: 'Cancel', onPressed: _cancel)
 //   AppButton.danger(label: 'Delete', onPressed: _delete)
-//   AppIconButton(icon: Icons.edit, onPressed: _edit)
-//   AppFab(icon: Icons.add, label: 'Create', onPressed: _create)
+//   AppIconButton(icon: Iconsax.edit, onPressed: _edit)
+//   AppFab(icon: Iconsax.add, label: 'Create', onPressed: _create)
 // =============================================================================
 
 /// The main button used on almost every screen.
@@ -80,6 +80,25 @@ class AppButton extends StatelessWidget {
     icon: icon,
     iconAfterLabel: iconAfterLabel,
     height: 44,
+  );
+
+  factory AppButton.tonal({
+    Key? key,
+    required String label,
+    VoidCallback? onPressed,
+    IconData? icon,
+    bool iconAfterLabel = false,
+    bool isExpanded = false,
+    double height = 44,
+  }) => AppButton._(
+    key: key,
+    variant: AppButtonVariant.tonal,
+    label: label,
+    onPressed: onPressed,
+    icon: icon,
+    iconAfterLabel: iconAfterLabel,
+    isExpanded: isExpanded,
+    height: height,
   );
 
   factory AppButton.danger({
@@ -159,6 +178,17 @@ class AppButton extends StatelessWidget {
           ),
           child: child,
         );
+      case AppButtonVariant.tonal:
+        return FilledButton.tonal(
+          onPressed: onPressed,
+          style: FilledButton.styleFrom(
+            minimumSize: Size(isExpanded ? double.infinity : 0, height),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            shape: shape,
+            textStyle: style,
+          ),
+          child: child,
+        );
       case AppButtonVariant.danger:
         final cs = Theme.of(context).colorScheme;
         return FilledButton(
@@ -193,7 +223,7 @@ class AppButton extends StatelessWidget {
   }
 }
 
-enum AppButtonVariant { primary, outlined, text, danger }
+enum AppButtonVariant { primary, outlined, text, tonal, danger }
 
 /// ---------------------------------------------------------------------------
 /// ICON BUTTON

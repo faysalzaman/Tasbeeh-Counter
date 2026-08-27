@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import '../../../core/localization/l10n_extension.dart';
+import 'package:iconsax/iconsax.dart';
 
 class CountButton extends StatefulWidget {
   final VoidCallback? onTap;
@@ -84,7 +85,7 @@ class _CountButtonState extends State<CountButton> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.add,
+                  Iconsax.add,
                   size: 48,
                   color: isDisabled
                       ? theme.colorScheme.onSurface.withValues(alpha: 0.3)

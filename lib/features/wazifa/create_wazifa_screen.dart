@@ -6,7 +6,10 @@ import '../../models/dhikr.dart';
 import '../../models/dhikr_progress.dart';
 import '../../models/dhikr_schedule.dart';
 import '../../providers/dhikr_provider.dart';
+import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
+import '../../widgets/custom_text_field.dart';
+import 'package:iconsax/iconsax.dart';
 
 class CreateWazifaScreen extends ConsumerStatefulWidget {
   final String? dhikrId;
@@ -209,13 +212,11 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
             _FormSectionCard(
               title: 'Basic Information',
               children: [
-                TextFormField(
+                AppTextField(
                   controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: '${l10n.dhikrName} *',
-                    hintText: l10n.dhikrNameHint,
-                    prefixIcon: const Icon(Icons.title_rounded),
-                  ),
+                  label: '${l10n.dhikrName} *',
+                  hint: l10n.dhikrNameHint,
+                  prefixIcon: Iconsax.text,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return l10n.validationRequired;
@@ -224,13 +225,11 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                AppTextField(
                   controller: _arabicController,
-                  decoration: InputDecoration(
-                    labelText: l10n.arabicText,
-                    hintText: l10n.arabicTextHint,
-                    prefixIcon: const Icon(Icons.translate_rounded),
-                  ),
+                  label: l10n.arabicText,
+                  hint: l10n.arabicTextHint,
+                  prefixIcon: Iconsax.translate,
                   textDirection: TextDirection.rtl,
                   style: const TextStyle(
                     fontFamily: 'Amiri',
@@ -239,22 +238,18 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                AppTextField(
                   controller: _transliterationController,
-                  decoration: InputDecoration(
-                    labelText: l10n.transliteration,
-                    hintText: l10n.transliterationHint,
-                    prefixIcon: const Icon(Icons.spellcheck_rounded),
-                  ),
+                  label: l10n.transliteration,
+                  hint: l10n.transliterationHint,
+                  prefixIcon: Iconsax.textalign_left,
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                AppTextField(
                   controller: _translationController,
-                  decoration: InputDecoration(
-                    labelText: l10n.translation,
-                    hintText: l10n.translationHint,
-                    prefixIcon: const Icon(Icons.language_rounded),
-                  ),
+                  label: l10n.translation,
+                  hint: l10n.translationHint,
+                  prefixIcon: Iconsax.language_square,
                 ),
               ],
             ),
@@ -296,14 +291,11 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                TextFormField(
+                AppTextField.number(
                   controller: _targetController,
-                  decoration: InputDecoration(
-                    labelText: '${l10n.targetCount} *',
-                    hintText: l10n.targetCountHint,
-                    prefixIcon: const Icon(Icons.tag_rounded),
-                  ),
-                  keyboardType: TextInputType.number,
+                  label: '${l10n.targetCount} *',
+                  hint: l10n.targetCountHint,
+                  prefixIcon: Iconsax.tag,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return l10n.validationRequired;
@@ -321,7 +313,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                   value: _schedule,
                   decoration: const InputDecoration(
                     labelText: 'Schedule',
-                    prefixIcon: Icon(Icons.schedule_rounded),
+                    prefixIcon: Icon(Iconsax.clock),
                   ),
                   items: [
                     const DropdownMenuItem<DhikrSchedule?>(
@@ -351,7 +343,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                   subtitle: Text(l10n.repeatModeSubtitle),
                   value: _repeatEnabled,
                   onChanged: (value) => setState(() => _repeatEnabled = value),
-                  secondary: const Icon(Icons.repeat_rounded),
+                  secondary: const Icon(Iconsax.repeat),
                 ),
                 const Divider(),
                 SwitchListTile.adaptive(
@@ -361,44 +353,41 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                   value: _reminderEnabled,
                   onChanged: (value) =>
                       setState(() => _reminderEnabled = value),
-                  secondary: const Icon(Icons.alarm_rounded),
+                  secondary: const Icon(Iconsax.alarm),
                 ),
                 if (_reminderEnabled) ...[
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.access_time_rounded),
+                    leading: const Icon(Iconsax.clock),
                     title: Text(l10n.reminderTime),
                     subtitle: Text(
                       _reminderTime != null
                           ? _reminderTime!.format(context)
                           : l10n.notSet,
                     ),
-                    trailing: const Icon(Icons.chevron_right_rounded),
+                    trailing: const Icon(Iconsax.arrow_right_3),
                     onTap: _pickReminderTime,
                   ),
                 ],
                 const Divider(),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.calendar_month_rounded),
+                  leading: const Icon(Iconsax.calendar),
                   title: Text(l10n.startDate),
                   subtitle: Text(
                     _startDate != null
                         ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
                         : l10n.today,
                   ),
-                  trailing: const Icon(Icons.chevron_right_rounded),
+                  trailing: const Icon(Iconsax.arrow_right_3),
                   onTap: _pickStartDate,
                 ),
                 const SizedBox(height: 8),
-                TextFormField(
+                AppTextField.number(
                   controller: _daysController,
-                  decoration: InputDecoration(
-                    labelText: l10n.numberOfDays,
-                    hintText: l10n.numberOfDaysHint,
-                    prefixIcon: const Icon(Icons.timelapse_rounded),
-                  ),
-                  keyboardType: TextInputType.number,
+                  label: l10n.numberOfDays,
+                  hint: l10n.numberOfDaysHint,
+                  prefixIcon: Iconsax.timer,
                 ),
               ],
             ),
@@ -408,40 +397,23 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
             _FormSectionCard(
               title: 'Notes & Reflections',
               children: [
-                TextFormField(
+                AppTextField.multiline(
                   controller: _notesController,
-                  decoration: InputDecoration(
-                    labelText: l10n.notes,
-                    hintText: l10n.notesHint,
-                    prefixIcon: const Icon(Icons.notes_rounded),
-                  ),
-                  maxLines: 3,
+                  label: l10n.notes,
+                  hint: l10n.notesHint,
+                  prefixIcon: Iconsax.note_text,
                 ),
               ],
             ),
             const SizedBox(height: 32),
 
             // Main CTA Button
-            SizedBox(
+            AppButton.primary(
+              icon: _isEditing ? Iconsax.tick_circle : Iconsax.save_2,
+              label: _isEditing ? l10n.update : l10n.create,
+              isExpanded: true,
               height: 56,
-              child: FilledButton.icon(
-                onPressed: _saveWazifa,
-                style: FilledButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                icon: Icon(
-                  _isEditing ? Icons.check_rounded : Icons.save_rounded,
-                ),
-                label: Text(
-                  _isEditing ? l10n.update : l10n.create,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+              onPressed: _saveWazifa,
             ),
             const SizedBox(height: 24),
           ],

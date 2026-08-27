@@ -6,7 +6,9 @@ import '../../models/dhikr.dart';
 import '../../models/dhikr_schedule.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
+import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
+import 'package:iconsax/iconsax.dart';
 
 class QuickDhikrScreen extends ConsumerWidget {
   const QuickDhikrScreen({super.key});
@@ -30,7 +32,7 @@ class QuickDhikrScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.bolt_outlined,
+                    Iconsax.flash_1,
                     size: 64,
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                   ),
@@ -210,11 +212,11 @@ class _DhikrListTile extends ConsumerWidget {
                         children: [
                           _MetaBadge(
                             label: '${l10n.targetCount}: $targetCount',
-                            icon: Icons.flag_outlined,
+                            icon: Iconsax.flag,
                           ),
                           _MetaBadge(
                             label: dhikr.category.label,
-                            icon: Icons.category_outlined,
+                            icon: Iconsax.category,
                           ),
                           if (scheduleEnum != null)
                             _ScheduleBadge(schedule: scheduleEnum),
@@ -238,7 +240,7 @@ class _DhikrListTile extends ConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              Icons.check_circle_rounded,
+                              Iconsax.tick_circle,
                               color: theme.colorScheme.primary,
                               size: 16,
                             ),
@@ -255,29 +257,14 @@ class _DhikrListTile extends ConsumerWidget {
                         ),
                       )
                     else
-                      FilledButton.icon(
-                        style: FilledButton.styleFrom(
-                          visualDensity: VisualDensity.compact,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 8,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
+                      AppButton.primary(
+                        icon: isInProgress
+                            ? Iconsax.play
+                            : Iconsax.finger_scan,
+                        label: isInProgress ? l10n.continue_ : l10n.start,
+                        height: 40,
                         onPressed: () =>
                             context.push(AppRoutes.counter, extra: dhikr.id),
-                        icon: Icon(
-                          isInProgress
-                              ? Icons.play_arrow_rounded
-                              : Icons.fingerprint_rounded,
-                          size: 18,
-                        ),
-                        label: Text(
-                          isInProgress ? l10n.continue_ : l10n.start,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
                       ),
                   ],
                 ),
@@ -354,7 +341,7 @@ class _ScheduleBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.schedule_rounded,
+            Iconsax.clock,
             size: 12,
             color: isRelevant
                 ? theme.colorScheme.primary

@@ -8,7 +8,9 @@ import '../../core/constants/app_constants.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/notifications/notification_service.dart';
 import '../../providers/settings_provider.dart';
+import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
+import 'package:iconsax/iconsax.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -150,10 +152,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: l10n.appearance,
             children: [
               ListTile(
-                leading: const Icon(Icons.palette_outlined),
+                leading: const Icon(Iconsax.color_swatch),
                 title: Text(l10n.theme),
                 subtitle: Text(_getThemeLabel(settings.themeMode)),
-                trailing: const Icon(Icons.chevron_right_rounded),
+                trailing: const Icon(Iconsax.arrow_right_3),
                 onTap: () => _showThemePicker(context),
               ),
             ],
@@ -164,7 +166,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: l10n.counting,
             children: [
               SwitchListTile.adaptive(
-                secondary: const Icon(Icons.volume_up_outlined),
+                secondary: const Icon(Iconsax.volume_high),
                 title: Text(l10n.volumeKeyCounting),
                 subtitle: Text(l10n.volumeKeyCountingSubtitle),
                 value: settings.volumeKeyCounting,
@@ -174,7 +176,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               const Divider(height: 1),
               SwitchListTile.adaptive(
-                secondary: const Icon(Icons.vibration_outlined),
+                secondary: const Icon(Iconsax.activity),
                 title: Text(l10n.countingVibration),
                 value: settings.countingVibration,
                 onChanged: (value) => ref
@@ -183,7 +185,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               const Divider(height: 1),
               SwitchListTile.adaptive(
-                secondary: const Icon(Icons.graphic_eq_outlined),
+                secondary: const Icon(Iconsax.chart),
                 title: Text(l10n.countingSound),
                 value: settings.countingSound,
                 onChanged: (value) => ref
@@ -198,7 +200,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: l10n.completion,
             children: [
               SwitchListTile.adaptive(
-                secondary: const Icon(Icons.vibration_rounded),
+                secondary: const Icon(Iconsax.activity),
                 title: Text(l10n.completionVibration),
                 value: settings.completionVibration,
                 onChanged: (value) => ref
@@ -207,7 +209,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               const Divider(height: 1),
               SwitchListTile.adaptive(
-                secondary: const Icon(Icons.celebration_outlined),
+                secondary: const Icon(Iconsax.heart_tick),
                 title: Text(l10n.completionSound),
                 value: settings.completionSound,
                 onChanged: (value) => ref
@@ -224,8 +226,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ListTile(
                 leading: Icon(
                   _notificationsEnabled
-                      ? Icons.notifications_active_outlined
-                      : Icons.notifications_off_outlined,
+                      ? Iconsax.notification
+                      : Iconsax.notification_bing,
                   color: _notificationsEnabled
                       ? theme.colorScheme.primary
                       : theme.colorScheme.error,
@@ -235,18 +237,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _notificationsEnabled ? l10n.granted : l10n.notGranted,
                 ),
                 trailing: !_notificationsEnabled
-                    ? FilledButton.tonal(
+                    ? AppButton.tonal(
+                        label: l10n.enable,
                         onPressed: _requestNotificationPermission,
-                        child: Text(l10n.enable),
                       )
                     : Icon(
-                        Icons.check_circle_rounded,
+                        Iconsax.tick_circle,
                         color: theme.colorScheme.primary,
                       ),
               ),
               const Divider(height: 1),
               SwitchListTile.adaptive(
-                secondary: const Icon(Icons.alarm_outlined),
+                secondary: const Icon(Iconsax.alarm),
                 title: Text(l10n.reminderNotifications),
                 subtitle: Text(l10n.reminderNotificationsSubtitle),
                 value: settings.reminderNotifications,
@@ -256,10 +258,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               const Divider(height: 1),
               ListTile(
-                leading: const Icon(Icons.access_time_rounded),
+                leading: const Icon(Iconsax.clock),
                 title: Text(l10n.defaultReminderTime),
                 subtitle: Text(_formatTimeString(settings.defaultReminderTime)),
-                trailing: const Icon(Icons.chevron_right_rounded),
+                trailing: const Icon(Iconsax.arrow_right_3),
                 onTap: _showReminderTimePicker,
               ),
             ],
@@ -270,10 +272,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: l10n.language,
             children: [
               ListTile(
-                leading: const Icon(Icons.language_rounded),
+                leading: const Icon(Iconsax.language_square),
                 title: Text(l10n.language),
                 subtitle: Text(_getLanguageLabel(settings.languageCode)),
-                trailing: const Icon(Icons.chevron_right_rounded),
+                trailing: const Icon(Iconsax.arrow_right_3),
                 onTap: () => _showLanguagePicker(context),
               ),
             ],
@@ -284,28 +286,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: l10n.app,
             children: [
               ListTile(
-                leading: const Icon(Icons.star_outline_rounded),
+                leading: const Icon(Iconsax.star),
                 title: Text(l10n.rateApp),
-                trailing: const Icon(Icons.chevron_right_rounded),
+                trailing: const Icon(Iconsax.arrow_right_3),
                 onTap: _rateApp,
               ),
               const Divider(height: 1),
               ListTile(
-                leading: const Icon(Icons.system_update_rounded),
+                leading: const Icon(Iconsax.refresh_circle),
                 title: Text(l10n.checkForUpdates),
-                trailing: const Icon(Icons.chevron_right_rounded),
+                trailing: const Icon(Iconsax.arrow_right_3),
                 onTap: _checkForUpdate,
               ),
               const Divider(height: 1),
               ListTile(
-                leading: const Icon(Icons.privacy_tip_outlined),
+                leading: const Icon(Iconsax.shield_security),
                 title: Text(l10n.privacyPolicy),
-                trailing: const Icon(Icons.chevron_right_rounded),
+                trailing: const Icon(Iconsax.arrow_right_3),
                 onTap: _openPrivacyPolicy,
               ),
               const Divider(height: 1),
               ListTile(
-                leading: const Icon(Icons.info_outline_rounded),
+                leading: const Icon(Iconsax.info_circle),
                 title: Text(l10n.about),
                 subtitle: Text('${l10n.version} $_appVersion'),
               ),
@@ -372,9 +374,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close_rounded),
+                    AppIconButton(
+                      icon: Iconsax.close_circle,
                       onPressed: () => Navigator.pop(context),
+                      size: 36,
                     ),
                   ],
                 ),
@@ -443,9 +446,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close_rounded),
+                    AppIconButton(
+                      icon: Iconsax.close_circle,
                       onPressed: () => Navigator.pop(context),
+                      size: 36,
                     ),
                   ],
                 ),

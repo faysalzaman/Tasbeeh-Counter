@@ -1,10 +1,13 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '../../core/localization/l10n_extension.dart';
 import '../../providers/settings_provider.dart';
 import '../../router/app_router.dart';
+import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
+import 'package:iconsax/iconsax.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -28,22 +31,22 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final l10n = context.l10n;
     return [
       OnboardingPageData(
-        icon: Icons.fingerprint_rounded,
+        icon: Iconsax.finger_scan,
         title: l10n.onboardingTitle1,
         description: l10n.onboardingDesc1,
       ),
       OnboardingPageData(
-        icon: Icons.bookmark_added_rounded,
+        icon: Iconsax.archive_add,
         title: l10n.onboardingTitle2,
         description: l10n.onboardingDesc2,
       ),
       OnboardingPageData(
-        icon: Icons.notifications_active_rounded,
+        icon: Iconsax.notification,
         title: l10n.onboardingTitle3,
         description: l10n.onboardingDesc3,
       ),
       OnboardingPageData(
-        icon: Icons.save_rounded,
+        icon: Iconsax.save_2,
         title: l10n.onboardingTitle4,
         description: l10n.onboardingDesc4,
       ),
@@ -86,167 +89,148 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       showAppBar: false,
       padding: EdgeInsets.zero,
       body: Column(
-          children: [
-            // Top Bar with Skip Option
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Optional Step Counter Badge
-                  if (_currentPage > 0)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHigh,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '$_currentPage / ${pages.length}',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    )
-                  else
-                    const SizedBox.shrink(),
-
-                  TextButton(
-                    onPressed: _finishOnboarding,
+        children: [
+          // Top Bar with Skip Option
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Optional Step Counter Badge
+                if (_currentPage > 0)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Text(
-                      l10n.skip,
-                      style: TextStyle(
+                      '$_currentPage / ${pages.length}',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
                         color: theme.colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  )
+                else
+                  const SizedBox.shrink(),
+
+                AppButton.text(
+                  label: l10n.skip,
+                  onPressed: _finishOnboarding,
+                ),
+              ],
             ),
+          ),
 
-            // Main Page Content
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                physics: _currentPage == 0
-                    ? const NeverScrollableScrollPhysics()
-                    : const BouncingScrollPhysics(),
-                onPageChanged: (index) => setState(() => _currentPage = index),
-                itemCount: _totalPages,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return _buildLanguageSelection(context);
-                  }
+          // Main Page Content
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              physics: _currentPage == 0
+                  ? const NeverScrollableScrollPhysics()
+                  : const BouncingScrollPhysics(),
+              onPageChanged: (index) => setState(() => _currentPage = index),
+              itemCount: _totalPages,
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return _buildLanguageSelection(context);
+                }
 
-                  final page = pages[index - 1];
-                  return SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 28.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 32),
-                        Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primaryContainer,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            page.icon,
-                            size: 56,
-                            color: theme.colorScheme.onPrimaryContainer,
-                          ),
+                final page = pages[index - 1];
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 28.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 32),
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primaryContainer,
+                          shape: BoxShape.circle,
                         ),
-                        const SizedBox(height: 36),
-                        Text(
-                          page.title,
-                          style: theme.textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -0.5,
-                          ),
-                          textAlign: TextAlign.center,
+                        child: Icon(
+                          page.icon,
+                          size: 56,
+                          color: theme.colorScheme.onPrimaryContainer,
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          page.description,
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                            height: 1.4,
-                          ),
-                          textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 36),
+                      Text(
+                        page.title,
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -0.5,
                         ),
-                        const SizedBox(height: 32),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Animated Page Indicator Bar
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                _totalPages,
-                (index) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: _currentPage == index ? 28 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: _currentPage == index
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(8),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        page.description,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          height: 1.4,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 32),
+                    ],
                   ),
+                );
+              },
+            ),
+          ),
+
+          // Animated Page Indicator Bar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              _totalPages,
+              (index) => AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: _currentPage == index ? 28 : 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: _currentPage == index
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.outlineVariant,
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
+          ),
 
-            const SizedBox(height: 24),
+          const SizedBox(height: 24),
 
-            // Next / Continue Button
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24.0,
-                vertical: 16.0,
-              ),
-              child: SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: FilledButton(
-                  onPressed: (_currentPage == 0 && _selectedLanguage == null)
-                      ? null
-                      : _nextPage,
-                  style: FilledButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: Text(
-                    _currentPage == _totalPages - 1
-                        ? l10n.getStarted
-                        : l10n.next,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+          // Next / Continue Button
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 16.0,
             ),
-          ],
-        ),
+            child: AppButton.primary(
+              label: _currentPage == _totalPages - 1
+                  ? l10n.getStarted
+                  : l10n.next,
+              isExpanded: true,
+              height: 56,
+              onPressed: (_currentPage == 0 && _selectedLanguage == null)
+                  ? null
+                  : _nextPage,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -269,7 +253,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.language_rounded,
+              Iconsax.language_square,
               size: 48,
               color: theme.colorScheme.onPrimaryContainer,
             ),
@@ -356,7 +340,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                   trailing: isSelected
                       ? Icon(
-                          Icons.check_circle_rounded,
+                          Iconsax.tick_circle,
                           color: theme.colorScheme.primary,
                         )
                       : null,

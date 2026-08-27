@@ -5,6 +5,7 @@ import '../../../core/localization/l10n_extension.dart';
 import '../../../models/dhikr.dart';
 import '../../../providers/dhikr_provider.dart';
 import '../../../router/app_router.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ContinueWazifaCard extends ConsumerWidget {
   final Dhikr dhikr;
@@ -90,7 +91,7 @@ class ContinueWazifaCard extends ConsumerWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        Icons.play_arrow_rounded,
+                        Iconsax.play,
                         color: theme.colorScheme.onPrimaryContainer,
                         size: 26,
                       ),
