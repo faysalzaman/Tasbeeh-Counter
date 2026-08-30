@@ -12,18 +12,27 @@ import 'repositories/dhikr_repository.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize local storage
   await LocalStorage.initialize();
 
-  // Initialize services
   await AudioService().initialize();
   await HapticsService().initialize();
   await NotificationService().initialize();
 
-  // Sync wazifa reminders (reschedule/cancel based on current settings)
+  // NEW — request notification permission (Android 13+ / iOS) before
+  // syncing reminders, otherwise scheduled notifications won't show.
+  await NotificationService().requestPermission();
+
+  // NEW — exact-alarm permission is a separate, more invasive prompt
+  // (opens system settings on Android 12+). Don't fire it blind on cold
+  // start — gate it behind onboarding or a settings toggle instead:
+  //
+  // await NotificationService().requestExactAlarmPermission();
+  //
+  // Leaving it out of main() here; call it from wherever you introduce
+  // the reminder feature to the user, with context on why it matters.
+
   await DhikrRepository(LocalStorage.instance).syncAllReminders();
 
-  // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

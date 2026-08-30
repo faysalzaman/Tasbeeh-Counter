@@ -1,16 +1,18 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:in_app_update/in_app_update.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../core/constants/app_constants.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/notifications/notification_service.dart';
 import '../../providers/settings_provider.dart';
 import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
-import 'package:iconsax/iconsax.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -385,32 +387,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
               const Divider(),
-              RadioListTile<String>(
-                title: Text(l10n.themeSystem),
-                value: 'system',
+              RadioGroup<String>(
                 groupValue: settings.themeMode,
                 onChanged: (value) {
-                  ref.read(settingsProvider.notifier).updateTheme(value!);
+                  if (value == null) return;
+                  ref.read(settingsProvider.notifier).updateTheme(value);
                   Navigator.pop(context);
                 },
-              ),
-              RadioListTile<String>(
-                title: Text(l10n.themeLight),
-                value: 'light',
-                groupValue: settings.themeMode,
-                onChanged: (value) {
-                  ref.read(settingsProvider.notifier).updateTheme(value!);
-                  Navigator.pop(context);
-                },
-              ),
-              RadioListTile<String>(
-                title: Text(l10n.themeDark),
-                value: 'dark',
-                groupValue: settings.themeMode,
-                onChanged: (value) {
-                  ref.read(settingsProvider.notifier).updateTheme(value!);
-                  Navigator.pop(context);
-                },
+                child: Column(
+                  children: [
+                    RadioListTile<String>(
+                      title: Text(l10n.themeSystem),
+                      value: 'system',
+                    ),
+                    RadioListTile<String>(
+                      title: Text(l10n.themeLight),
+                      value: 'light',
+                    ),
+                    RadioListTile<String>(
+                      title: Text(l10n.themeDark),
+                      value: 'dark',
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -457,46 +456,38 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
               const Divider(),
-              RadioListTile<String>(
-                title: Text(l10n.languageSystem),
-                value: 'system',
+              RadioGroup<String>(
                 groupValue: settings.languageCode,
                 onChanged: (value) {
-                  ref.read(settingsProvider.notifier).updateLanguage(value!);
-                  Navigator.pop(context);
+                  if (value == null) return;
+                  ref.read(settingsProvider.notifier).updateLanguage(value);
+                  context.pop();
                 },
-              ),
-              RadioListTile<String>(
-                title: Text(l10n.languageEnglish),
-                value: 'en',
-                groupValue: settings.languageCode,
-                onChanged: (value) {
-                  ref.read(settingsProvider.notifier).updateLanguage(value!);
-                  Navigator.pop(context);
-                },
-              ),
-              RadioListTile<String>(
-                title: Text(l10n.languageArabic),
-                subtitle: const Text(
-                  'العربية',
-                  style: TextStyle(fontFamily: 'Amiri'),
+                child: Column(
+                  children: [
+                    RadioListTile<String>(
+                      title: Text(l10n.languageSystem),
+                      value: 'system',
+                    ),
+                    RadioListTile<String>(
+                      title: Text(l10n.languageEnglish),
+                      value: 'en',
+                    ),
+                    RadioListTile<String>(
+                      title: Text(l10n.languageArabic),
+                      subtitle: const Text(
+                        'العربية',
+                        style: TextStyle(fontFamily: 'Amiri'),
+                      ),
+                      value: 'ar',
+                    ),
+                    RadioListTile<String>(
+                      title: Text(l10n.languageUrdu),
+                      subtitle: const Text('اردو'),
+                      value: 'ur',
+                    ),
+                  ],
                 ),
-                value: 'ar',
-                groupValue: settings.languageCode,
-                onChanged: (value) {
-                  ref.read(settingsProvider.notifier).updateLanguage(value!);
-                  Navigator.pop(context);
-                },
-              ),
-              RadioListTile<String>(
-                title: Text(l10n.languageUrdu),
-                subtitle: const Text('اردو'),
-                value: 'ur',
-                groupValue: settings.languageCode,
-                onChanged: (value) {
-                  ref.read(settingsProvider.notifier).updateLanguage(value!);
-                  Navigator.pop(context);
-                },
               ),
             ],
           ),
