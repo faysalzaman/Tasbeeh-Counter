@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
@@ -8,7 +9,8 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _notifications =
+      FlutterLocalNotificationsPlugin();
   bool _initialized = false;
 
   Future<bool> initialize() async {
@@ -16,7 +18,8 @@ class NotificationService {
 
     tz_data.initializeTimeZones();
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -44,18 +47,22 @@ class NotificationService {
       );
 
       await _notifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
           ?.createNotificationChannel(androidChannel);
 
       _initialized = result ?? false;
       return _initialized;
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('NotificationService initialize error: $e');
+      debugPrint('$stack');
       return false;
     }
   }
 
   void _onNotificationTap(NotificationResponse response) {
-    // Handle notification tap - could navigate to specific dhikr
+    // TODO: Navigate to the specific dhikr when a reminder notification is tapped.
+    // The payload can contain the dhikr ID to route to the counter screen.
   }
 
   Future<bool> requestPermission() async {
@@ -79,6 +86,21 @@ class NotificationService {
       }
 
       return false;
+    } catch (e, stack) {
+      debugPrint('NotificationService requestPermission error: $e');
+      debugPrint('$stack');
+      return false;
+    }
+  }
+
+  /// Checks whether the app can schedule exact alarms on Android 12+.
+  /// If false, reminders using exact mode will silently fail.
+  Future<bool> canScheduleExactAlarms() async {
+    try {
+      final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      if (androidPlugin == null) return true; // Not Android
+      return await androidPlugin.canScheduleExactNotifications() ?? false;
     } catch (e) {
       return false;
     }
@@ -90,7 +112,10 @@ class NotificationService {
     required String body,
     required DateTime scheduledDate,
   }) async {
-    if (!_initialized) return false;
+    if (!_initialized) {
+      debugPrint('NotificationService not initialized');
+      return false;
+    }
 
     try {
       final tz.TZDateTime tzScheduledDate = tz.TZDateTime.from(
@@ -100,6 +125,7 @@ class NotificationService {
 
       // Don't schedule if date is in the past
       if (tzScheduledDate.isBefore(tz.TZDateTime.now(tz.local))) {
+        debugPrint('NotificationService: scheduledDate is in the past');
         return false;
       }
 
@@ -123,12 +149,17 @@ class NotificationService {
             presentSound: true,
           ),
         ),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        // Use inexact to avoid requiring exact-alarm permission on Android 12+.
+        // For a dhikr reminder, a few minutes of drift is acceptable.
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
       );
+      debugPrint('NotificationService: scheduled reminder $id at $scheduledDate');
       return true;
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('NotificationService scheduleReminder error: $e');
+      debugPrint('$stack');
       return false;
     }
   }
@@ -141,7 +172,10 @@ class NotificationService {
     required int hour,
     required int minute,
   }) async {
-    if (!_initialized) return false;
+    if (!_initialized) {
+      debugPrint('NotificationService not initialized');
+      return false;
+    }
 
     try {
       final now = tz.TZDateTime.now(tz.local);
@@ -176,8 +210,11 @@ class NotificationService {
             UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
       );
+      debugPrint('NotificationService: scheduled daily reminder $id at $hour:$minute');
       return true;
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('NotificationService scheduleDailyReminder error: $e');
+      debugPrint('$stack');
       return false;
     }
   }
@@ -210,7 +247,9 @@ class NotificationService {
         ),
       );
       return true;
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('NotificationService showImmediateNotification error: $e');
+      debugPrint('$stack');
       return false;
     }
   }
@@ -219,8 +258,10 @@ class NotificationService {
     if (!_initialized) return;
     try {
       await _notifications.cancel(id);
-    } catch (e) {
-      // Silently fail
+      debugPrint('NotificationService: cancelled reminder $id');
+    } catch (e, stack) {
+      debugPrint('NotificationService cancelReminder error: $e');
+      debugPrint('$stack');
     }
   }
 
@@ -228,8 +269,9 @@ class NotificationService {
     if (!_initialized) return;
     try {
       await _notifications.cancelAll();
-    } catch (e) {
-      // Silently fail
+    } catch (e, stack) {
+      debugPrint('NotificationService cancelAllReminders error: $e');
+      debugPrint('$stack');
     }
   }
 
@@ -242,7 +284,9 @@ class NotificationService {
         return enabled ?? false;
       }
       return true; // iOS - permissions checked at schedule time
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('NotificationService areNotificationsEnabled error: $e');
+      debugPrint('$stack');
       return false;
     }
   }

@@ -110,5 +110,43 @@
   "validationMin": "يجب أن يكون على الأقل 1",
 
   "moreOptions": "المزيد من الخيارات",
-  "moreOptionsSubtitle": "النص العربي، التذكيرات، الجدول، الملاحظات..."
+  "moreOptionsSubtitle": "النص العربي، التذكيرات، الجدول، الملاحظات...",
+
+  "categories": "التصنيفات",
+  "totalCount": "الإجمالي: {count}",
+  "itemsCount": "{count} عناصر",
+  "setYourOwnTargetAndSchedule": "عيّن هدفك وجدولك الخاص",
+
+  "azkarRecitations": "الأذكار",
+  "references": "المراجع",
+  "benefitsAndVirtues": "الفضائل والمزايا",
+  "recommendedTimesTitle": "الأوقات المُستحبّة",
+  "progress": "التقدم",
+  "recitations": "التلاوات",
+  "sunnahCount": "عدد السنّة",
+  "narratedBy": "رواه: {narrator}",
+  "surahVerse": "سورة {surah} [آية {verse}]",
+  "surahOnly": "سورة {surah}",
+  "refNo": "الرقم: #{number}",
+  "target": "الهدف: {count}",
+  "scheduleLabel": "الجدول",
+  "anyTime": "في أي وقت",
+
+  "categoryGeneral": "عام",
+  "categoryMorning": "الصباح",
+  "categoryEvening": "المساء",
+  "categoryAfterSalah": "بعد الصلاة",
+  "categoryBeforeSleep": "قبل النوم",
+  "categoryFriday": "الجمعة",
+  "categoryForgiveness": "المغفرة",
+  "categoryProtection": "الحماية",
+  "categoryPraise": "الحمد",
+  "categorySalawat": "الصلاة على النبي",
+
+  "typeSingle": "فردي",
+  "typeCollection": "مجموعة",
+  "typeDua": "دعاء",
+  "typeQuran": "قرآن",
+
+  "notificationReminderBody": "حان وقت ذكرك: {name}"
 }

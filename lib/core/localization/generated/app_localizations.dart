@@ -753,6 +753,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Arabic text, reminders, schedule, notes...'**
   String get moreOptionsSubtitle;
+
+  /// No description provided for @categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categories;
+
+  /// No description provided for @totalCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Total'**
+  String totalCount(Object count);
+
+  /// No description provided for @itemsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} items'**
+  String itemsCount(Object count);
+
+  /// No description provided for @setYourOwnTargetAndSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your own target and schedule'**
+  String get setYourOwnTargetAndSchedule;
+
+  /// No description provided for @azkarRecitations.
+  ///
+  /// In en, this message translates to:
+  /// **'Azkar Recitations'**
+  String get azkarRecitations;
+
+  /// No description provided for @references.
+  ///
+  /// In en, this message translates to:
+  /// **'References'**
+  String get references;
+
+  /// No description provided for @benefitsAndVirtues.
+  ///
+  /// In en, this message translates to:
+  /// **'Benefits & Virtues'**
+  String get benefitsAndVirtues;
+
+  /// No description provided for @recommendedTimesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended Times'**
+  String get recommendedTimesTitle;
+
+  /// No description provided for @progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get progress;
+
+  /// No description provided for @recitations.
+  ///
+  /// In en, this message translates to:
+  /// **'Recitations'**
+  String get recitations;
+
+  /// No description provided for @sunnahCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunnah Count'**
+  String get sunnahCount;
+
+  /// No description provided for @narratedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Narrated by: {narrator}'**
+  String narratedBy(Object narrator);
+
+  /// No description provided for @surahVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'Surah {surah} [Verse {verse}]'**
+  String surahVerse(Object surah, Object verse);
+
+  /// No description provided for @surahOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Surah {surah}'**
+  String surahOnly(Object surah);
+
+  /// No description provided for @refNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Ref No: #{number}'**
+  String refNo(Object number);
+
+  /// No description provided for @target.
+  ///
+  /// In en, this message translates to:
+  /// **'Target: {count}'**
+  String target(Object count);
+
+  /// No description provided for @scheduleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get scheduleLabel;
+
+  /// No description provided for @anyTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Any time'**
+  String get anyTime;
+
+  /// No description provided for @categoryGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get categoryGeneral;
+
+  /// No description provided for @categoryMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get categoryMorning;
+
+  /// No description provided for @categoryEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening'**
+  String get categoryEvening;
+
+  /// No description provided for @categoryAfterSalah.
+  ///
+  /// In en, this message translates to:
+  /// **'After Salah'**
+  String get categoryAfterSalah;
+
+  /// No description provided for @categoryBeforeSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Before Sleep'**
+  String get categoryBeforeSleep;
+
+  /// No description provided for @categoryFriday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get categoryFriday;
+
+  /// No description provided for @categoryForgiveness.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgiveness'**
+  String get categoryForgiveness;
+
+  /// No description provided for @categoryProtection.
+  ///
+  /// In en, this message translates to:
+  /// **'Protection'**
+  String get categoryProtection;
+
+  /// No description provided for @categoryPraise.
+  ///
+  /// In en, this message translates to:
+  /// **'Praise'**
+  String get categoryPraise;
+
+  /// No description provided for @categorySalawat.
+  ///
+  /// In en, this message translates to:
+  /// **'Salawat'**
+  String get categorySalawat;
+
+  /// No description provided for @typeSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'Single'**
+  String get typeSingle;
+
+  /// No description provided for @typeCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection'**
+  String get typeCollection;
+
+  /// No description provided for @typeDua.
+  ///
+  /// In en, this message translates to:
+  /// **'Dua'**
+  String get typeDua;
+
+  /// No description provided for @typeQuran.
+  ///
+  /// In en, this message translates to:
+  /// **'Quran'**
+  String get typeQuran;
+
+  /// No description provided for @notificationReminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s time for your dhikr: {name}'**
+  String notificationReminderBody(Object name);
 }
 
 class _AppLocalizationsDelegate

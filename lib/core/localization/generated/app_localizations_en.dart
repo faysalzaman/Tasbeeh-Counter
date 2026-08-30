@@ -345,4 +345,119 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get moreOptionsSubtitle =>
       'Arabic text, reminders, schedule, notes...';
+
+  @override
+  String get categories => 'Categories';
+
+  @override
+  String totalCount(Object count) {
+    return '$count Total';
+  }
+
+  @override
+  String itemsCount(Object count) {
+    return '$count items';
+  }
+
+  @override
+  String get setYourOwnTargetAndSchedule => 'Set your own target and schedule';
+
+  @override
+  String get azkarRecitations => 'Azkar Recitations';
+
+  @override
+  String get references => 'References';
+
+  @override
+  String get benefitsAndVirtues => 'Benefits & Virtues';
+
+  @override
+  String get recommendedTimesTitle => 'Recommended Times';
+
+  @override
+  String get progress => 'Progress';
+
+  @override
+  String get recitations => 'Recitations';
+
+  @override
+  String get sunnahCount => 'Sunnah Count';
+
+  @override
+  String narratedBy(Object narrator) {
+    return 'Narrated by: $narrator';
+  }
+
+  @override
+  String surahVerse(Object surah, Object verse) {
+    return 'Surah $surah [Verse $verse]';
+  }
+
+  @override
+  String surahOnly(Object surah) {
+    return 'Surah $surah';
+  }
+
+  @override
+  String refNo(Object number) {
+    return 'Ref No: #$number';
+  }
+
+  @override
+  String target(Object count) {
+    return 'Target: $count';
+  }
+
+  @override
+  String get scheduleLabel => 'Schedule';
+
+  @override
+  String get anyTime => 'Any time';
+
+  @override
+  String get categoryGeneral => 'General';
+
+  @override
+  String get categoryMorning => 'Morning';
+
+  @override
+  String get categoryEvening => 'Evening';
+
+  @override
+  String get categoryAfterSalah => 'After Salah';
+
+  @override
+  String get categoryBeforeSleep => 'Before Sleep';
+
+  @override
+  String get categoryFriday => 'Friday';
+
+  @override
+  String get categoryForgiveness => 'Forgiveness';
+
+  @override
+  String get categoryProtection => 'Protection';
+
+  @override
+  String get categoryPraise => 'Praise';
+
+  @override
+  String get categorySalawat => 'Salawat';
+
+  @override
+  String get typeSingle => 'Single';
+
+  @override
+  String get typeCollection => 'Collection';
+
+  @override
+  String get typeDua => 'Dua';
+
+  @override
+  String get typeQuran => 'Quran';
+
+  @override
+  String notificationReminderBody(Object name) {
+    return 'It\'s time for your dhikr: $name';
+  }
 }

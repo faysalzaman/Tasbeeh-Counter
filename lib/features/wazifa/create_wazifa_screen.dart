@@ -312,16 +312,16 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                 DropdownButtonFormField<DhikrSchedule?>(
                   value: _schedule,
                   decoration: InputDecoration(
-                    labelText: 'Schedule',
+                    labelText: l10n.scheduleLabel,
                     prefixIcon: const Icon(Iconsax.clock),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                   items: [
-                    const DropdownMenuItem<DhikrSchedule?>(
+                    DropdownMenuItem<DhikrSchedule?>(
                       value: null,
-                      child: Text('Any time'),
+                      child: Text(l10n.anyTime),
                     ),
                     ...DhikrSchedule.values.map(
                       (s) => DropdownMenuItem(
@@ -484,42 +484,35 @@ class _AdvancedOptionsCard extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = context.l10n;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
+    return Material(
+      color: theme.colorScheme.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
+      child: Theme(
+        data: theme.copyWith(
+          dividerColor: Colors.transparent,
         ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Theme(
-          data: theme.copyWith(
-            dividerColor: Colors.transparent,
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          title: Text(
+            l10n.moreOptions,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurface,
+            ),
           ),
-          child: ExpansionTile(
-            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            title: Text(
-              l10n.moreOptions,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: theme.colorScheme.onSurface,
-              ),
+          subtitle: Text(
+            l10n.moreOptionsSubtitle,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
-            subtitle: Text(
-              l10n.moreOptionsSubtitle,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            leading: Icon(
-              Iconsax.setting_2,
-              color: theme.colorScheme.primary,
-            ),
-            children: children,
           ),
+          leading: Icon(
+            Iconsax.setting_2,
+            color: theme.colorScheme.primary,
+          ),
+          children: children,
         ),
       ),
     );

@@ -110,5 +110,43 @@
   "validationMin": "کم از کم 1 ہونا چاہیے",
 
   "moreOptions": "مزید اختیارات",
-  "moreOptionsSubtitle": "عربی متن، یاد دہانی، شیڈول، نوٹس..."
+  "moreOptionsSubtitle": "عربی متن، یاد دہانی، شیڈول، نوٹس...",
+
+  "categories": "زمرے",
+  "totalCount": "کل: {count}",
+  "itemsCount": "{count} اشیاء",
+  "setYourOwnTargetAndSchedule": "اپنا ہدف اور شیڈول طے کریں",
+
+  "azkarRecitations": "ازکار کی تلاوتیں",
+  "references": "حوالہ جات",
+  "benefitsAndVirtues": "فضائل و برکات",
+  "recommendedTimesTitle": "مستحب اوقات",
+  "progress": "پیش رفت",
+  "recitations": "تلاوتیں",
+  "sunnahCount": "سنتی گنتی",
+  "narratedBy": "راوی: {narrator}",
+  "surahVerse": "سورہ {surah} [آیت {verse}]",
+  "surahOnly": "سورہ {surah}",
+  "refNo": "حوالہ نمبر: #{number}",
+  "target": "ہدف: {count}",
+  "scheduleLabel": "شیڈول",
+  "anyTime": "کسی بھی وقت",
+
+  "categoryGeneral": "عام",
+  "categoryMorning": "صبح",
+  "categoryEvening": "شام",
+  "categoryAfterSalah": "نماز کے بعد",
+  "categoryBeforeSleep": "سونے سے پہلے",
+  "categoryFriday": "جمعہ",
+  "categoryForgiveness": "مغفرت",
+  "categoryProtection": "حفاظت",
+  "categoryPraise": "تسبیح",
+  "categorySalawat": "درود",
+
+  "typeSingle": "فردی",
+  "typeCollection": "مجموعہ",
+  "typeDua": "دعا",
+  "typeQuran": "قرآن",
+
+  "notificationReminderBody": "آپ کا ذکر کا وقت ہو گیا ہے: {name}"
 }

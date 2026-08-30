@@ -342,4 +342,119 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get moreOptionsSubtitle => 'عربی متن، یاد دہانی، شیڈول، نوٹس...';
+
+  @override
+  String get categories => 'زمرے';
+
+  @override
+  String totalCount(Object count) {
+    return 'کل: $count';
+  }
+
+  @override
+  String itemsCount(Object count) {
+    return '$count اشیاء';
+  }
+
+  @override
+  String get setYourOwnTargetAndSchedule => 'اپنا ہدف اور شیڈول طے کریں';
+
+  @override
+  String get azkarRecitations => 'ازکار کی تلاوتیں';
+
+  @override
+  String get references => 'حوالہ جات';
+
+  @override
+  String get benefitsAndVirtues => 'فضائل و برکات';
+
+  @override
+  String get recommendedTimesTitle => 'مستحب اوقات';
+
+  @override
+  String get progress => 'پیش رفت';
+
+  @override
+  String get recitations => 'تلاوتیں';
+
+  @override
+  String get sunnahCount => 'سنتی گنتی';
+
+  @override
+  String narratedBy(Object narrator) {
+    return 'راوی: $narrator';
+  }
+
+  @override
+  String surahVerse(Object surah, Object verse) {
+    return 'سورہ $surah [آیت $verse]';
+  }
+
+  @override
+  String surahOnly(Object surah) {
+    return 'سورہ $surah';
+  }
+
+  @override
+  String refNo(Object number) {
+    return 'حوالہ نمبر: #$number';
+  }
+
+  @override
+  String target(Object count) {
+    return 'ہدف: $count';
+  }
+
+  @override
+  String get scheduleLabel => 'شیڈول';
+
+  @override
+  String get anyTime => 'کسی بھی وقت';
+
+  @override
+  String get categoryGeneral => 'عام';
+
+  @override
+  String get categoryMorning => 'صبح';
+
+  @override
+  String get categoryEvening => 'شام';
+
+  @override
+  String get categoryAfterSalah => 'نماز کے بعد';
+
+  @override
+  String get categoryBeforeSleep => 'سونے سے پہلے';
+
+  @override
+  String get categoryFriday => 'جمعہ';
+
+  @override
+  String get categoryForgiveness => 'مغفرت';
+
+  @override
+  String get categoryProtection => 'حفاظت';
+
+  @override
+  String get categoryPraise => 'تسبیح';
+
+  @override
+  String get categorySalawat => 'درود';
+
+  @override
+  String get typeSingle => 'فردی';
+
+  @override
+  String get typeCollection => 'مجموعہ';
+
+  @override
+  String get typeDua => 'دعا';
+
+  @override
+  String get typeQuran => 'قرآن';
+
+  @override
+  String notificationReminderBody(Object name) {
+    return 'آپ کا ذکر کا وقت ہو گیا ہے: $name';
+  }
 }

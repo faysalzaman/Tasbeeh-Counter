@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
 
 class AudioService {
   static final AudioService _instance = AudioService._internal();
@@ -29,9 +30,9 @@ class AudioService {
   Future<void> playCountSound() async {
     if (!_initialized) return;
     try {
-      // Use a very short system-like beep
-      // In production, you'd load actual asset sounds
-      await _countPlayer.play(AssetSource('sounds/click.mp3'), volume: 0.3);
+      // Use system click sound to avoid missing asset issues.
+      // If a custom click asset is added later, swap this back to AssetSource.
+      SystemSound.play(SystemSoundType.click);
     } catch (e) {
       // Silently fail - sound is optional
     }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../core/notifications/notification_service.dart';
 import '../core/storage/local_storage.dart';
 import '../models/dhikr.dart';
@@ -137,7 +138,7 @@ class DhikrRepository {
 
     await _storage.saveCustomDhikr(dhikr);
     await _storage.saveProgress(progress);
-    await _syncReminderFor(progress, name);
+    await _syncReminderFor(progress, dhikr.name);
     return dhikr;
   }
 
@@ -155,14 +156,19 @@ class DhikrRepository {
       final parts = progress.reminderTime!.split(':');
       final hour = int.tryParse(parts[0]) ?? 0;
       final minute = parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0;
-      await NotificationService().scheduleDailyReminder(
+      debugPrint('DhikrRepository: scheduling daily reminder for "$name" at $hour:$minute');
+      final ok = await NotificationService().scheduleDailyReminder(
         id: id,
         title: name,
         body: "It's time for your dhikr: $name",
         hour: hour,
         minute: minute,
       );
+      if (!ok) {
+        debugPrint('DhikrRepository: FAILED to schedule reminder for "$name"');
+      }
     } else {
+      debugPrint('DhikrRepository: cancelling reminder for "$name" (id=$id)');
       await NotificationService().cancelReminder(id);
     }
   }

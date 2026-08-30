@@ -80,7 +80,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _openPrivacyPolicy() async {
-    final uri = Uri.parse('https://your-website.com/privacy-policy');
+    final uri = Uri.parse(
+      'https://docs.google.com/document/d/1AqEvC4Eq5Kiva1cQmF5B-l-Yq92vaVTNKQcxKB65J60/edit?usp=sharing',
+    );
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }

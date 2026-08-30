@@ -759,5 +759,57 @@ class AppConstants {
       'isDefault': true,
       'isCustom': false,
     },
+
+    // ============================================================
+    // 19. DUROOD SHARIF — FRIDAY SPECIAL
+    // ============================================================
+    // Source: Al-Qawl al-Badee' fi al-Salat 'ala al-Habib al-Shafee'
+    //         by Imam Sakhawi
+    // Scholarly note: The narration attributing a specific virtue to
+    // reciting this 80 times after Asr on Friday is disputed among
+    // scholars (some grade it weak, others consider it acceptable
+    // for fada'il al-a'mal). Sending blessings upon the Prophet ﷺ
+    // is always rewarded, and Friday holds general virtue for it.
+    // ============================================================
+    {
+      'id': 'durood_friday_80',
+      'name': 'Durood Sharif (Friday)',
+      'arabicTitle': 'دَرُوْد شَرِیف',
+      'translation': 'Blessings upon the Prophet ﷺ — Friday Special',
+      'description':
+          'A special salawat for Friday. Scholars differ on the authenticity of the narration mentioning exactly 80 times; however, sending blessings upon the Prophet ﷺ is always rewarded, and Friday holds special virtue for it.',
+      'type': 'dua',
+      'category': 'friday',
+      'azkar': [
+        {
+          'id': 'durood_friday_80',
+          'arabicText':
+              'اَللّٰهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ النَّبِيِّ الْأُمِّيِّ وَعَلَىٰ آلِهِ وَسَلِّمْ تَسْلِيمًا',
+          'transliteration':
+              'Allahumma salli ala Muhammadin an-Nabiyyil-Ummiyyi wa ala alihi wa sallim tasliman',
+          'translation':
+              'O Allah! Send blessings upon Muhammad, the unlettered Prophet, and upon his family, and grant them complete peace.',
+          'targetCount': 80,
+          'isSunnahCount': false,
+          'note':
+              'Scholars differ on the authenticity of the narration mentioning exactly 80 times. Sending blessings upon the Prophet ﷺ is always rewarded, and Friday is a day of special virtue for it.',
+        },
+      ],
+      'references': [
+        {
+          'type': 'hadith',
+          'source': "Al-Qawl al-Badee' fi al-Salat 'ala al-Habib al-Shafee'",
+          'narrator': 'Abu Hurairah رضي الله عنه',
+          'grade': 'Disputed / Weak',
+        },
+      ],
+      'benefits': [
+        'Sending blessings upon the Prophet ﷺ is a highly encouraged act of worship.',
+        'Friday is the best day of the week and holds special virtue for increasing salawat.',
+      ],
+      'recommendedTimes': ['Friday', 'After Asr'],
+      'isDefault': true,
+      'isCustom': false,
+    },
   ];
 }

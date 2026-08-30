@@ -49,7 +49,7 @@ class HomeScreen extends ConsumerWidget {
                 Row(
                   children: [
                     Text(
-                      'Categories',
+                      l10n.categories,
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         letterSpacing: -0.5,
@@ -57,7 +57,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const Spacer(),
                     Text(
-                      '${defaultDhikrs.length + customDhikrs.length} Total',
+                      l10n.totalCount(defaultDhikrs.length + customDhikrs.length),
                       style: theme.textTheme.labelMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -161,7 +161,7 @@ class HomeScreen extends ConsumerWidget {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    'Set your own target and schedule',
+                                    l10n.setYourOwnTargetAndSchedule,
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),
@@ -211,6 +211,7 @@ class _CategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Container(
       decoration: BoxDecoration(
@@ -284,7 +285,7 @@ class _CategoryCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$count items',
+                  l10n.itemsCount(count),
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

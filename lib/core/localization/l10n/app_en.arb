@@ -127,5 +127,43 @@
   "validationMin": "Must be at least 1",
 
   "moreOptions": "More Options",
-  "moreOptionsSubtitle": "Arabic text, reminders, schedule, notes..."
+  "moreOptionsSubtitle": "Arabic text, reminders, schedule, notes...",
+
+  "categories": "Categories",
+  "totalCount": "{count} Total",
+  "itemsCount": "{count} items",
+  "setYourOwnTargetAndSchedule": "Set your own target and schedule",
+
+  "azkarRecitations": "Azkar Recitations",
+  "references": "References",
+  "benefitsAndVirtues": "Benefits & Virtues",
+  "recommendedTimesTitle": "Recommended Times",
+  "progress": "Progress",
+  "recitations": "Recitations",
+  "sunnahCount": "Sunnah Count",
+  "narratedBy": "Narrated by: {narrator}",
+  "surahVerse": "Surah {surah} [Verse {verse}]",
+  "surahOnly": "Surah {surah}",
+  "refNo": "Ref No: #{number}",
+  "target": "Target: {count}",
+  "scheduleLabel": "Schedule",
+  "anyTime": "Any time",
+
+  "categoryGeneral": "General",
+  "categoryMorning": "Morning",
+  "categoryEvening": "Evening",
+  "categoryAfterSalah": "After Salah",
+  "categoryBeforeSleep": "Before Sleep",
+  "categoryFriday": "Friday",
+  "categoryForgiveness": "Forgiveness",
+  "categoryProtection": "Protection",
+  "categoryPraise": "Praise",
+  "categorySalawat": "Salawat",
+
+  "typeSingle": "Single",
+  "typeCollection": "Collection",
+  "typeDua": "Dua",
+  "typeQuran": "Quran",
+
+  "notificationReminderBody": "It's time for your dhikr: {name}"
 }

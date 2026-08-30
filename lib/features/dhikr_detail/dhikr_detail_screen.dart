@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/localization/generated/app_localizations.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../models/dhikr.dart';
 import '../../providers/dhikr_provider.dart';
@@ -59,14 +60,14 @@ class DhikrDetailScreen extends ConsumerWidget {
             actions: [
               AppIconButton(
                 icon: Iconsax.bookmark,
-                onPressed: () {},
+                onPressed: null,
                 tooltip: 'Save',
                 color: Colors.white,
                 backgroundColor: Colors.white.withValues(alpha: 0.15),
               ),
               AppIconButton(
                 icon: Iconsax.share,
-                onPressed: () {},
+                onPressed: null,
                 tooltip: 'Share',
                 color: Colors.white,
                 backgroundColor: Colors.white.withValues(alpha: 0.15),
@@ -171,7 +172,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 28),
                   if (dhikr.azkar.isNotEmpty) ...[
                     _SectionHeader(
-                      title: 'Azkar Recitations',
+                      title: l10n.azkarRecitations,
                       count: dhikr.azkar.length,
                       icon: Iconsax.book,
                     ),
@@ -181,7 +182,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                   ],
                   if (dhikr.references.isNotEmpty) ...[
                     _SectionHeader(
-                      title: 'References',
+                      title: l10n.references,
                       count: dhikr.references.length,
                       icon: Iconsax.verify,
                     ),
@@ -190,8 +191,8 @@ class DhikrDetailScreen extends ConsumerWidget {
                     const SizedBox(height: 28),
                   ],
                   if (dhikr.benefits.isNotEmpty) ...[
-                    const _SectionHeader(
-                      title: 'Benefits & Virtues',
+                    _SectionHeader(
+                      title: l10n.benefitsAndVirtues,
                       icon: Iconsax.star,
                     ),
                     const SizedBox(height: 12),
@@ -199,8 +200,8 @@ class DhikrDetailScreen extends ConsumerWidget {
                     const SizedBox(height: 28),
                   ],
                   if (dhikr.recommendedTimes.isNotEmpty) ...[
-                    const _SectionHeader(
-                      title: 'Recommended Times',
+                    _SectionHeader(
+                      title: l10n.recommendedTimesTitle,
                       icon: Iconsax.clock,
                     ),
                     const SizedBox(height: 12),
@@ -244,7 +245,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Progress',
+                            l10n.progress,
                             style: theme.textTheme.labelMedium?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
@@ -296,6 +297,7 @@ class DhikrDetailScreen extends ConsumerWidget {
 
   List<Widget> _buildAzkar(BuildContext context, Dhikr dhikr) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return dhikr.azkar.asMap().entries.map((entry) {
       final index = entry.key;
       final item = entry.value;
@@ -340,7 +342,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                     AppIconButton(
                       icon: Iconsax.volume_high,
                       color: theme.colorScheme.primary,
-                      onPressed: () {},
+                      onPressed: null,
                       size: 36,
                     ),
                   ],
@@ -421,7 +423,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          '${item.targetCount}× Recitations',
+                          '${item.targetCount}× ${l10n.recitations}',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -451,7 +453,7 @@ class DhikrDetailScreen extends ConsumerWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'Sunnah Count',
+                            l10n.sunnahCount,
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -512,6 +514,7 @@ class DhikrDetailScreen extends ConsumerWidget {
 
   List<Widget> _buildReferences(BuildContext context, Dhikr dhikr) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return dhikr.references.map((ref) {
       final isQuran = ref.type == ReferenceType.quran;
       final badgeColor = isQuran ? Colors.teal : theme.colorScheme.primary;
@@ -567,21 +570,23 @@ class DhikrDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 2),
                   if (ref.narrator != null && ref.narrator!.isNotEmpty)
                     Text(
-                      'Narrated by: ${ref.narrator}',
+                      l10n.narratedBy(ref.narrator!),
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: theme.colorScheme.outline,
                       ),
                     ),
                   if (ref.surah != null)
                     Text(
-                      'Surah ${ref.surah}${ref.verse != null ? ' [Verse ${ref.verse}]' : ''}',
+                      ref.verse != null
+                          ? l10n.surahVerse(ref.surah!, ref.verse!)
+                          : l10n.surahOnly(ref.surah!),
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: theme.colorScheme.outline,
                       ),
                     ),
                   if (ref.referenceNumber != null)
                     Text(
-                      'Ref No: #${ref.referenceNumber}',
+                      l10n.refNo(ref.referenceNumber!),
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: theme.colorScheme.outline,
                       ),
@@ -723,6 +728,7 @@ class _HeaderSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -757,16 +763,16 @@ class _HeaderSection extends StatelessWidget {
           runSpacing: 8,
           children: [
             _MetaChip(
-              label: _categoryLabel(dhikr.category),
+              label: _categoryLabel(dhikr.category, l10n),
               icon: Iconsax.category,
             ),
             _MetaChip(
-              label: _typeLabel(dhikr.type),
+              label: _typeLabel(dhikr.type, l10n),
               icon: Iconsax.layer,
             ),
             if (dhikr.totalTargetCount > 0)
               _MetaChip(
-                label: 'Target: ${dhikr.totalTargetCount}',
+                label: l10n.target(dhikr.totalTargetCount),
                 icon: Iconsax.setting_4,
               ),
           ],
@@ -775,41 +781,41 @@ class _HeaderSection extends StatelessWidget {
     );
   }
 
-  String _categoryLabel(DhikrCategory c) {
+  String _categoryLabel(DhikrCategory c, AppLocalizations l10n) {
     switch (c) {
       case DhikrCategory.general:
-        return 'General';
+        return l10n.categoryGeneral;
       case DhikrCategory.morning:
-        return 'Morning';
+        return l10n.categoryMorning;
       case DhikrCategory.evening:
-        return 'Evening';
+        return l10n.categoryEvening;
       case DhikrCategory.afterSalah:
-        return 'After Salah';
+        return l10n.categoryAfterSalah;
       case DhikrCategory.beforeSleep:
-        return 'Before Sleep';
+        return l10n.categoryBeforeSleep;
       case DhikrCategory.friday:
-        return 'Friday';
+        return l10n.categoryFriday;
       case DhikrCategory.forgiveness:
-        return 'Forgiveness';
+        return l10n.categoryForgiveness;
       case DhikrCategory.protection:
-        return 'Protection';
+        return l10n.categoryProtection;
       case DhikrCategory.praise:
-        return 'Praise';
+        return l10n.categoryPraise;
       case DhikrCategory.salawat:
-        return 'Salawat';
+        return l10n.categorySalawat;
     }
   }
 
-  String _typeLabel(DhikrType t) {
+  String _typeLabel(DhikrType t, AppLocalizations l10n) {
     switch (t) {
       case DhikrType.single:
-        return 'Single';
+        return l10n.typeSingle;
       case DhikrType.collection:
-        return 'Collection';
+        return l10n.typeCollection;
       case DhikrType.dua:
-        return 'Dua';
+        return l10n.typeDua;
       case DhikrType.quran:
-        return 'Quran';
+        return l10n.typeQuran;
     }
   }
 }

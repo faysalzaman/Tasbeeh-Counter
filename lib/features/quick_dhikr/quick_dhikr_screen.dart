@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/localization/enum_localization.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../models/dhikr.dart';
 import '../../models/dhikr_schedule.dart';
@@ -215,7 +216,7 @@ class _DhikrListTile extends ConsumerWidget {
                             icon: Iconsax.flag,
                           ),
                           _MetaBadge(
-                            label: dhikr.category.label,
+                            label: EnumLocalizations.category(context, dhikr.category),
                             icon: Iconsax.category,
                           ),
                           if (scheduleEnum != null)
