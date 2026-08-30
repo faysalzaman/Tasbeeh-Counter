@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/localization/l10n_extension.dart';
@@ -208,23 +209,73 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           children: [
-            // Section 1: Basic Information Card
-            _FormSectionCard(
-              title: 'Basic Information',
-              children: [
-                AppTextField(
-                  controller: _nameController,
-                  label: '${l10n.dhikrName} *',
-                  hint: l10n.dhikrNameHint,
-                  prefixIcon: Iconsax.text,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return l10n.validationRequired;
-                    }
-                    return null;
+            // Required: Name
+            AppTextField(
+              controller: _nameController,
+              label: '${l10n.dhikrName} *',
+              hint: l10n.dhikrNameHint,
+              prefixIcon: Iconsax.text,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return l10n.validationRequired;
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 28),
+
+            // Required: Target
+            Text(
+              '${l10n.targetCount} *',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Quick target chips
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: _presetTargets.map((target) {
+                final isSelected =
+                    _targetController.text == target.toString();
+                return _TargetChip(
+                  target: target,
+                  isSelected: isSelected,
+                  onSelected: () {
+                    setState(() {
+                      _targetController.text = target.toString();
+                    });
+                    HapticFeedback.lightImpact();
                   },
-                ),
-                const SizedBox(height: 16),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 12),
+
+            // Custom target input
+            AppTextField.number(
+              controller: _targetController,
+              hint: l10n.targetCountHint,
+              prefixIcon: Iconsax.keyboard,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return l10n.validationRequired;
+                }
+                final count = int.tryParse(value);
+                if (count == null || count < 1) {
+                  return l10n.validationNumber;
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 24),
+
+            // Advanced options
+            _AdvancedOptionsCard(
+              children: [
+                // Arabic
                 AppTextField(
                   controller: _arabicController,
                   label: l10n.arabicText,
@@ -238,6 +289,8 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Transliteration
                 AppTextField(
                   controller: _transliterationController,
                   label: l10n.transliteration,
@@ -245,75 +298,25 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                   prefixIcon: Iconsax.textalign_left,
                 ),
                 const SizedBox(height: 16),
+
+                // Translation
                 AppTextField(
                   controller: _translationController,
                   label: l10n.translation,
                   hint: l10n.translationHint,
                   prefixIcon: Iconsax.language_square,
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Section 2: Target & Schedule Card
-            _FormSectionCard(
-              title: 'Target & Schedule',
-              children: [
-                // Preset Target Chips
-                Row(
-                  children: [
-                    Text(
-                      'Quick Target:',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Wrap(
-                        spacing: 8,
-                        children: _presetTargets.map((target) {
-                          final isSelected =
-                              _targetController.text == target.toString();
-                          return ChoiceChip(
-                            label: Text('$target'),
-                            selected: isSelected,
-                            onSelected: (_) {
-                              setState(() {
-                                _targetController.text = target.toString();
-                              });
-                            },
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                AppTextField.number(
-                  controller: _targetController,
-                  label: '${l10n.targetCount} *',
-                  hint: l10n.targetCountHint,
-                  prefixIcon: Iconsax.tag,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return l10n.validationRequired;
-                    }
-                    final count = int.tryParse(value);
-                    if (count == null || count < 1) {
-                      return l10n.validationNumber;
-                    }
-                    return null;
-                  },
-                ),
                 const SizedBox(height: 16),
 
+                // Schedule
                 DropdownButtonFormField<DhikrSchedule?>(
                   value: _schedule,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Schedule',
-                    prefixIcon: Icon(Iconsax.clock),
+                    prefixIcon: const Icon(Iconsax.clock),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                   items: [
                     const DropdownMenuItem<DhikrSchedule?>(
@@ -329,14 +332,9 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                   ],
                   onChanged: (value) => setState(() => _schedule = value),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-            // Section 3: Reminders & Duration Card
-            _FormSectionCard(
-              title: 'Reminders & Duration',
-              children: [
+                // Repeat toggle
                 SwitchListTile.adaptive(
                   contentPadding: EdgeInsets.zero,
                   title: Text(l10n.repeatMode),
@@ -345,7 +343,9 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                   onChanged: (value) => setState(() => _repeatEnabled = value),
                   secondary: const Icon(Iconsax.repeat),
                 ),
-                const Divider(),
+                const Divider(height: 24),
+
+                // Reminder toggle
                 SwitchListTile.adaptive(
                   contentPadding: EdgeInsets.zero,
                   title: Text(l10n.dailyReminder),
@@ -369,7 +369,9 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                     onTap: _pickReminderTime,
                   ),
                 ],
-                const Divider(),
+                const Divider(height: 24),
+
+                // Start date
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Iconsax.calendar),
@@ -383,20 +385,17 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                   onTap: _pickStartDate,
                 ),
                 const SizedBox(height: 8),
+
+                // Number of days
                 AppTextField.number(
                   controller: _daysController,
                   label: l10n.numberOfDays,
                   hint: l10n.numberOfDaysHint,
                   prefixIcon: Iconsax.timer,
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-            // Section 4: Notes Card
-            _FormSectionCard(
-              title: 'Notes & Reflections',
-              children: [
+                // Notes
                 AppTextField.multiline(
                   controller: _notesController,
                   label: l10n.notes,
@@ -435,15 +434,55 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
   }
 }
 
-class _FormSectionCard extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
+/// A large, tappable chip for quick target selection.
+class _TargetChip extends StatelessWidget {
+  final int target;
+  final bool isSelected;
+  final VoidCallback onSelected;
 
-  const _FormSectionCard({required this.title, required this.children});
+  const _TargetChip({
+    required this.target,
+    required this.isSelected,
+    required this.onSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final color = isSelected ? theme.colorScheme.primary : theme.colorScheme.surfaceContainerHighest;
+    final fgColor = isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurfaceVariant;
+
+    return Material(
+      color: color,
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onSelected,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          child: Text(
+            '$target',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: fgColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A card that wraps the advanced options in a collapsed ExpansionTile.
+class _AdvancedOptionsCard extends StatelessWidget {
+  final List<Widget> children;
+
+  const _AdvancedOptionsCard({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Container(
       decoration: BoxDecoration(
@@ -453,20 +492,35 @@ class _FormSectionCard extends StatelessWidget {
           color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
         ),
       ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Theme(
+          data: theme.copyWith(
+            dividerColor: Colors.transparent,
+          ),
+          child: ExpansionTile(
+            tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            title: Text(
+              l10n.moreOptions,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            subtitle: Text(
+              l10n.moreOptionsSubtitle,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            leading: Icon(
+              Iconsax.setting_2,
               color: theme.colorScheme.primary,
             ),
+            children: children,
           ),
-          const SizedBox(height: 14),
-          ...children,
-        ],
+        ),
       ),
     );
   }

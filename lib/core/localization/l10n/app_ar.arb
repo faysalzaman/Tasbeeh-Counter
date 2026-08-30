@@ -107,5 +107,8 @@
 
   "validationRequired": "هذا الحقل مطلوب",
   "validationNumber": "يرجى إدخال رقم صحيح",
-  "validationMin": "يجب أن يكون على الأقل 1"
+  "validationMin": "يجب أن يكون على الأقل 1",
+
+  "moreOptions": "المزيد من الخيارات",
+  "moreOptionsSubtitle": "النص العربي، التذكيرات، الجدول، الملاحظات..."
 }

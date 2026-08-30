@@ -338,4 +338,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get validationMin => 'Must be at least 1';
+
+  @override
+  String get moreOptions => 'More Options';
+
+  @override
+  String get moreOptionsSubtitle =>
+      'Arabic text, reminders, schedule, notes...';
 }

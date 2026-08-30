@@ -741,6 +741,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Must be at least 1'**
   String get validationMin;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More Options'**
+  String get moreOptions;
+
+  /// No description provided for @moreOptionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic text, reminders, schedule, notes...'**
+  String get moreOptionsSubtitle;
 }
 
 class _AppLocalizationsDelegate

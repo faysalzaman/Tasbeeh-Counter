@@ -38,7 +38,7 @@ class TasbeehCounterApp extends ConsumerWidget {
     final settings = ref.watch(settingsProvider);
 
     return MaterialApp.router(
-      title: 'Digital Tasbeeh',
+      title: 'Tasbih Counter',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,

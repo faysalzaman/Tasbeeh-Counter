@@ -335,4 +335,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get validationMin => 'يجب أن يكون على الأقل 1';
+
+  @override
+  String get moreOptions => 'المزيد من الخيارات';
+
+  @override
+  String get moreOptionsSubtitle =>
+      'النص العربي، التذكيرات، الجدول، الملاحظات...';
 }

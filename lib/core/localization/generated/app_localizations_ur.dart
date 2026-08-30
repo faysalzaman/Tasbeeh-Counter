@@ -336,4 +336,10 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get validationMin => 'کم از کم 1 ہونا چاہیے';
+
+  @override
+  String get moreOptions => 'مزید اختیارات';
+
+  @override
+  String get moreOptionsSubtitle => 'عربی متن، یاد دہانی، شیڈول، نوٹس...';
 }

@@ -124,5 +124,8 @@
 
   "validationRequired": "This field is required",
   "validationNumber": "Please enter a valid number",
-  "validationMin": "Must be at least 1"
+  "validationMin": "Must be at least 1",
+
+  "moreOptions": "More Options",
+  "moreOptionsSubtitle": "Arabic text, reminders, schedule, notes..."
 }

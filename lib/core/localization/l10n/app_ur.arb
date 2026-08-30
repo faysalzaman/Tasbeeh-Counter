@@ -107,5 +107,8 @@
 
   "validationRequired": "یہ فیلڈ ضروری ہے",
   "validationNumber": "براہ کرم ایک درست نمبر درج کریں",
-  "validationMin": "کم از کم 1 ہونا چاہیے"
+  "validationMin": "کم از کم 1 ہونا چاہیے",
+
+  "moreOptions": "مزید اختیارات",
+  "moreOptionsSubtitle": "عربی متن، یاد دہانی، شیڈول، نوٹس..."
 }
