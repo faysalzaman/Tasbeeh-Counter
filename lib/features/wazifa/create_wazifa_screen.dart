@@ -466,7 +466,6 @@ class _TargetChip extends StatelessWidget {
               color: fgColor,
               fontWeight: FontWeight.bold,
             ),
-            children: children,
           ),
         ),
       ),
