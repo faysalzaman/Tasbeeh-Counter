@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -18,6 +19,17 @@ class NotificationService {
     if (_initialized) return true;
 
     tz_data.initializeTimeZones();
+
+    // Set tz.local to the device's real timezone instead of defaulting to UTC.
+    try {
+      final TimezoneInfo timezoneInfo =
+          await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(timezoneInfo.identifier));
+    } catch (e) {
+      debugPrint('NotificationService: failed to set local timezone: $e');
+      // Falls back to UTC — better to log this loudly since it silently
+      // breaks every scheduled time otherwise.
+    }
 
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
@@ -73,7 +85,6 @@ class NotificationService {
 
   void _onNotificationTap(NotificationResponse response) {
     // TODO: Navigate to the specific dhikr when a reminder notification is tapped.
-    // The payload can contain the dhikr ID to route to the counter screen.
   }
 
   Future<bool> requestPermission() async {
@@ -109,7 +120,6 @@ class NotificationService {
   }
 
   /// Checks whether the app can schedule exact alarms on Android 12+.
-  /// If false, reminders using exact mode will silently fail.
   Future<bool> canScheduleExactAlarms() async {
     try {
       final androidPlugin = _notifications
@@ -161,7 +171,7 @@ class NotificationService {
     required String body,
     required DateTime scheduledDate,
   }) async {
-    if (!_initialized) {
+    if (!_initialized && !(await initialize())) {
       debugPrint('NotificationService not initialized');
       return false;
     }
@@ -176,6 +186,8 @@ class NotificationService {
         debugPrint('NotificationService: scheduledDate is in the past');
         return false;
       }
+
+      final scheduleMode = await _resolveScheduleMode();
 
       await _notifications.zonedSchedule(
         id,
@@ -197,14 +209,12 @@ class NotificationService {
             presentSound: true,
           ),
         ),
-        // Use inexact to avoid requiring exact-alarm permission on Android 12+.
-        // For a dhikr reminder, a few minutes of drift is acceptable.
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        androidScheduleMode: scheduleMode,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
       );
       debugPrint(
-        'NotificationService: scheduled reminder $id at $scheduledDate',
+        'NotificationService: scheduled reminder $id at $scheduledDate ($scheduleMode)',
       );
       return true;
     } catch (e, stack) {
@@ -221,7 +231,7 @@ class NotificationService {
     required int hour,
     required int minute,
   }) async {
-    if (!_initialized) {
+    if (!_initialized && !(await initialize())) {
       debugPrint('NotificationService not initialized');
       return false;
     }
@@ -268,7 +278,7 @@ class NotificationService {
         matchDateTimeComponents: DateTimeComponents.time,
       );
       debugPrint(
-        'NotificationService: scheduled daily reminder $id at $hour:$minute',
+        'NotificationService: scheduled daily reminder $id at $hour:$minute ($scheduleMode)',
       );
       return true;
     } catch (e, stack) {
@@ -344,7 +354,7 @@ class NotificationService {
         final enabled = await androidPlugin.areNotificationsEnabled();
         return enabled ?? false;
       }
-      return true; // iOS - permissions checked at schedule time
+      return true;
     } catch (e, stack) {
       debugPrint('NotificationService areNotificationsEnabled error: $e');
       debugPrint('$stack');
