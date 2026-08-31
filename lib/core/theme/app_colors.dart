@@ -1,38 +1,40 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 @immutable
 class AppColors {
   const AppColors._();
 
-  // Primary - Islamic green/teal inspired
-  static const Color primaryLight = Color(0xFF2E8B57); // Sea Green
-  static const Color primaryDark = Color(0xFF3CB371); // Medium Sea Green
+  // Primary - Deep Oceanic Teal sampled directly from logo background gradient
+  static const Color primaryLight = Color(0xFF1D5C73); // Muted Deep Teal
+  static const Color primaryDark = Color(
+    0xFF1E5266,
+  ); // Deep Teal Base (Icon Mid-tone)
 
-  // Secondary - Warm gold/amber
-  static const Color secondaryLight = Color(0xFFC59529); // Rich Gold
-  static const Color secondaryDark = Color(0xFFE6C875); // Soft Gold
+  // Secondary - Refined Champagne Gold sampled from the metallic crescent/beads
+  static const Color secondaryLight = Color(0xFFCBA569); // Elegant Warm Gold
+  static const Color secondaryDark = Color(0xFFE5C384); // Soft Glowing Gold
 
-  // Backgrounds & Surfaces
-  static const Color backgroundLight = Color(0xFFF8F9FA);
-  static const Color backgroundDark = Color(0xFF14171A);
+  // Backgrounds & Surfaces (Muted slate-blues to complement the logo background)
+  static const Color backgroundLight = Color(0xFFF4F8FA);
+  static const Color backgroundDark = Color(0xFF0D1C24); // Deep Night Teal
   static const Color surfaceLight = Color(0xFFFFFFFF);
-  static const Color surfaceDark = Color(0xFF21262C);
+  static const Color surfaceDark = Color(0xFF152630); // Elevated Teal Surface
 
   // Text / Content
-  static const Color textPrimaryLight = Color(0xFF1F2937);
-  static const Color textPrimaryDark = Color(0xFFF3F4F6);
-  static const Color textSecondaryLight = Color(0xFF6B7280);
-  static const Color textSecondaryDark = Color(0xFF9CA3AF);
+  static const Color textPrimaryLight = Color(0xFF0F1B21);
+  static const Color textPrimaryDark = Color(0xFFECEFF1);
+  static const Color textSecondaryLight = Color(0xFF4A616C);
+  static const Color textSecondaryDark = Color(0xFF8BA2AD);
 
   // Accents & Feedback
-  static const Color success = Color(0xFF10B981);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color error = Color(0xFFEF4444);
-  static const Color info = Color(0xFF3B82F6);
+  static const Color success = Color(0xFF2E8B75);
+  static const Color warning = Color(0xFFD99B26);
+  static const Color error = Color(0xFFD32F2F);
+  static const Color info = Color(0xFF2980B9);
 
   // Custom Extension Tokens
-  static const Color progressBackgroundLight = Color(0xFFE5E7EB);
-  static const Color progressBackgroundDark = Color(0xFF374151);
+  static const Color progressBackgroundLight = Color(0xFFDDE6EB);
+  static const Color progressBackgroundDark = Color(0xFF223642);
 
   /// Light ColorScheme
   static ColorScheme get lightColorScheme => const ColorScheme(
@@ -40,7 +42,7 @@ class AppColors {
     primary: primaryLight,
     onPrimary: Colors.white,
     secondary: secondaryLight,
-    onSecondary: Colors.white,
+    onSecondary: Colors.black,
     error: error,
     onError: Colors.white,
     surface: surfaceLight,
@@ -52,7 +54,7 @@ class AppColors {
   static ColorScheme get darkColorScheme => const ColorScheme(
     brightness: Brightness.dark,
     primary: primaryDark,
-    onPrimary: Colors.black,
+    onPrimary: Colors.white,
     secondary: secondaryDark,
     onSecondary: Colors.black,
     error: error,
