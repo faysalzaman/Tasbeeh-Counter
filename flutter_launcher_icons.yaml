@@ -1,0 +1,27 @@
+dev_dependencies:
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+
+  # Main icon — used for Android's default icon and iOS's light-appearance icon.
+  # Full color, green background (matches AppColors.primaryLight/primaryDark).
+  image_path: "assets/icon/icon_main_1024.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true # required — App Store rejects icons with transparency
+
+  # ---- Android adaptive icon (foreground drawn over a background, masked into
+  # whatever shape the launcher uses — circle, squircle, rounded square, etc.) ----
+  adaptive_icon_background: "#2E8B57" # AppColors.primaryLight
+  adaptive_icon_foreground: "assets/icon/glyph_light_bg_1024.png"
+
+  # ---- Android 13+ "themed" monochrome icon (Material You). Solid shape,
+  # transparent background — the system applies the user's accent color tint. ----
+  adaptive_icon_monochrome: "assets/icon/icon_android_monochrome_1024.png"
+
+  # ---- iOS 18+ alternate appearances ----
+  # Dark appearance: Apple composites this transparent glyph over its own dark fill.
+  image_path_ios_dark_transparent: "assets/icon/glyph_dark_bg_1024.png"
+  # Tinted appearance: Apple desaturates + applies the user's chosen tint over this.
+  image_path_ios_tinted_grayscale: "assets/icon/icon_ios_tinted_grayscale_1024.png"

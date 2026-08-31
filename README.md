@@ -15,6 +15,7 @@ Tasbeeh is designed to feel **calm, spiritual, responsive, and premium**. It com
 ## 🚀 Features
 
 ### Digital Tasbeeh Counter
+
 - Large, prominent tap-to-count interaction with smooth, satisfying animations
 - Optional vibration and counting tone feedback
 - Live display of current count, target, remaining count, and progress
@@ -22,62 +23,76 @@ Tasbeeh is designed to feel **calm, spiritual, responsive, and premium**. It com
 - Zero-latency counting — no database or network calls on tap
 
 ### Volume Button Counting
+
 - Count using physical Volume Up / Volume Down keys
 - Enable/disable from Settings
 - Works alongside normal touch counting without breaking navigation
 
 ### Built-in Dhikr / Azkaar
+
 Includes commonly used Azkaar by default (SubhanAllah, Alhamdulillah, Allahu Akbar, Astaghfirullah, La ilaha illallah, SubhanAllahi wa bihamdihi, Salawat/Durood, and more), each with:
+
 - Arabic text
 - Transliteration
 - Translation/meaning
 - Recommended default target count
 
 ### Custom Dhikr / Wazifa
+
 Create your own Wazifa with:
+
 - Name, Arabic text (optional), transliteration (optional)
 - Target count and duration (number of days)
 - Reminder time, notes, and sound/vibration preferences
 - Fully stored locally on-device
 
 ### Dhikr Schedule & Local Reminders
+
 - Local notifications when a scheduled Dhikr time arrives
 - Completion notifications when a Wazifa schedule finishes
 - All notifications generated locally — no backend required
 - Platform-appropriate notification permission handling
 
 ### Save & Continue Later
+
 - Save progress at any point without losing count, target, or schedule data
 - "Continue Wazifa" section on the Home screen resumes exactly where you left off
 
 ### Reset
+
 - Confirmation dialog before resetting progress
 - Resets count only — Dhikr configuration is preserved unless explicitly deleted
 
 ### Repeat Mode
+
 - Automatically starts a new round after reaching the target
 - Tracks round/session count with clear visual indication
 - Can be enabled/disabled per Dhikr
 
 ### Completion Experience
+
 - Elegant, peaceful celebration animation
 - Optional vibration and completion tone
 - Completion message and round update
 
 ### Feedback & Customization
+
 - Configurable counting and completion **vibration**
 - Configurable counting and completion **sound**
 - **Light / Dark / System** theme, fully applied across the app
 - **Localization**: English, Arabic, Urdu (RTL supported), extensible for more languages
 
 ### Settings
+
 Comprehensive settings covering Appearance, Counting, Completion, Notifications, Language, and App info (Rate App, Check for Updates, Privacy Policy, About).
 
 ### In-App Review & In-App Update
+
 - Native in-app review flow, triggered non-aggressively after meaningful usage
 - In-app update detection with graceful fallback to store listing
 
 ### Home Screen
+
 - Quick "Continue Wazifa" card for unfinished sessions
 - Quick-access Dhikr shortcuts
 - "My Wazifas" list with create action
@@ -113,8 +128,9 @@ lib/
 UI, state management, business logic, repositories, storage, notification scheduling, audio, and haptics are kept cleanly separated — no business logic inside widgets.
 
 ### Tech Stack
+
 | Layer | Choice |
-|---|---|
+| --- | --- |
 | Framework | Flutter |
 | State Management | [Riverpod](https://riverpod.dev/) |
 | Routing | [go_router](https://pub.dev/packages/go_router) |
@@ -151,6 +167,7 @@ Session/progress data is separated from the core Dhikr model where appropriate.
 ## 🔒 Privacy
 
 Tasbeeh is privacy-friendly by design:
+
 - No account or personal data required
 - No cloud sync — all Dhikr data stays on the device
 - Any optional analytics/ad SDK is isolated from core functionality and disclosed in the Privacy Policy
@@ -216,6 +233,7 @@ flutter run
 ```
 
 ### Requirements
+
 - Flutter SDK (stable channel)
 - Android Studio / Xcode for platform builds
 
@@ -224,6 +242,7 @@ flutter run
 ## 🌐 Localization
 
 All user-facing strings are sourced from localization resources — nothing is hardcoded. Supported out of the box:
+
 - English
 - Arabic (RTL)
 - Urdu (RTL)
