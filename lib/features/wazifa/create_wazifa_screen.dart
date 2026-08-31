@@ -238,8 +238,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
               spacing: 10,
               runSpacing: 10,
               children: _presetTargets.map((target) {
-                final isSelected =
-                    _targetController.text == target.toString();
+                final isSelected = _targetController.text == target.toString();
                 return _TargetChip(
                   target: target,
                   isSelected: isSelected,
@@ -310,7 +309,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
 
                 // Schedule
                 DropdownButtonFormField<DhikrSchedule?>(
-                  value: _schedule,
+                  initialValue: _schedule,
                   decoration: InputDecoration(
                     labelText: l10n.scheduleLabel,
                     prefixIcon: const Icon(Iconsax.clock),
@@ -449,8 +448,12 @@ class _TargetChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color = isSelected ? theme.colorScheme.primary : theme.colorScheme.surfaceContainerHighest;
-    final fgColor = isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurfaceVariant;
+    final color = isSelected
+        ? theme.colorScheme.primary
+        : theme.colorScheme.surfaceContainerHighest;
+    final fgColor = isSelected
+        ? theme.colorScheme.onPrimary
+        : theme.colorScheme.onSurfaceVariant;
 
     return Material(
       color: color,
@@ -489,9 +492,7 @@ class _AdvancedOptionsCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       clipBehavior: Clip.antiAlias,
       child: Theme(
-        data: theme.copyWith(
-          dividerColor: Colors.transparent,
-        ),
+        data: theme.copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -508,10 +509,7 @@ class _AdvancedOptionsCard extends StatelessWidget {
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
-          leading: Icon(
-            Iconsax.setting_2,
-            color: theme.colorScheme.primary,
-          ),
+          leading: Icon(Iconsax.setting_2, color: theme.colorScheme.primary),
           children: children,
         ),
       ),
