@@ -1,0 +1,27 @@
+dev_dependencies:
+  flutter_native_splash: ^2.4.3
+
+flutter_native_splash:
+  # ---- Light mode ----
+  color: "#F8F9FA" # AppColors.backgroundLight
+  image: assets/icon/glyph_light_bg_1024.png
+
+  # ---- Dark mode ----
+  color_dark: "#14171A" # AppColors.backgroundDark
+  image_dark: assets/icon/glyph_dark_bg_1024.png
+
+  android_12:
+    # Android 12+ splash uses a smaller centered icon on a solid color by spec —
+    # reuse the same glyphs and theme colors for consistency with the app itself.
+    color: "#F8F9FA"
+    image: assets/icon/glyph_light_bg_1024.png
+    color_dark: "#14171A"
+    image_dark: assets/icon/glyph_dark_bg_1024.png
+
+  android: true
+  ios: true
+  web: false
+
+  # Keep the splash on screen briefly after first frame so the counter/home
+  # screen doesn't flash in before its own theme finishes applying.
+  fullscreen: true
