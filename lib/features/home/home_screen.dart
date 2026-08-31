@@ -57,7 +57,9 @@ class HomeScreen extends ConsumerWidget {
                     ),
                     const Spacer(),
                     Text(
-                      l10n.totalCount(defaultDhikrs.length + customDhikrs.length),
+                      l10n.totalCount(
+                        defaultDhikrs.length + customDhikrs.length,
+                      ),
                       style: theme.textTheme.labelMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -105,8 +107,11 @@ class HomeScreen extends ConsumerWidget {
                       icon: Iconsax.book,
                       label: l10n.allAzkaar,
                       count: defaultDhikrs.length + customDhikrs.length,
-                      containerColor: theme.colorScheme.surfaceContainerHigh,
+                      containerColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.12,
+                      ),
                       iconColor: theme.colorScheme.primary,
+                      iconSize: 32,
                       onTap: () => context.push(AppRoutes.dhikrSelection),
                     ),
                   ],
@@ -196,6 +201,7 @@ class _CategoryCard extends StatelessWidget {
   final int? badgeCount;
   final Color containerColor;
   final Color iconColor;
+  final double iconSize;
   final VoidCallback onTap;
 
   const _CategoryCard({
@@ -205,6 +211,7 @@ class _CategoryCard extends StatelessWidget {
     this.badgeCount,
     required this.containerColor,
     required this.iconColor,
+    this.iconSize = 28,
     required this.onTap,
   });
 
@@ -242,7 +249,7 @@ class _CategoryCard extends StatelessWidget {
                         color: containerColor,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(icon, color: iconColor, size: 28),
+                      child: Icon(icon, color: iconColor, size: iconSize),
                     ),
                     if (badgeCount != null && badgeCount! > 0)
                       Positioned(

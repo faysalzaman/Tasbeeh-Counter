@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
-import '../../core/theme/app_colors.dart';
 import '../../router/app_router.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,35 +12,19 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   late final AnimationController _bismillahController;
-  late final AnimationController _prayController;
-
-  bool _showPray = false;
-  bool _prayLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _bismillahController = AnimationController(vsync: this);
-    _prayController = AnimationController(vsync: this);
-
     _bismillahController.addStatusListener(_onBismillahStatusChanged);
-    _prayController.addStatusListener(_onPrayStatusChanged);
   }
 
   void _onBismillahStatusChanged(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
-      setState(() => _showPray = true);
-      if (_prayLoaded) {
-        _prayController.forward();
-      }
-    }
-  }
-
-  void _onPrayStatusChanged(AnimationStatus status) {
-    if (status == AnimationStatus.completed) {
-      _navigateToHome();
+      Future.delayed(const Duration(milliseconds: 600), _navigateToHome);
     }
   }
 
@@ -54,50 +37,40 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void dispose() {
     _bismillahController.removeStatusListener(_onBismillahStatusChanged);
-    _prayController.removeStatusListener(_onPrayStatusChanged);
     _bismillahController.dispose();
-    _prayController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final lottieWidth = size.width * 0.7;
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: lottieWidth,
-                child: Lottie.asset(
-                  'assets/lottie/bismillah.json',
-                  controller: _bismillahController,
-                  onLoaded: (composition) {
-                    _bismillahController.duration = composition.duration;
-                    _bismillahController.forward();
-                  },
-                ),
-              ),
-              if (_showPray)
-                SizedBox(
-                  width: lottieWidth,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset('assets/icon/splash_screen.png', fit: BoxFit.cover),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 32,
+              child: Center(
+                child: SizedBox(
+                  width: size.width * 0.7,
                   child: Lottie.asset(
-                    'assets/lottie/pray.json',
-                    controller: _prayController,
+                    'assets/lottie/bismillah.json',
+                    controller: _bismillahController,
                     onLoaded: (composition) {
-                      _prayController.duration = composition.duration;
-                      _prayLoaded = true;
-                      _prayController.forward();
+                      _bismillahController.duration = composition.duration;
+                      _bismillahController.forward();
                     },
                   ),
                 ),
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
