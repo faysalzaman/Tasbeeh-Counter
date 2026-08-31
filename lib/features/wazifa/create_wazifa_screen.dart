@@ -277,7 +277,6 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                 // Arabic
                 AppTextField(
                   controller: _arabicController,
-                  label: l10n.arabicText,
                   hint: l10n.arabicTextHint,
                   prefixIcon: Iconsax.translate,
                   textDirection: TextDirection.rtl,
@@ -285,6 +284,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                     fontFamily: 'Amiri',
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
+                    height: 1.5,
                   ),
                 ),
                 const SizedBox(height: 16),

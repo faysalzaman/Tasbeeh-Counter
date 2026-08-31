@@ -45,7 +45,10 @@ class TasbeehCounterApp extends ConsumerWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: _getThemeMode(settings.themeMode),
       locale: _getLocale(settings.languageCode),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        ...GlobalMaterialLocalizations.delegates,
+      ],
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: appRouter,
       builder: (context, child) {

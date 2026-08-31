@@ -523,15 +523,18 @@ class _SettingsGroupCard extends StatelessWidget {
             ),
           ),
           Container(
-            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
               ),
             ),
-            child: Column(children: children),
+            child: Material(
+              color: theme.colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(18),
+              clipBehavior: Clip.antiAlias,
+              child: Column(children: children),
+            ),
           ),
         ],
       ),

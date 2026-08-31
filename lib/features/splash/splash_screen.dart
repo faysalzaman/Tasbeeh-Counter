@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../core/storage/local_storage.dart';
 import '../../router/app_router.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -20,6 +21,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _bismillahController = AnimationController(vsync: this);
     _bismillahController.addStatusListener(_onBismillahStatusChanged);
+    LocalStorage.instance.resetExpiredSchedules();
   }
 
   void _onBismillahStatusChanged(AnimationStatus status) {
@@ -47,31 +49,29 @@ class _SplashScreenState extends State<SplashScreen>
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.asset('assets/icon/splash_screen.png', fit: BoxFit.cover),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 32,
-              child: Center(
-                child: SizedBox(
-                  width: size.width * 0.7,
-                  child: Lottie.asset(
-                    'assets/lottie/bismillah.json',
-                    controller: _bismillahController,
-                    onLoaded: (composition) {
-                      _bismillahController.duration = composition.duration;
-                      _bismillahController.forward();
-                    },
-                  ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset('assets/icon/splash_screen.png', fit: BoxFit.cover),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 32,
+            child: Center(
+              child: SizedBox(
+                width: size.width * 0.7,
+                child: Lottie.asset(
+                  'assets/lottie/bismillah.json',
+                  controller: _bismillahController,
+                  onLoaded: (composition) {
+                    _bismillahController.duration = composition.duration;
+                    _bismillahController.forward();
+                  },
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

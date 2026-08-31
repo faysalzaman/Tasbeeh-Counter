@@ -2,6 +2,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../../models/app_settings.dart';
 import '../../models/dhikr.dart';
 import '../../models/dhikr_progress.dart';
+import '../../models/dhikr_schedule.dart';
 import '../constants/app_constants.dart';
 
 class LocalStorage {
@@ -38,7 +39,9 @@ class LocalStorage {
 
   Future<void> _initBoxes() async {
     _customDhikrBox = await Hive.openBox(AppConstants.customDhikrBox);
-    _progressBox = await Hive.openBox<DhikrProgress>(AppConstants.dhikrProgressBox);
+    _progressBox = await Hive.openBox<DhikrProgress>(
+      AppConstants.dhikrProgressBox,
+    );
     _settingsBox = await Hive.openBox<AppSettings>(AppConstants.settingsBox);
 
     // Initialize default settings if not present
@@ -91,6 +94,79 @@ class LocalStorage {
 
   Future<void> saveProgress(DhikrProgress progress) async {
     await _progressBox.put(progress.id, progress);
+  }
+
+  /// Resets progress of every scheduled dhikr whose schedule period has
+  /// rolled over since its last session:
+  /// - daily: resets at midnight
+  /// - friday/saturday/sunday: resets when that weekday begins
+  /// - fajr/morning/asar/maghrib/night: resets when the time window reopens
+  ///
+  /// Completed dhikrs start a fresh round; partially counted ("continue")
+  /// dhikrs restart from zero. Dhikrs without a schedule are left untouched.
+  /// Runs on the splash screen, before any provider reads the progress box.
+  Future<void> resetExpiredSchedules() async {
+    final now = DateTime.now();
+
+    for (final progress in _progressBox.values.toList()) {
+      final schedule = progress.scheduleEnum;
+      if (schedule == null) continue;
+      if (progress.currentCount == 0 && !progress.isCompleted) continue;
+
+      final lastActive = progress.lastSessionDate ?? progress.updatedAt;
+      if (!lastActive.isBefore(_currentPeriodStart(schedule, now))) continue;
+
+      await _progressBox.put(
+        progress.id,
+        progress.copyWith(
+          currentCount: 0,
+          isCompleted: false,
+          roundCount: progress.isCompleted
+              ? progress.roundCount + 1
+              : progress.roundCount,
+        ),
+      );
+    }
+  }
+
+  DateTime _currentPeriodStart(DhikrSchedule schedule, DateTime now) {
+    final today = DateTime(now.year, now.month, now.day);
+
+    switch (schedule) {
+      case DhikrSchedule.daily:
+        return today;
+
+      case DhikrSchedule.friday:
+      case DhikrSchedule.saturday:
+      case DhikrSchedule.sunday:
+        final weekday = switch (schedule) {
+          DhikrSchedule.friday => DateTime.friday,
+          DhikrSchedule.saturday => DateTime.saturday,
+          _ => DateTime.sunday,
+        };
+        return today.subtract(Duration(days: (now.weekday - weekday) % 7));
+
+      case DhikrSchedule.fajr:
+      case DhikrSchedule.morning:
+      case DhikrSchedule.asar:
+      case DhikrSchedule.maghrib:
+        final startHour = switch (schedule) {
+          DhikrSchedule.fajr => 4,
+          DhikrSchedule.morning => 6,
+          DhikrSchedule.asar => 15,
+          _ => 18,
+        };
+        final start = DateTime(now.year, now.month, now.day, startHour);
+        return now.isBefore(start)
+            ? start.subtract(const Duration(days: 1))
+            : start;
+
+      case DhikrSchedule.night:
+        final tonight = DateTime(now.year, now.month, now.day, 20);
+        return now.isBefore(tonight)
+            ? DateTime(now.year, now.month, now.day - 1, 20)
+            : tonight;
+    }
   }
 
   // --- Settings ---
