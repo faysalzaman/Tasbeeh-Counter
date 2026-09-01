@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/localization/l10n_extension.dart';
+import '../../core/notifications/notification_service.dart';
 import '../../providers/dhikr_provider.dart';
 import '../../router/app_router.dart';
 import '../../widgets/custom_buttons.dart';
@@ -10,11 +11,29 @@ import '../../widgets/custom_scaffold.dart';
 import 'widgets/greeting_widget.dart';
 import 'package:iconsax/iconsax.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _handleLaunchNotification();
+  }
+
+  Future<void> _handleLaunchNotification() async {
+    final launchDhikrId = await NotificationService().getLaunchDhikrId();
+    if (launchDhikrId != null && mounted) {
+      context.push(AppRoutes.counter, extra: launchDhikrId);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final activeDhikrs = ref.watch(activeDhikrsProvider);
     final defaultDhikrs = ref.watch(defaultDhikrsProvider);
     final customDhikrs = ref.watch(customDhikrsProvider);

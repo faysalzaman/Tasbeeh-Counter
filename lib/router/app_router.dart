@@ -11,10 +11,7 @@ import '../features/quick_dhikr/quick_dhikr_screen.dart';
 import '../features/my_wazifas/my_wazifas_screen.dart';
 import '../features/continue_wazifa/continue_wazifa_screen.dart';
 
-import '../features/splash/splash_screen.dart';
-
 class AppRoutes {
-  static const String splash = '/splash';
   static const String home = '/';
   static const String onboarding = '/onboarding';
   static const String counter = '/counter';
@@ -28,13 +25,8 @@ class AppRoutes {
 }
 
 final appRouter = GoRouter(
-  initialLocation: AppRoutes.splash,
+  initialLocation: AppRoutes.home,
   redirect: (context, state) {
-    // Allow the splash screen to finish before redirecting.
-    if (state.matchedLocation == AppRoutes.splash) {
-      return null;
-    }
-
     final hasCompletedOnboarding =
         LocalStorage.instance.getSettings().hasCompletedOnboarding;
     final isOnboarding = state.matchedLocation == AppRoutes.onboarding;
@@ -48,10 +40,6 @@ final appRouter = GoRouter(
     return null;
   },
   routes: [
-    GoRoute(
-      path: AppRoutes.splash,
-      builder: (context, state) => const SplashScreen(),
-    ),
     GoRoute(
       path: AppRoutes.home,
       builder: (context, state) => const HomeScreen(),

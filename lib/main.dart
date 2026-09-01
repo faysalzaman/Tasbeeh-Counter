@@ -14,6 +14,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await LocalStorage.initialize();
+  LocalStorage.instance.resetExpiredSchedules();
 
   await AudioService().initialize();
   await HapticsService().initialize();
@@ -24,12 +25,8 @@ void main() async {
   await NotificationService().requestPermission();
 
   // Deep-link: tapping a dhikr reminder while the app is running opens that
-  // dhikr's counter. Taps that cold-start the app are handled by the splash
-  // screen via getLaunchDhikrId(), so ignore taps while splash is showing.
+  // dhikr's counter.
   NotificationService().onDhikrReminderTap = (dhikrId) {
-    final location =
-        appRouter.routerDelegate.currentConfiguration.uri.path;
-    if (location == AppRoutes.splash) return;
     appRouter.push(AppRoutes.counter, extra: dhikrId);
   };
 
