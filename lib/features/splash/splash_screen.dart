@@ -56,29 +56,31 @@ class _SplashScreenState extends State<SplashScreen>
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset('assets/icon/splash_screen.png', fit: BoxFit.cover),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 32,
-            child: Center(
-              child: SizedBox(
-                width: size.width * 0.7,
-                child: Lottie.asset(
-                  'assets/lottie/bismillah.json',
-                  controller: _bismillahController,
-                  onLoaded: (composition) {
-                    _bismillahController.duration = composition.duration;
-                    _bismillahController.forward();
-                  },
-                ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // App Logo
+            Image.asset(
+              'assets/icon/playstore-icon.png',
+              width: size.width * 0.35,
+              height: size.width * 0.35,
+            ),
+            const SizedBox(height: 40),
+            // Bismillah
+            SizedBox(
+              width: size.width * 0.7,
+              child: Lottie.asset(
+                'assets/lottie/bismillah.json',
+                controller: _bismillahController,
+                onLoaded: (composition) {
+                  _bismillahController.duration = composition.duration;
+                  _bismillahController.forward();
+                },
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
