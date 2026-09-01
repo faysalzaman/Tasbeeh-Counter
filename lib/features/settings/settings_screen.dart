@@ -1,8 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:in_app_review/in_app_review.dart';
-import 'package:in_app_update/in_app_update.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -13,6 +11,9 @@ import '../../core/notifications/notification_service.dart';
 import '../../providers/settings_provider.dart';
 import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
+import 'widgets/language_picker_sheet.dart';
+import 'widgets/settings_group_card.dart';
+import 'widgets/theme_picker_sheet.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -68,19 +69,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
-  Future<void> _checkForUpdate() async {
-    try {
-      final updateInfo = await InAppUpdate.checkForUpdate();
-      if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
-        await InAppUpdate.performImmediateUpdate();
-      } else {
-        if (mounted) _showInfoSnackBar(context.l10n.onLatestVersion);
-      }
-    } catch (e) {
-      if (mounted) _showErrorSnackBar(context.l10n.couldNotCheckUpdates);
-    }
-  }
-
   Future<void> _openPrivacyPolicy() async {
     final uri = Uri.parse(
       'https://docs.google.com/document/d/1AqEvC4Eq5Kiva1cQmF5B-l-Yq92vaVTNKQcxKB65J60/edit?usp=sharing',
@@ -94,12 +82,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
-  }
-
-  void _showInfoSnackBar(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _showReminderTimePicker() async {
@@ -137,6 +119,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  String _getThemeLabel(String theme) {
+    final l10n = context.l10n;
+    switch (theme) {
+      case 'light':
+        return l10n.themeLight;
+      case 'dark':
+        return l10n.themeDark;
+      default:
+        return l10n.themeSystem;
+    }
+  }
+
+  String _getLanguageLabel(String language) {
+    final l10n = context.l10n;
+    switch (language) {
+      case 'en':
+        return l10n.languageEnglish;
+      case 'ar':
+        return l10n.languageArabic;
+      case 'ur':
+        return l10n.languageUrdu;
+      default:
+        return l10n.languageSystem;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
@@ -152,7 +160,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
           // Appearance
-          _SettingsGroupCard(
+          SettingsGroupCard(
             title: l10n.appearance,
             children: [
               ListTile(
@@ -160,13 +168,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: Text(l10n.theme),
                 subtitle: Text(_getThemeLabel(settings.themeMode)),
                 trailing: const Icon(Iconsax.arrow_right_3),
-                onTap: () => _showThemePicker(context),
+                onTap: () => _showPickerBottomSheet(context, const ThemePickerSheet()),
               ),
             ],
           ),
 
           // Counting Feedback
-          _SettingsGroupCard(
+          SettingsGroupCard(
             title: l10n.counting,
             children: [
               SwitchListTile.adaptive(
@@ -200,7 +208,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
 
           // Completion Feedback
-          _SettingsGroupCard(
+          SettingsGroupCard(
             title: l10n.completion,
             children: [
               SwitchListTile.adaptive(
@@ -224,7 +232,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
 
           // Notifications
-          _SettingsGroupCard(
+          SettingsGroupCard(
             title: l10n.notifications,
             children: [
               ListTile(
@@ -272,7 +280,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
 
           // Language & Localization
-          _SettingsGroupCard(
+          SettingsGroupCard(
             title: l10n.language,
             children: [
               ListTile(
@@ -280,13 +288,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: Text(l10n.language),
                 subtitle: Text(_getLanguageLabel(settings.languageCode)),
                 trailing: const Icon(Iconsax.arrow_right_3),
-                onTap: () => _showLanguagePicker(context),
+                onTap: () => _showPickerBottomSheet(context, const LanguagePickerSheet()),
               ),
             ],
           ),
 
           // Application Info & Links
-          _SettingsGroupCard(
+          SettingsGroupCard(
             title: l10n.app,
             children: [
               ListTile(
@@ -294,13 +302,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: Text(l10n.rateApp),
                 trailing: const Icon(Iconsax.arrow_right_3),
                 onTap: _rateApp,
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Iconsax.refresh_circle),
-                title: Text(l10n.checkForUpdates),
-                trailing: const Icon(Iconsax.arrow_right_3),
-                onTap: _checkForUpdate,
               ),
               const Divider(height: 1),
               ListTile(
@@ -323,221 +324,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  String _getThemeLabel(String theme) {
-    final l10n = context.l10n;
-    switch (theme) {
-      case 'light':
-        return l10n.themeLight;
-      case 'dark':
-        return l10n.themeDark;
-      default:
-        return l10n.themeSystem;
-    }
-  }
-
-  String _getLanguageLabel(String language) {
-    final l10n = context.l10n;
-    switch (language) {
-      case 'en':
-        return l10n.languageEnglish;
-      case 'ar':
-        return l10n.languageArabic;
-      case 'ur':
-        return l10n.languageUrdu;
-      default:
-        return l10n.languageSystem;
-    }
-  }
-
-  void _showThemePicker(BuildContext context) {
-    final settings = ref.read(settingsProvider);
-    final l10n = context.l10n;
-
+  void _showPickerBottomSheet(BuildContext context, Widget sheet) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 8,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      l10n.theme,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    AppIconButton(
-                      icon: Iconsax.close_circle,
-                      onPressed: () => Navigator.pop(context),
-                      size: 36,
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(),
-              RadioGroup<String>(
-                groupValue: settings.themeMode,
-                onChanged: (value) {
-                  if (value == null) return;
-                  ref.read(settingsProvider.notifier).updateTheme(value);
-                  Navigator.pop(context);
-                },
-                child: Column(
-                  children: [
-                    RadioListTile<String>(
-                      title: Text(l10n.themeSystem),
-                      value: 'system',
-                    ),
-                    RadioListTile<String>(
-                      title: Text(l10n.themeLight),
-                      value: 'light',
-                    ),
-                    RadioListTile<String>(
-                      title: Text(l10n.themeDark),
-                      value: 'dark',
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showLanguagePicker(BuildContext context) {
-    final settings = ref.read(settingsProvider);
-    final l10n = context.l10n;
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 8,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      l10n.language,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    AppIconButton(
-                      icon: Iconsax.close_circle,
-                      onPressed: () => Navigator.pop(context),
-                      size: 36,
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(),
-              RadioGroup<String>(
-                groupValue: settings.languageCode,
-                onChanged: (value) {
-                  if (value == null) return;
-                  ref.read(settingsProvider.notifier).updateLanguage(value);
-                  context.pop();
-                },
-                child: Column(
-                  children: [
-                    RadioListTile<String>(
-                      title: Text(l10n.languageSystem),
-                      value: 'system',
-                    ),
-                    RadioListTile<String>(
-                      title: Text(l10n.languageEnglish),
-                      value: 'en',
-                    ),
-                    RadioListTile<String>(
-                      title: Text(l10n.languageArabic),
-                      subtitle: const Text(
-                        'العربية',
-                        style: TextStyle(fontFamily: 'Amiri'),
-                      ),
-                      value: 'ar',
-                    ),
-                    RadioListTile<String>(
-                      title: Text(l10n.languageUrdu),
-                      subtitle: const Text('اردو'),
-                      value: 'ur',
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SettingsGroupCard extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
-
-  const _SettingsGroupCard({required this.title, required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 8, bottom: 8),
-            child: Text(
-              title,
-              style: theme.textTheme.titleSmall?.copyWith(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
-              ),
-            ),
-            child: Material(
-              color: theme.colorScheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(18),
-              clipBehavior: Clip.antiAlias,
-              child: Column(children: children),
-            ),
-          ),
-        ],
-      ),
+      builder: (context) => sheet,
     );
   }
 }
