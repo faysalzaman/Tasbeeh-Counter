@@ -1,7 +1,16 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+val keystorePropertiesFile = rootProject.file("key.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 dependencies {
@@ -29,30 +38,25 @@ android {
 
     signingConfigs {
         create("release") {
-            // TODO: Configure your release signing for Play Store.
-            // Create a keystore with:
-            //   keytool -genkey -v -keystore ~/upload-keystore.jks -keyalg RSA \
-            //     -keysize 2048 -validity 10000 -alias upload
-            // Then create android/key.properties with:
-            //   storePassword=<password>
-            //   keyPassword=<password>
-            //   keyAlias=upload
-            //   storeFile=/Users/<username>/upload-keystore.jks
-            // And uncomment the lines below:
-            // val keystorePropertiesFile = rootProject.file("key.properties")
-            // val keystoreProperties = Properties()
-            // keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-            // keyAlias = keystoreProperties["keyAlias"] as String
-            // keyPassword = keystoreProperties["keyPassword"] as String
-            // storeFile = file(keystoreProperties["storeFile"] as String)
-            // storePassword = keystoreProperties["storePassword"] as String
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
         }
     }
 
     buildTypes {
         release {
-            // TODO: Replace with signingConfigs.getByName("release") before Play Store upload.
-            signingConfig = signingConfigs.getByName("debug")
+            // Falls back to the debug key until android/key.properties exists,
+            // so local release builds keep working. Play Store uploads require
+            // the real upload keystore.
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

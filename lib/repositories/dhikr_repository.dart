@@ -163,6 +163,7 @@ class DhikrRepository {
         body: "It's time for your dhikr: $name",
         hour: hour,
         minute: minute,
+        payload: progress.id,
       );
       if (!ok) {
         debugPrint('DhikrRepository: FAILED to schedule reminder for "$name"');

@@ -15,6 +15,11 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
 
+  /// Invoked when the user taps a dhikr reminder notification while the app
+  /// is running. Registered from main() so this service stays free of
+  /// router/UI imports.
+  void Function(String dhikrId)? onDhikrReminderTap;
+
   Future<bool> initialize() async {
     if (_initialized) return true;
 
@@ -84,7 +89,25 @@ class NotificationService {
   }
 
   void _onNotificationTap(NotificationResponse response) {
-    // TODO: Navigate to the specific dhikr when a reminder notification is tapped.
+    final dhikrId = response.payload;
+    if (dhikrId == null || dhikrId.isEmpty) return;
+    debugPrint('NotificationService: reminder tapped for dhikr $dhikrId');
+    onDhikrReminderTap?.call(dhikrId);
+  }
+
+  /// The dhikr id whose reminder notification launched the app (cold start),
+  /// if any. Check once on the splash screen to deep-link into the counter.
+  Future<String?> getLaunchDhikrId() async {
+    try {
+      final details = await _notifications.getNotificationAppLaunchDetails();
+      if (details == null || !details.didNotificationLaunchApp) return null;
+      final payload = details.notificationResponse?.payload;
+      if (payload != null && payload.isNotEmpty) return payload;
+    } catch (e, stack) {
+      debugPrint('NotificationService getLaunchDhikrId error: $e');
+      debugPrint('$stack');
+    }
+    return null;
   }
 
   Future<bool> requestPermission() async {
@@ -230,6 +253,7 @@ class NotificationService {
     required String body,
     required int hour,
     required int minute,
+    String? payload,
   }) async {
     if (!_initialized && !(await initialize())) {
       debugPrint('NotificationService not initialized');
@@ -276,6 +300,7 @@ class NotificationService {
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
+        payload: payload,
       );
       debugPrint(
         'NotificationService: scheduled daily reminder $id at $hour:$minute ($scheduleMode)',

@@ -8,6 +8,7 @@ import 'core/haptics/haptics_service.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/storage/local_storage.dart';
 import 'repositories/dhikr_repository.dart';
+import 'router/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,16 @@ void main() async {
   // NEW — request notification permission (Android 13+ / iOS) before
   // syncing reminders, otherwise scheduled notifications won't show.
   await NotificationService().requestPermission();
+
+  // Deep-link: tapping a dhikr reminder while the app is running opens that
+  // dhikr's counter. Taps that cold-start the app are handled by the splash
+  // screen via getLaunchDhikrId(), so ignore taps while splash is showing.
+  NotificationService().onDhikrReminderTap = (dhikrId) {
+    final location =
+        appRouter.routerDelegate.currentConfiguration.uri.path;
+    if (location == AppRoutes.splash) return;
+    appRouter.push(AppRoutes.counter, extra: dhikrId);
+  };
 
   // NEW — exact-alarm permission is a separate, more invasive prompt
   // (opens system settings on Android 12+). Don't fire it blind on cold

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../core/notifications/notification_service.dart';
 import '../../core/storage/local_storage.dart';
 import '../../router/app_router.dart';
 
@@ -30,8 +31,14 @@ class _SplashScreenState extends State<SplashScreen>
     }
   }
 
-  void _navigateToHome() {
-    if (mounted) {
+  Future<void> _navigateToHome() async {
+    // If a reminder notification launched the app, deep-link straight into
+    // that dhikr's counter instead of the home screen.
+    final launchDhikrId = await NotificationService().getLaunchDhikrId();
+    if (!mounted) return;
+    if (launchDhikrId != null) {
+      context.go(AppRoutes.counter, extra: launchDhikrId);
+    } else {
       context.go(AppRoutes.home);
     }
   }
