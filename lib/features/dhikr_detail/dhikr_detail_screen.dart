@@ -57,26 +57,6 @@ class DhikrDetailScreen extends ConsumerWidget {
             scrolledUnderElevation: 2,
             backgroundColor: theme.colorScheme.primary,
             iconTheme: IconThemeData(color: theme.colorScheme.onPrimary),
-            actions: [
-              AppIconButton(
-                icon: Iconsax.bookmark,
-                onPressed: null,
-                tooltip: 'Save',
-                color: theme.colorScheme.onPrimary,
-                backgroundColor: theme.colorScheme.onPrimary.withValues(
-                  alpha: 0.15,
-                ),
-              ),
-              AppIconButton(
-                icon: Iconsax.share,
-                onPressed: null,
-                tooltip: 'Share',
-                color: theme.colorScheme.onPrimary,
-                backgroundColor: theme.colorScheme.onPrimary.withValues(
-                  alpha: 0.15,
-                ),
-              ),
-            ],
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
               titlePadding: const EdgeInsets.only(
