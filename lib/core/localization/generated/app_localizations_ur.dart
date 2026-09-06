@@ -457,4 +457,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String notificationReminderBody(Object name) {
     return 'آپ کا ذکر کا وقت ہو گیا ہے: $name';
   }
+
+  @override
+  String get couldNotOpenLink => 'لنک کھولنے میں مسئلہ';
 }

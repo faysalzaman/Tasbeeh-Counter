@@ -148,5 +148,6 @@
   "typeDua": "دعاء",
   "typeQuran": "قرآن",
 
-  "notificationReminderBody": "حان وقت ذكرك: {name}"
+  "notificationReminderBody": "حان وقت ذكرك: {name}",
+  "couldNotOpenLink": "تعذر فتح الرابط"
 }

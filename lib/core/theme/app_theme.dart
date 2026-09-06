@@ -6,19 +6,21 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData get lightTheme {
+    final colorScheme = const ColorScheme.light(
+      primary: AppColors.primaryLight,
+      secondary: AppColors.secondaryLight,
+      surface: AppColors.surfaceLight,
+      onSurface: AppColors.textPrimaryLight,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      error: AppColors.error,
+      onError: Colors.white,
+    );
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.primaryLight,
-        secondary: AppColors.secondaryLight,
-        surface: AppColors.surfaceLight,
-        onSurface: AppColors.textPrimaryLight,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        error: AppColors.error,
-        onError: Colors.white,
-      ),
+      colorScheme: colorScheme,
+      textTheme: Typography.material2021(colorScheme: colorScheme).black,
       scaffoldBackgroundColor: AppColors.backgroundLight,
       appBarTheme: const AppBarTheme(
         elevation: 0,
@@ -93,19 +95,21 @@ class AppTheme {
   }
 
   static ThemeData get darkTheme {
+    final colorScheme = const ColorScheme.dark(
+      primary: AppColors.primaryDark,
+      secondary: AppColors.secondaryDark,
+      surface: AppColors.surfaceDark,
+      onSurface: AppColors.textPrimaryDark,
+      onPrimary: Colors.black,
+      onSecondary: Colors.black,
+      error: AppColors.error,
+      onError: Colors.white,
+    );
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primaryDark,
-        secondary: AppColors.secondaryDark,
-        surface: AppColors.surfaceDark,
-        onSurface: AppColors.textPrimaryDark,
-        onPrimary: Colors.black,
-        onSecondary: Colors.black,
-        error: AppColors.error,
-        onError: Colors.white,
-      ),
+      colorScheme: colorScheme,
+      textTheme: Typography.material2021(colorScheme: colorScheme).white,
       scaffoldBackgroundColor: AppColors.backgroundDark,
       appBarTheme: const AppBarTheme(
         elevation: 0,

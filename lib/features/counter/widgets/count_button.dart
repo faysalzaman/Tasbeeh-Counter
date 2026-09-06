@@ -89,7 +89,7 @@ class _CountButtonState extends State<CountButton> {
                   size: 48,
                   color: isDisabled
                       ? theme.colorScheme.onSurface.withValues(alpha: 0.3)
-                      : Colors.white,
+                      : theme.colorScheme.onPrimary,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -99,7 +99,7 @@ class _CountButtonState extends State<CountButton> {
                     fontWeight: FontWeight.w600,
                     color: isDisabled
                         ? theme.colorScheme.onSurface.withValues(alpha: 0.3)
-                        : Colors.white,
+                        : theme.colorScheme.onPrimary,
                   ),
                 ),
               ],

@@ -1,3 +1,4 @@
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -55,10 +56,20 @@ class TasbeehCounterApp extends ConsumerWidget {
         final locale = Localizations.localeOf(context);
         final isRTL =
             locale.languageCode == 'ar' || locale.languageCode == 'ur';
+        final platformBrightness = MediaQuery.platformBrightnessOf(context);
 
-        return Directionality(
-          textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
-          child: child!,
+        final effectiveBrightness = switch (settings.themeMode) {
+          'light' => Brightness.light,
+          'dark' => Brightness.dark,
+          _ => platformBrightness,
+        };
+
+        return CupertinoTheme(
+          data: CupertinoThemeData(brightness: effectiveBrightness),
+          child: Directionality(
+            textDirection: isRTL ? TextDirection.rtl : TextDirection.ltr,
+            child: child!,
+          ),
         );
       },
     );

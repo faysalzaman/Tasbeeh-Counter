@@ -951,6 +951,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'It\'s time for your dhikr: {name}'**
   String notificationReminderBody(Object name);
+
+  /// No description provided for @couldNotOpenLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the link'**
+  String get couldNotOpenLink;
 }
 
 class _AppLocalizationsDelegate

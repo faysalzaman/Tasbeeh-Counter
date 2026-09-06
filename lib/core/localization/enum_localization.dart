@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import '../../models/dhikr.dart';
 import '../../models/dhikr_schedule.dart';
 import 'l10n_extension.dart';

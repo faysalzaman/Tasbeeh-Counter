@@ -207,7 +207,11 @@ class AppButton extends StatelessWidget {
   }
 
   Widget _buildChild() {
-    final labelWidget = Text(label);
+    final labelWidget = Text(
+      label,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
     if (icon == null) return labelWidget;
 
     final iconWidget = Icon(icon, size: 20);
@@ -217,8 +221,8 @@ class AppButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: iconAfterLabel
-          ? [labelWidget, gap, iconWidget]
-          : [iconWidget, gap, labelWidget],
+          ? [Flexible(child: labelWidget), gap, iconWidget]
+          : [iconWidget, gap, Flexible(child: labelWidget)],
     );
   }
 }

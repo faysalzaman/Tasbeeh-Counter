@@ -165,5 +165,6 @@
   "typeDua": "Dua",
   "typeQuran": "Quran",
 
-  "notificationReminderBody": "It's time for your dhikr: {name}"
+  "notificationReminderBody": "It's time for your dhikr: {name}",
+  "couldNotOpenLink": "Could not open the link"
 }

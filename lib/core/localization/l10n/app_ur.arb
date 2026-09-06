@@ -148,5 +148,6 @@
   "typeDua": "دعا",
   "typeQuran": "قرآن",
 
-  "notificationReminderBody": "آپ کا ذکر کا وقت ہو گیا ہے: {name}"
+  "notificationReminderBody": "آپ کا ذکر کا وقت ہو گیا ہے: {name}",
+  "couldNotOpenLink": "لنک کھولنے میں مسئلہ"
 }

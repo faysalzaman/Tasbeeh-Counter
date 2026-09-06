@@ -56,21 +56,25 @@ class DhikrDetailScreen extends ConsumerWidget {
             elevation: 0,
             scrolledUnderElevation: 2,
             backgroundColor: theme.colorScheme.primary,
-            iconTheme: const IconThemeData(color: Colors.white),
+            iconTheme: IconThemeData(color: theme.colorScheme.onPrimary),
             actions: [
               AppIconButton(
                 icon: Iconsax.bookmark,
                 onPressed: null,
                 tooltip: 'Save',
-                color: Colors.white,
-                backgroundColor: Colors.white.withValues(alpha: 0.15),
+                color: theme.colorScheme.onPrimary,
+                backgroundColor: theme.colorScheme.onPrimary.withValues(
+                  alpha: 0.15,
+                ),
               ),
               AppIconButton(
                 icon: Iconsax.share,
                 onPressed: null,
                 tooltip: 'Share',
-                color: Colors.white,
-                backgroundColor: Colors.white.withValues(alpha: 0.15),
+                color: theme.colorScheme.onPrimary,
+                backgroundColor: theme.colorScheme.onPrimary.withValues(
+                  alpha: 0.15,
+                ),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -90,10 +94,10 @@ class DhikrDetailScreen extends ConsumerWidget {
                     opacity: isCollapsed ? 1.0 : 0.0,
                     child: Text(
                       dhikr.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.colorScheme.onPrimary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

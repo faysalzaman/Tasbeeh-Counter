@@ -457,4 +457,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String notificationReminderBody(Object name) {
     return 'حان وقت ذكرك: $name';
   }
+
+  @override
+  String get couldNotOpenLink => 'تعذر فتح الرابط';
 }

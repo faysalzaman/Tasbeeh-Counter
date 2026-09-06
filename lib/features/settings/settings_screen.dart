@@ -73,14 +73,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final uri = Uri.parse(
       'https://docs.google.com/document/d/1AqEvC4Eq5Kiva1cQmF5B-l-Yq92vaVTNKQcxKB65J60/edit?usp=sharing',
     );
-    if (await canLaunchUrl(uri)) {
+    try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      if (mounted) _showErrorSnackBar(context.l10n.couldNotOpenLink);
     }
   }
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      ),
     );
   }
 
@@ -168,7 +179,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: Text(l10n.theme),
                 subtitle: Text(_getThemeLabel(settings.themeMode)),
                 trailing: const Icon(Iconsax.arrow_right_3),
-                onTap: () => _showPickerBottomSheet(context, const ThemePickerSheet()),
+                onTap: () =>
+                    _showPickerBottomSheet(context, const ThemePickerSheet()),
               ),
             ],
           ),
@@ -288,7 +300,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: Text(l10n.language),
                 subtitle: Text(_getLanguageLabel(settings.languageCode)),
                 trailing: const Icon(Iconsax.arrow_right_3),
-                onTap: () => _showPickerBottomSheet(context, const LanguagePickerSheet()),
+                onTap: () => _showPickerBottomSheet(
+                  context,
+                  const LanguagePickerSheet(),
+                ),
               ),
             ],
           ),

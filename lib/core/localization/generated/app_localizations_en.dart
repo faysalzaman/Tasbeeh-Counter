@@ -460,4 +460,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String notificationReminderBody(Object name) {
     return 'It\'s time for your dhikr: $name';
   }
+
+  @override
+  String get couldNotOpenLink => 'Could not open the link';
 }

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 @immutable
 class AppColors {
@@ -7,8 +7,8 @@ class AppColors {
   // Primary - Deep Oceanic Teal sampled directly from logo background gradient
   static const Color primaryLight = Color(0xFF1D5C73); // Muted Deep Teal
   static const Color primaryDark = Color(
-    0xFF1E5266,
-  ); // Deep Teal Base (Icon Mid-tone)
+    0xFF82C5DC,
+  ); // Light Teal (readable on dark surfaces)
 
   // Secondary - Refined Champagne Gold sampled from the metallic crescent/beads
   static const Color secondaryLight = Color(0xFFCBA569); // Elegant Warm Gold
@@ -54,7 +54,7 @@ class AppColors {
   static ColorScheme get darkColorScheme => const ColorScheme(
     brightness: Brightness.dark,
     primary: primaryDark,
-    onPrimary: Colors.white,
+    onPrimary: Colors.black,
     secondary: secondaryDark,
     onSecondary: Colors.black,
     error: error,
