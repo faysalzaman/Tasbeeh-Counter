@@ -242,6 +242,12 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
                           targetCount: targetCount,
                           remainingCount:
                               targetCount - counterState.displayCount,
+                          isCompleted: isCompleted,
+                          showCompletionAnimation:
+                              counterState.showCompletionAnimation,
+                          onTap: isCompleted && !repeatEnabled
+                              ? null
+                              : _handleCount,
                         ),
                       ),
                     ),
