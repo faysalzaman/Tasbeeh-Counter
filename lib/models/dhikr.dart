@@ -78,6 +78,12 @@ class Dhikr {
   /// If user created this dhikr
   final bool isCustom;
 
+  /// Whether reminders are enabled for this dhikr by default
+  final bool reminderEnabled;
+
+  /// Daily reminder time in 24-hour HH:mm format (e.g. '06:00', '16:30')
+  final String? reminderTime;
+
   final DateTime? createdAt;
 
   const Dhikr({
@@ -94,6 +100,8 @@ class Dhikr {
     this.recommendedTimes = const [],
     this.isDefault = false,
     this.isCustom = false,
+    this.reminderEnabled = false,
+    this.reminderTime,
     this.createdAt,
   });
 
@@ -135,6 +143,8 @@ class Dhikr {
           const [],
       isDefault: (map['isDefault'] as bool?) ?? false,
       isCustom: (map['isCustom'] as bool?) ?? false,
+      reminderEnabled: (map['reminderEnabled'] as bool?) ?? false,
+      reminderTime: map['reminderTime'] as String?,
       createdAt: map['createdAt'] != null
           ? DateTime.tryParse(map['createdAt'].toString())
           : null,
@@ -156,6 +166,8 @@ class Dhikr {
       'recommendedTimes': recommendedTimes,
       'isDefault': isDefault,
       'isCustom': isCustom,
+      'reminderEnabled': reminderEnabled,
+      if (reminderTime != null) 'reminderTime': reminderTime,
       if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
     };
   }
@@ -174,6 +186,8 @@ class Dhikr {
     List<String>? recommendedTimes,
     bool? isDefault,
     bool? isCustom,
+    bool? reminderEnabled,
+    String? reminderTime,
     DateTime? createdAt,
   }) {
     return Dhikr(
@@ -190,6 +204,8 @@ class Dhikr {
       recommendedTimes: recommendedTimes ?? this.recommendedTimes,
       isDefault: isDefault ?? this.isDefault,
       isCustom: isCustom ?? this.isCustom,
+      reminderEnabled: reminderEnabled ?? this.reminderEnabled,
+      reminderTime: reminderTime ?? this.reminderTime,
       createdAt: createdAt ?? this.createdAt,
     );
   }

@@ -53,6 +53,8 @@ class AppConstants {
       'recommendedTimes': ['After Salah', 'Any time'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '13:00',
     },
 
     // ============================================================
@@ -86,6 +88,8 @@ class AppConstants {
       'recommendedTimes': ['After Salah', 'Any time'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '13:15',
     },
 
     // ============================================================
@@ -120,6 +124,8 @@ class AppConstants {
       'recommendedTimes': ['Before sleeping', 'Any time'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '21:30',
     },
 
     // ============================================================
@@ -151,6 +157,8 @@ class AppConstants {
       'recommendedTimes': ['Any time'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '14:30',
     },
 
     // ============================================================
@@ -189,6 +197,8 @@ class AppConstants {
       'recommendedTimes': ['Any time'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '10:30',
     },
 
     // ============================================================
@@ -226,6 +236,8 @@ class AppConstants {
       'recommendedTimes': ['Morning', 'Any time'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '07:30',
     },
 
     // ============================================================
@@ -259,6 +271,8 @@ class AppConstants {
       'recommendedTimes': ['Friday', 'Any time'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '15:30',
     },
 
     // ============================================================
@@ -298,6 +312,8 @@ class AppConstants {
       'recommendedTimes': ['Any time'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '11:30',
     },
 
     // ============================================================
@@ -340,6 +356,8 @@ class AppConstants {
       'recommendedTimes': ['Any time'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '16:00',
     },
 
     // ============================================================
@@ -380,6 +398,8 @@ class AppConstants {
       'recommendedTimes': ['Any time'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '18:30',
     },
 
     // ============================================================
@@ -414,6 +434,8 @@ class AppConstants {
       'recommendedTimes': ['When needed'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '20:00',
     },
 
     // ============================================================
@@ -456,6 +478,8 @@ class AppConstants {
       'recommendedTimes': ['Before sleeping', 'After Salah'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '21:00',
     },
 
     // ============================================================
@@ -511,6 +535,8 @@ class AppConstants {
       'recommendedTimes': ['Before sleeping'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '22:00',
     },
 
     // ============================================================
@@ -545,6 +571,8 @@ class AppConstants {
       'recommendedTimes': ['Friday'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '09:00',
     },
 
     // ============================================================
@@ -586,6 +614,8 @@ class AppConstants {
       'recommendedTimes': ['Morning', 'Evening'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '06:30',
     },
 
     // ============================================================
@@ -652,6 +682,8 @@ class AppConstants {
       'recommendedTimes': ['After Salah'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '13:30',
     },
 
     // ============================================================
@@ -705,6 +737,8 @@ class AppConstants {
       'recommendedTimes': ['Morning'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '06:00',
     },
 
     // ============================================================
@@ -758,6 +792,8 @@ class AppConstants {
       'recommendedTimes': ['Evening'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '17:30',
     },
 
     // ============================================================
@@ -810,6 +846,8 @@ class AppConstants {
       'recommendedTimes': ['Friday', 'After Asr'],
       'isDefault': true,
       'isCustom': false,
+      'reminderEnabled': true,
+      'reminderTime': '16:30',
     },
   ];
 }

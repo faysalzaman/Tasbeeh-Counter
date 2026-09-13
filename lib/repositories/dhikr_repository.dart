@@ -25,7 +25,8 @@ class DhikrRepository {
   }
 
   Future<void> deleteDhikr(String id) async {
-    await NotificationService().cancelReminder(id.hashCode);
+    final safeId = id.hashCode & 0x7FFFFFFF;
+    await NotificationService().cancelReminder(safeId);
     await _storage.deleteDhikr(id);
   }
 
@@ -138,63 +139,110 @@ class DhikrRepository {
 
     await _storage.saveCustomDhikr(dhikr);
     await _storage.saveProgress(progress);
-    await _syncReminderFor(progress, dhikr.name);
+    await _syncReminderFor(dhikr, progress);
     return dhikr;
   }
 
   // --- Reminders ---
 
-  Future<void> _syncReminderFor(DhikrProgress progress, String name) async {
-    final id = progress.id.hashCode;
-    final settings = _storage.getSettings();
-    final shouldRemind = progress.reminderEnabled &&
+  bool isReminderEnabledFor(Dhikr dhikr, DhikrProgress? progress) {
+    if (progress != null &&
         progress.reminderTime != null &&
-        progress.reminderTime!.isNotEmpty &&
+        progress.reminderTime!.isNotEmpty) {
+      return progress.reminderEnabled;
+    }
+    return dhikr.reminderEnabled;
+  }
+
+  String? getEffectiveReminderTime(Dhikr dhikr, DhikrProgress? progress) {
+    if (progress != null &&
+        progress.reminderTime != null &&
+        progress.reminderTime!.isNotEmpty) {
+      return progress.reminderTime;
+    }
+    return dhikr.reminderTime;
+  }
+
+  Future<void> _syncReminderFor(Dhikr dhikr, DhikrProgress? progress) async {
+    final id = dhikr.id.hashCode & 0x7FFFFFFF;
+    final settings = _storage.getSettings();
+    final reminderEnabled = isReminderEnabledFor(dhikr, progress);
+    final reminderTime = getEffectiveReminderTime(dhikr, progress);
+
+    final shouldRemind = reminderEnabled &&
+        reminderTime != null &&
+        reminderTime.isNotEmpty &&
         settings.reminderNotifications;
 
     if (shouldRemind) {
-      final parts = progress.reminderTime!.split(':');
+      final parts = reminderTime.split(':');
       final hour = int.tryParse(parts[0]) ?? 0;
       final minute = parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0;
-      debugPrint('DhikrRepository: scheduling daily reminder for "$name" at $hour:$minute');
+      debugPrint(
+        'DhikrRepository: scheduling daily reminder for "${dhikr.name}" (id=$id) at $hour:$minute',
+      );
       final ok = await NotificationService().scheduleDailyReminder(
         id: id,
-        title: name,
-        body: "It's time for your dhikr: $name",
+        title: dhikr.name,
+        body: "It's time for your dhikr: ${dhikr.name}",
         hour: hour,
         minute: minute,
-        payload: progress.id,
+        payload: dhikr.id,
       );
       if (!ok) {
-        debugPrint('DhikrRepository: FAILED to schedule reminder for "$name"');
+        debugPrint(
+          'DhikrRepository: FAILED to schedule reminder for "${dhikr.name}"',
+        );
       }
     } else {
-      debugPrint('DhikrRepository: cancelling reminder for "$name" (id=$id)');
+      debugPrint(
+        'DhikrRepository: cancelling reminder for "${dhikr.name}" (id=$id)',
+      );
       await NotificationService().cancelReminder(id);
     }
   }
 
-  /// Reschedules or cancels the reminder for a single dhikr based on its
-  /// current progress and the global reminder setting.
-  Future<void> syncReminder(String id) async {
-    final dhikr = getDhikr(id);
-    final progress = getProgress(id);
-    if (dhikr == null || progress == null) {
-      await NotificationService().cancelReminder(id.hashCode);
-      return;
-    }
-    await _syncReminderFor(progress, dhikr.name);
+  /// Updates or creates tracking state for a dhikr with custom reminder preferences
+  /// and synchronizes notifications immediately.
+  Future<void> updateDhikrReminder({
+    required String dhikrId,
+    required bool enabled,
+    String? reminderTime,
+  }) async {
+    final dhikr = getDhikr(dhikrId);
+    final existingProgress = getProgress(dhikrId) ?? DhikrProgress(id: dhikrId);
+    final time = reminderTime ??
+        existingProgress.reminderTime ??
+        dhikr?.reminderTime ??
+        '12:00';
+    final updatedProgress = existingProgress.copyWith(
+      reminderEnabled: enabled,
+      reminderTime: time,
+    );
+    await _storage.saveProgress(updatedProgress);
+    await syncReminder(dhikrId);
   }
 
-  /// Syncs reminders for every dhikr that has tracking state. Call on app
-  /// start and whenever the global reminder setting changes.
+  /// Reschedules or cancels the reminder for a single dhikr based on its
+  /// current progress or default settings and the global reminder setting.
+  Future<void> syncReminder(String id) async {
+    final dhikr = getDhikr(id);
+    if (dhikr == null) {
+      final safeId = id.hashCode & 0x7FFFFFFF;
+      await NotificationService().cancelReminder(safeId);
+      return;
+    }
+    final progress = getProgress(id);
+    await _syncReminderFor(dhikr, progress);
+  }
+
+  /// Syncs reminders for every dhikr (both default dhikrs and custom wazaif).
+  /// Call on app start and whenever the global reminder setting changes.
   Future<void> syncAllReminders() async {
     final all = getAllDhikrs();
     for (final dhikr in all) {
       final progress = getProgress(dhikr.id);
-      if (progress != null) {
-        await _syncReminderFor(progress, dhikr.name);
-      }
+      await _syncReminderFor(dhikr, progress);
     }
   }
 }

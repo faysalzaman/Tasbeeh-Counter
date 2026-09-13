@@ -192,6 +192,13 @@ class DhikrDetailScreen extends ConsumerWidget {
                     _buildRecommendedTimes(context, dhikr),
                     const SizedBox(height: 28),
                   ],
+                  _SectionHeader(
+                    title: l10n.dailyReminder,
+                    icon: Iconsax.alarm,
+                  ),
+                  const SizedBox(height: 12),
+                  _ReminderSection(dhikr: dhikr),
+                  const SizedBox(height: 28),
                   const SizedBox(
                     height: 100,
                   ), // Spacing for floating bottom bar
@@ -880,3 +887,144 @@ class _SectionHeader extends StatelessWidget {
     );
   }
 }
+
+class _ReminderSection extends ConsumerWidget {
+  final Dhikr dhikr;
+
+  const _ReminderSection({required this.dhikr});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final progress = ref.watch(progressByIdProvider(dhikr.id));
+    final repository = ref.read(dhikrRepositoryProvider);
+
+    final isEnabled = repository.isReminderEnabledFor(dhikr, progress);
+    final rawTime = repository.getEffectiveReminderTime(dhikr, progress) ?? '12:00';
+
+    String formattedTime = rawTime;
+    try {
+      final parts = rawTime.split(':');
+      final tod = TimeOfDay(
+        hour: int.parse(parts[0]),
+        minute: int.parse(parts[1]),
+      );
+      formattedTime = tod.format(context);
+    } catch (_) {}
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Column(
+        children: [
+          SwitchListTile.adaptive(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            secondary: Icon(
+              Iconsax.alarm,
+              color: isEnabled
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurfaceVariant,
+            ),
+            title: Text(
+              l10n.dailyReminder,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(
+              l10n.dailyReminderSubtitle,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            value: isEnabled,
+            onChanged: (value) async {
+              await repository.updateDhikrReminder(
+                dhikrId: dhikr.id,
+                enabled: value,
+                reminderTime: rawTime,
+              );
+              ref.read(progressListNotifierProvider.notifier).refresh();
+            },
+          ),
+          if (isEnabled) ...[
+            Divider(
+              height: 1,
+              indent: 16,
+              endIndent: 16,
+              color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+            ),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+              leading: Icon(
+                Iconsax.clock,
+                size: 20,
+                color: theme.colorScheme.primary,
+              ),
+              title: Text(
+                l10n.reminderTime,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              trailing: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      formattedTime,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Iconsax.edit_2,
+                      size: 14,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ],
+                ),
+              ),
+              onTap: () async {
+                final parts = rawTime.split(':');
+                final initialTime = TimeOfDay(
+                  hour: int.tryParse(parts[0]) ?? 12,
+                  minute: parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0,
+                );
+                final picked = await showTimePicker(
+                  context: context,
+                  initialTime: initialTime,
+                );
+                if (picked != null) {
+                  final newTimeStr =
+                      '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+                  await repository.updateDhikrReminder(
+                    dhikrId: dhikr.id,
+                    enabled: true,
+                    reminderTime: newTimeStr,
+                  );
+                  ref.read(progressListNotifierProvider.notifier).refresh();
+                }
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
