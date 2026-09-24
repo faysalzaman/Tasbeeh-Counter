@@ -1,18 +1,18 @@
 flutter_native_splash:
   # ---- Light mode ----
   color: "#276174"
-  image: assets/icon/splash_screen.png
+  image: assets/store_icon/app_icon_512.png
 
   # ---- Dark mode ----
   color_dark: "#276174"
-  image_dark: assets/icon/splash_screen.png
+  image_dark: assets/store_icon/app_icon_512.png
 
   android_12:
     # Android 12+ splash uses a smaller centered icon on a solid color by spec
     color: "#276174"
-    image: assets/icon/playstore-icon.png
+    image: assets/store_icon/app_icon_512.png
     color_dark: "#276174"
-    image_dark: assets/icon/playstore-icon.png
+    image_dark: assets/store_icon/app_icon_512.png
 
   android: true
   ios: true

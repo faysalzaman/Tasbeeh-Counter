@@ -56,7 +56,6 @@ dependencies:
   uuid: ^4.4.0
   url_launcher: ^6.3.0
   package_info_plus: ^8.0.0
-  lottie: ^3.3.0
 
   # For detecting system theme
   dynamic_color: ^1.7.0
@@ -84,8 +83,7 @@ flutter:
   # Add assets for sounds
   assets:
     - assets/sounds/
-    - assets/icon/
-    - assets/lottie/
+    - assets/store_icon/
     - shorebird.yaml
 
   # fonts:

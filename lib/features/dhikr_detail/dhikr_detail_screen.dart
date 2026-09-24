@@ -757,10 +757,7 @@ class _HeaderSection extends StatelessWidget {
               label: _categoryLabel(dhikr.category, l10n),
               icon: Iconsax.category,
             ),
-            _MetaChip(
-              label: _typeLabel(dhikr.type, l10n),
-              icon: Iconsax.layer,
-            ),
+            _MetaChip(label: _typeLabel(dhikr.type, l10n), icon: Iconsax.layer),
             if (dhikr.totalTargetCount > 0)
               _MetaChip(
                 label: l10n.target(dhikr.totalTargetCount),
@@ -901,7 +898,8 @@ class _ReminderSection extends ConsumerWidget {
     final repository = ref.read(dhikrRepositoryProvider);
 
     final isEnabled = repository.isReminderEnabledFor(dhikr, progress);
-    final rawTime = repository.getEffectiveReminderTime(dhikr, progress) ?? '12:00';
+    final rawTime =
+        repository.getEffectiveReminderTime(dhikr, progress) ?? '12:00';
 
     String formattedTime = rawTime;
     try {
@@ -924,7 +922,10 @@ class _ReminderSection extends ConsumerWidget {
       child: Column(
         children: [
           SwitchListTile.adaptive(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 4,
+            ),
             secondary: Icon(
               Iconsax.alarm,
               color: isEnabled
@@ -961,7 +962,10 @@ class _ReminderSection extends ConsumerWidget {
               color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
             ),
             ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 2,
+              ),
               leading: Icon(
                 Iconsax.clock,
                 size: 20,
@@ -974,7 +978,10 @@ class _ReminderSection extends ConsumerWidget {
                 ),
               ),
               trailing: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -1027,4 +1034,3 @@ class _ReminderSection extends ConsumerWidget {
     );
   }
 }
-
