@@ -1,7 +1,7 @@
 name: tesbeeh_counter
 description: "A polished Digital Tasbeeh Counter & Dhikr App"
 publish_to: 'none'
-version: 1.0.1+4
+version: 1.0.2+5
 
 environment:
   sdk: ^3.12.2
@@ -86,6 +86,7 @@ flutter:
     - assets/sounds/
     - assets/icon/
     - assets/lottie/
+    - shorebird.yaml
 
   # fonts:
   #   - family: Amiri
