@@ -42,6 +42,7 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       _initializeDhikr();
       _setupVolumeKeys();
     });
@@ -73,14 +74,7 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
   }
 
   void _handleCount() {
-    final dhikr = ref.read(dhikrByIdProvider(widget.dhikrId));
-    final progress = ref.read(progressByIdProvider(widget.dhikrId));
-    final isCompleted = progress?.isCompleted ?? false;
-    final repeatEnabled = progress?.repeatEnabled ?? false;
-
-    if (dhikr != null && (!isCompleted || repeatEnabled)) {
-      ref.read(counterStateProvider.notifier).increment(widget.dhikrId);
-    }
+    ref.read(counterStateProvider.notifier).increment(widget.dhikrId);
   }
 
   void _showResetDialog() {
@@ -107,9 +101,9 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
     );
   }
 
-  void _saveAndExit() {
-    ref.read(counterStateProvider.notifier).saveAndExit(widget.dhikrId);
-    context.pop();
+  Future<void> _saveAndExit() async {
+    await ref.read(counterStateProvider.notifier).saveAndExit(widget.dhikrId);
+    if (mounted) context.pop();
   }
 
   @override
@@ -148,7 +142,7 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
     }
 
     final targetCount = dhikr.totalTargetCount;
-    final isCompleted = progress?.isCompleted ?? false;
+    final isCompleted = counterState.isCompleted;
     final repeatEnabled = progress?.repeatEnabled ?? false;
 
     return KeyboardListener(
@@ -245,9 +239,7 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
                           isCompleted: isCompleted,
                           showCompletionAnimation:
                               counterState.showCompletionAnimation,
-                          onTap: isCompleted && !repeatEnabled
-                              ? null
-                              : _handleCount,
+                          onTap: isCompleted ? null : _handleCount,
                         ),
                       ),
                     ),
@@ -279,11 +271,7 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
                       ),
 
                     // Fixed Bottom Controls
-                    CountButton(
-                      onTap: isCompleted && !repeatEnabled
-                          ? null
-                          : _handleCount,
-                    ),
+                    CountButton(onTap: isCompleted ? null : _handleCount),
                     const SizedBox(height: 12),
                     Row(
                       children: [

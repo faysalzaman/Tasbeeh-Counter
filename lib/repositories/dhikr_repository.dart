@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import '../core/notifications/notification_service.dart';
 import '../core/storage/local_storage.dart';
@@ -52,8 +54,10 @@ class DhikrRepository {
 
   Future<DhikrProgress> incrementCount(String id) async {
     final progress = _storage.getProgress(id) ?? DhikrProgress(id: id);
+    final target = getDhikr(id)?.totalTargetCount ?? 0;
+    final nextCount = progress.currentCount + 1;
     final updated = progress.copyWith(
-      currentCount: progress.currentCount + 1,
+      currentCount: target > 0 ? math.min(nextCount, target) : nextCount,
       lastSessionDate: DateTime.now(),
     );
     await _storage.saveProgress(updated);
