@@ -2,16 +2,24 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import '../core/notifications/notification_service.dart';
+import '../core/notifications/reminder_schedule.dart';
 import '../core/storage/local_storage.dart';
+import '../core/storage/progress_rollover.dart';
 import '../models/dhikr.dart';
 import '../models/dhikr_progress.dart';
 
 class DhikrRepository {
   final LocalStorage _storage;
   final NotificationService _notifications;
+  final DateTime Function() _now;
+  static Future<void> _pendingReminderSync = Future.value();
 
-  DhikrRepository(this._storage, {NotificationService? notifications})
-    : _notifications = notifications ?? NotificationService();
+  DhikrRepository(
+    this._storage, {
+    NotificationService? notifications,
+    DateTime Function()? now,
+  }) : _notifications = notifications ?? NotificationService(),
+       _now = now ?? DateTime.now;
 
   /// A deterministic positive ID, shared by scheduling and cancellation.
   static int reminderId(String dhikrId) {
@@ -40,6 +48,7 @@ class DhikrRepository {
   Future<void> deleteDhikr(String id) async {
     await _notifications.cancelReminder(reminderId(id));
     await _storage.deleteDhikr(id);
+    await syncAllReminders();
   }
 
   // --- Progress ---
@@ -47,6 +56,24 @@ class DhikrRepository {
   DhikrProgress? getProgress(String id) => _storage.getProgress(id);
 
   Map<String, DhikrProgress> getAllProgress() => _storage.getAllProgress();
+
+  DhikrProgress? progressForCurrentPeriod(String id) {
+    final dhikr = getDhikr(id);
+    final progress = getProgress(id);
+    if (dhikr == null || progress == null) return progress;
+    return rolledOverProgress(dhikr, progress, _now()) ?? progress;
+  }
+
+  Future<Set<String>> resetExpiredSchedules() async {
+    final resetIds = <String>{};
+    for (final progress in getAllProgress().values.toList()) {
+      final updated = progressForCurrentPeriod(progress.id);
+      if (updated == null || identical(updated, progress)) continue;
+      await _storage.saveProgress(updated);
+      resetIds.add(progress.id);
+    }
+    return resetIds;
+  }
 
   Future<void> saveProgress(DhikrProgress progress) async {
     await _storage.saveProgress(progress);
@@ -58,7 +85,7 @@ class DhikrRepository {
     final nextCount = progress.currentCount + 1;
     final updated = progress.copyWith(
       currentCount: target > 0 ? math.min(nextCount, target) : nextCount,
-      lastSessionDate: DateTime.now(),
+      lastSessionDate: _now(),
     );
     await _storage.saveProgress(updated);
     return updated;
@@ -71,7 +98,7 @@ class DhikrRepository {
       currentCount: 0,
       roundCount: 1,
       isCompleted: false,
-      lastSessionDate: DateTime.now(),
+      lastSessionDate: _now(),
     );
     await _storage.saveProgress(updated);
   }
@@ -84,14 +111,14 @@ class DhikrRepository {
       final updated = progress.copyWith(
         currentCount: 0,
         roundCount: progress.roundCount + 1,
-        lastSessionDate: DateTime.now(),
+        lastSessionDate: _now(),
       );
       await _storage.saveProgress(updated);
     } else {
       final updated = progress.copyWith(
         isCompleted: true,
         currentCount: targetCount,
-        lastSessionDate: DateTime.now(),
+        lastSessionDate: _now(),
       );
       await _storage.saveProgress(updated);
     }
@@ -141,19 +168,24 @@ class DhikrRepository {
       repeatEnabled: repeatEnabled,
       reminderEnabled: reminderEnabled,
       reminderTime: reminderTime ?? _storage.getSettings().defaultReminderTime,
-      startDate: startDate,
+      startDate: startDate ?? (numberOfDays != null ? _now() : null),
       numberOfDays: numberOfDays,
       notes: notes,
       schedule: schedule,
     );
 
-    if (numberOfDays != null && startDate != null) {
-      progress.endDate = startDate.add(Duration(days: numberOfDays));
+    if (numberOfDays != null && progress.startDate != null) {
+      final start = progress.startDate!;
+      progress.endDate = DateTime(
+        start.year,
+        start.month,
+        start.day + numberOfDays,
+      );
     }
 
     await _storage.saveCustomDhikr(dhikr);
     await _storage.saveProgress(progress);
-    await _syncReminderFor(dhikr, progress);
+    await syncAllReminders();
     return dhikr;
   }
 
@@ -175,53 +207,6 @@ class DhikrRepository {
       return progress.reminderTime;
     }
     return dhikr.reminderTime ?? _storage.getSettings().defaultReminderTime;
-  }
-
-  Future<void> _syncReminderFor(Dhikr dhikr, DhikrProgress? progress) async {
-    final id = reminderId(dhikr.id);
-    final settings = _storage.getSettings();
-    final reminderEnabled = isReminderEnabledFor(dhikr, progress);
-    final reminderTime = getEffectiveReminderTime(dhikr, progress);
-
-    final shouldRemind =
-        reminderEnabled &&
-        reminderTime != null &&
-        reminderTime.isNotEmpty &&
-        settings.reminderNotifications;
-
-    if (shouldRemind) {
-      final match = RegExp(
-        r'^([01]\d|2[0-3]):([0-5]\d)$',
-      ).firstMatch(reminderTime);
-      if (match == null) {
-        debugPrint('DhikrRepository: invalid reminder time "$reminderTime"');
-        await _notifications.cancelReminder(id);
-        return;
-      }
-      final hour = int.parse(match.group(1)!);
-      final minute = int.parse(match.group(2)!);
-      debugPrint(
-        'DhikrRepository: scheduling daily reminder for "${dhikr.name}" (id=$id) at $hour:$minute',
-      );
-      final ok = await _notifications.scheduleDailyReminder(
-        id: id,
-        title: dhikr.name,
-        body: "It's time for your dhikr: ${dhikr.name}",
-        hour: hour,
-        minute: minute,
-        payload: dhikr.id,
-      );
-      if (!ok) {
-        debugPrint(
-          'DhikrRepository: FAILED to schedule reminder for "${dhikr.name}"',
-        );
-      }
-    } else {
-      debugPrint(
-        'DhikrRepository: cancelling reminder for "${dhikr.name}" (id=$id)',
-      );
-      await _notifications.cancelReminder(id);
-    }
   }
 
   /// Updates or creates tracking state for a dhikr with custom reminder preferences
@@ -249,31 +234,168 @@ class DhikrRepository {
   /// Reschedules or cancels the reminder for a single dhikr based on its
   /// current progress or default settings and the global reminder setting.
   Future<void> syncReminder(String id) async {
-    final dhikr = getDhikr(id);
-    if (dhikr == null) {
+    if (getDhikr(id) == null) {
       await _notifications.cancelReminder(reminderId(id));
-      return;
     }
-    final progress = getProgress(id);
-    await _syncReminderFor(dhikr, progress);
+    await syncAllReminders();
   }
 
-  /// Syncs reminders for every dhikr (both default dhikrs and custom wazaif).
-  /// Call on app start and whenever the global reminder setting changes.
-  Future<void> syncAllReminders() async {
+  /// Rebuild the pending plan within the OS budget, keeping the soonest dated
+  /// occurrences. App startup and resume refill long-running dated schedules.
+  Future<void> syncAllReminders() {
+    final sync = _pendingReminderSync.then((_) => _syncAllReminders());
+    _pendingReminderSync = sync.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    return sync;
+  }
+
+  Future<void> _syncAllReminders() async {
     final all = getAllDhikrs();
-    // Remove legacy IDs and reminders belonging to deleted azkaar. Use the
-    // payload so unrelated notifications are left alone.
-    final ids = {for (final dhikr in all) dhikr.id: reminderId(dhikr.id)};
-    for (final pending in await _notifications.pendingReminders()) {
-      final payload = pending.payload;
-      if (payload != null && payload.isNotEmpty && ids[payload] != pending.id) {
-        await _notifications.cancelReminder(pending.id);
+    final pending = await _notifications.pendingReminders();
+    final settings = _storage.getSettings();
+    final now = _now();
+    final limit = _notifications.pendingReminderLimit;
+    final repeating = <_PlannedReminder>[];
+    final dated = <_PlannedReminder>[];
+    final activeIds = <String>{};
+    for (final dhikr in all) {
+      final progress = getProgress(dhikr.id);
+      final time = getEffectiveReminderTime(dhikr, progress);
+      final match = time == null
+          ? null
+          : RegExp(r'^([01]\d|2[0-3]):([0-5]\d)$').firstMatch(time);
+      if (!settings.reminderNotifications ||
+          !isReminderEnabledFor(dhikr, progress) ||
+          match == null) {
+        continue;
+      }
+      final start = progress?.startDate;
+      var end = progress?.endDate;
+      if (end == null && progress?.numberOfDays != null) {
+        final first = start ?? progress!.createdAt;
+        end = DateTime(
+          first.year,
+          first.month,
+          first.day + progress!.numberOfDays!,
+        );
+      }
+      final schedule = ReminderSchedule(
+        hour: int.parse(match.group(1)!),
+        minute: int.parse(match.group(2)!),
+        weekday:
+            progress?.scheduleEnum == null &&
+                dhikr.category == DhikrCategory.friday
+            ? DateTime.friday
+            : ReminderSchedule.weekdayFor(progress?.scheduleEnum),
+        startDate: start,
+        endDate: end,
+      );
+      final dates = schedule.occurrences(
+        now,
+        limit: schedule.canRepeat(now) ? 1 : limit,
+      );
+      if (dates.isEmpty) continue;
+      if (schedule.canRepeat(now)) {
+        activeIds.add(dhikr.id);
+        repeating.add(
+          _PlannedReminder(
+            dhikr,
+            schedule,
+            dates.first,
+            reminderId(dhikr.id),
+            true,
+          ),
+        );
+      } else {
+        for (final date in dates) {
+          final key = '${dhikr.id}::${date.year}-${date.month}-${date.day}';
+          dated.add(
+            _PlannedReminder(dhikr, schedule, date, reminderId(key), false),
+          );
+        }
+      }
+    }
+    repeating.sort((a, b) => a.date.compareTo(b.date));
+    dated.sort((a, b) => a.date.compareTo(b.date));
+    final externalCount = pending
+        .where((p) => p.payload == null || p.payload!.isEmpty)
+        .length;
+    final budget = math.max(0, limit - externalCount);
+    final plan = [
+      ...repeating.take(budget),
+      ...dated.take(math.max(0, budget - repeating.length)),
+    ];
+    final wanted = plan.map((p) => p.id).toSet();
+    for (final notification in pending) {
+      if (notification.payload?.isNotEmpty == true &&
+          !wanted.contains(notification.id)) {
+        await _notifications.cancelReminder(notification.id);
       }
     }
     for (final dhikr in all) {
-      final progress = getProgress(dhikr.id);
-      await _syncReminderFor(dhikr, progress);
+      if (!activeIds.contains(dhikr.id) ||
+          !wanted.contains(reminderId(dhikr.id))) {
+        await _notifications.cancelReminder(reminderId(dhikr.id));
+      }
+    }
+    for (final reminder in plan) {
+      final dhikr = reminder.dhikr;
+      final schedule = reminder.schedule;
+      final body = "It's time for your dhikr: ${dhikr.name}";
+      final bool ok;
+      if (!reminder.repeating) {
+        ok = await _notifications.scheduleReminder(
+          id: reminder.id,
+          title: dhikr.name,
+          body: body,
+          scheduledDate: reminder.date,
+          payload: dhikr.id,
+        );
+      } else if (schedule.weekday != null) {
+        ok = await _notifications.scheduleWeeklyReminder(
+          id: reminder.id,
+          title: dhikr.name,
+          body: body,
+          hour: schedule.hour,
+          minute: schedule.minute,
+          weekday: schedule.weekday!,
+          payload: dhikr.id,
+        );
+      } else {
+        ok = await _notifications.scheduleDailyReminder(
+          id: reminder.id,
+          title: dhikr.name,
+          body: body,
+          hour: schedule.hour,
+          minute: schedule.minute,
+          payload: dhikr.id,
+        );
+      }
+      if (!ok) {
+        debugPrint('DhikrRepository: failed to schedule "${dhikr.name}"');
+      }
+    }
+    if (dated.length > math.max(0, budget - repeating.length)) {
+      debugPrint(
+        'DhikrRepository: dated reminder budget reached; refill on resume',
+      );
     }
   }
+}
+
+class _PlannedReminder {
+  final Dhikr dhikr;
+  final ReminderSchedule schedule;
+  final DateTime date;
+  final int id;
+  final bool repeating;
+  const _PlannedReminder(
+    this.dhikr,
+    this.schedule,
+    this.date,
+    this.id,
+    this.repeating,
+  );
 }

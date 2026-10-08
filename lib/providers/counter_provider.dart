@@ -20,9 +20,13 @@ final currentDhikrProvider = Provider<Dhikr?>((ref) {
 final counterStateProvider =
     StateNotifierProvider<CounterNotifier, CounterState>((ref) {
       final dhikrRepo = ref.watch(dhikrRepositoryProvider);
-      final settings = ref.watch(settingsProvider);
+      final settings = ref.read(settingsProvider);
       final progressNotifier = ref.watch(progressListNotifierProvider.notifier);
-      return CounterNotifier(dhikrRepo, settings, progressNotifier);
+      final notifier = CounterNotifier(dhikrRepo, settings, progressNotifier);
+      ref.listen(settingsProvider, (_, settings) {
+        notifier.updateSettings(settings);
+      });
+      return notifier;
     });
 
 class CounterState {
@@ -56,7 +60,7 @@ class CounterState {
 
 class CounterNotifier extends StateNotifier<CounterState> {
   final DhikrRepository _repository;
-  final AppSettings _settings;
+  AppSettings _settings;
   final ProgressListNotifier _progressNotifier;
   final AudioService _audio = AudioService();
   final HapticsService _haptics = HapticsService();
@@ -80,10 +84,13 @@ class CounterNotifier extends StateNotifier<CounterState> {
   CounterNotifier(this._repository, this._settings, this._progressNotifier)
     : super(const CounterState());
 
+  void updateSettings(AppSettings settings) => _settings = settings;
+
   void setDhikr(Dhikr dhikr) {
     _dhikrId = dhikr.id;
     _session++;
-    final progress = _repository.getProgress(dhikr.id);
+    final original = _repository.getProgress(dhikr.id);
+    final progress = _repository.progressForCurrentPeriod(dhikr.id);
     final target = dhikr.totalTargetCount;
     final count = progress?.currentCount ?? 0;
     final reached = target > 0 && count >= target;
@@ -101,7 +108,9 @@ class CounterNotifier extends StateNotifier<CounterState> {
     // Repair counts left above the target by the old asynchronous flow, or
     // by editing a wazifa to have a smaller target.
     if (progress != null &&
-        (count != displayCount || progress.isCompleted != completed)) {
+        (!identical(original, progress) ||
+            count != displayCount ||
+            progress.isCompleted != completed)) {
       unawaited(
         _writeInOrder(() async {
           await _repository.saveProgress(
@@ -115,6 +124,22 @@ class CounterNotifier extends StateNotifier<CounterState> {
         }),
       );
     }
+  }
+
+  /// Uses the same storage queue as counting, so day rollover cannot race
+  /// pending presses or a repeat-round completion.
+  Future<void> refreshExpiredSchedules() async {
+    final session = _session;
+    final id = _dhikrId;
+    await _writeInOrder(() async {
+      final changed = await _repository.resetExpiredSchedules();
+      if (!mounted || changed.isEmpty) return;
+      _progressNotifier.refresh();
+      if (id != null && changed.contains(id) && _isCurrent(session, id)) {
+        final dhikr = _repository.getDhikr(id);
+        if (dhikr != null) setDhikr(dhikr);
+      }
+    });
   }
 
   Future<void> increment(String dhikrId) async {

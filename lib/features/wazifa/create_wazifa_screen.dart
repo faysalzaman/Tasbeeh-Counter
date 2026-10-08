@@ -40,6 +40,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
   DhikrSchedule? _schedule;
 
   bool _isEditing = false;
+  bool _isSaving = false;
   final List<int> _presetTargets = const [33, 100, 313, 1000];
 
   @override
@@ -56,7 +57,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
     if (widget.dhikrId != null) {
       _isEditing = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _loadDhikr();
+        if (mounted) _loadDhikr();
       });
     }
   }
@@ -96,7 +97,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
       context: context,
       initialTime: _reminderTime ?? const TimeOfDay(hour: 21, minute: 0),
     );
-    if (time != null) {
+    if (time != null && mounted) {
       setState(() => _reminderTime = time);
     }
   }
@@ -105,96 +106,70 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
     final date = await showDatePicker(
       context: context,
       initialDate: _startDate ?? DateTime.now(),
-      firstDate: DateTime.now(),
+      firstDate: _startDate != null && _startDate!.isBefore(DateTime.now())
+          ? _startDate!
+          : DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    if (date != null) {
+    if (date != null && mounted) {
       setState(() => _startDate = date);
     }
   }
 
   Future<void> _saveWazifa() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    if (_reminderEnabled && ref.read(settingsProvider).reminderNotifications) {
-      await NotificationService().requestPermission();
-      await NotificationService().requestExactAlarmPermission();
-      if (!mounted) return;
-    }
-
-    final name = _nameController.text.trim();
-    final arabicText = _arabicController.text.trim();
-    final transliteration = _transliterationController.text.trim();
-    final translation = _translationController.text.trim();
-    final targetCount = int.tryParse(_targetController.text) ?? 100;
-    final numberOfDays = int.tryParse(_daysController.text);
-    final reminderTimeStr = _reminderTime != null
-        ? '${_reminderTime!.hour.toString().padLeft(2, '0')}:${_reminderTime!.minute.toString().padLeft(2, '0')}'
-        : null;
-
-    if (_isEditing && widget.dhikrId != null) {
-      final repository = ref.read(dhikrRepositoryProvider);
-      final existing = ref.read(dhikrByIdProvider(widget.dhikrId!));
-      if (existing != null) {
-        final baseAzkar =
-            existing.firstAzkar ??
-            AzkarItem(
-              id: existing.id,
-              arabicText: arabicText,
-              transliteration: transliteration,
-              translation: translation,
-              targetCount: targetCount,
-            );
-
-        final updatedDhikr = existing.copyWith(
-          name: name,
-          arabicTitle: name,
-          translation: translation,
-          azkar: [
-            baseAzkar.copyWith(
-              arabicText: arabicText,
-              transliteration: transliteration,
-              translation: translation,
-              targetCount: targetCount,
-            ),
-          ],
-        );
-        await repository.saveDhikr(updatedDhikr);
-
-        final existingProgress =
-            repository.getProgress(widget.dhikrId!) ??
-            DhikrProgress(id: widget.dhikrId!);
-        var updatedProgress = existingProgress.copyWith(
-          repeatEnabled: _repeatEnabled,
-          reminderEnabled: _reminderEnabled,
-          reminderTime: reminderTimeStr,
-          startDate: _startDate,
-          numberOfDays: numberOfDays,
-          notes: _notesController.text.trim().isEmpty
-              ? null
-              : _notesController.text.trim(),
-          schedule: _schedule?.name,
-        );
-        if (numberOfDays != null && _startDate != null) {
-          updatedProgress = updatedProgress.copyWith(
-            endDate: _startDate!.add(Duration(days: numberOfDays)),
-          );
-        }
-        await repository.saveProgress(updatedProgress);
-
-        ref.read(dhikrListNotifierProvider.notifier).refresh();
-        ref.read(progressListNotifierProvider.notifier).refresh();
-        await repository.syncReminder(widget.dhikrId!);
+    if (_isSaving || !_formKey.currentState!.validate()) return;
+    setState(() => _isSaving = true);
+    try {
+      if (_reminderEnabled &&
+          ref.read(settingsProvider).reminderNotifications) {
+        await NotificationService().requestPermission();
+        await NotificationService().requestExactAlarmPermission();
+        if (!mounted) return;
       }
-    } else {
-      await ref
-          .read(dhikrListNotifierProvider.notifier)
-          .createCustomDhikr(
+
+      final name = _nameController.text.trim();
+      final arabicText = _arabicController.text.trim();
+      final transliteration = _transliterationController.text.trim();
+      final translation = _translationController.text.trim();
+      final targetCount = int.tryParse(_targetController.text) ?? 100;
+      final numberOfDays = int.tryParse(_daysController.text);
+      final reminderTimeStr = _reminderTime != null
+          ? '${_reminderTime!.hour.toString().padLeft(2, '0')}:${_reminderTime!.minute.toString().padLeft(2, '0')}'
+          : null;
+
+      if (_isEditing && widget.dhikrId != null) {
+        final repository = ref.read(dhikrRepositoryProvider);
+        final existing = ref.read(dhikrByIdProvider(widget.dhikrId!));
+        if (existing != null) {
+          final baseAzkar =
+              existing.firstAzkar ??
+              AzkarItem(
+                id: existing.id,
+                arabicText: arabicText,
+                transliteration: transliteration,
+                translation: translation,
+                targetCount: targetCount,
+              );
+
+          final updatedDhikr = existing.copyWith(
             name: name,
-            arabicText: arabicText,
-            transliteration: transliteration,
+            arabicTitle: name,
             translation: translation,
-            targetCount: targetCount,
+            azkar: [
+              baseAzkar.copyWith(
+                arabicText: arabicText,
+                transliteration: transliteration,
+                translation: translation,
+                targetCount: targetCount,
+              ),
+            ],
+          );
+          await repository.saveDhikr(updatedDhikr);
+
+          final existingProgress =
+              repository.getProgress(widget.dhikrId!) ??
+              DhikrProgress(id: widget.dhikrId!);
+          var updatedProgress = existingProgress.copyWith(
             repeatEnabled: _repeatEnabled,
             reminderEnabled: _reminderEnabled,
             reminderTime: reminderTimeStr,
@@ -205,10 +180,47 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                 : _notesController.text.trim(),
             schedule: _schedule?.name,
           );
-    }
+          updatedProgress.schedule = _schedule?.name;
+          updatedProgress.numberOfDays = numberOfDays;
+          updatedProgress.startDate =
+              _startDate ?? (numberOfDays != null ? DateTime.now() : null);
+          final start = updatedProgress.startDate;
+          updatedProgress.endDate = numberOfDays != null && start != null
+              ? DateTime(start.year, start.month, start.day + numberOfDays)
+              : null;
+          await repository.saveProgress(updatedProgress);
 
-    if (mounted) {
-      context.pop();
+          if (!mounted) return;
+          ref.read(dhikrListNotifierProvider.notifier).refresh();
+          ref.read(progressListNotifierProvider.notifier).refresh();
+          await repository.syncReminder(widget.dhikrId!);
+        }
+      } else {
+        await ref
+            .read(dhikrListNotifierProvider.notifier)
+            .createCustomDhikr(
+              name: name,
+              arabicText: arabicText,
+              transliteration: transliteration,
+              translation: translation,
+              targetCount: targetCount,
+              repeatEnabled: _repeatEnabled,
+              reminderEnabled: _reminderEnabled,
+              reminderTime: reminderTimeStr,
+              startDate: _startDate,
+              numberOfDays: numberOfDays,
+              notes: _notesController.text.trim().isEmpty
+                  ? null
+                  : _notesController.text.trim(),
+              schedule: _schedule?.name,
+            );
+      }
+
+      if (mounted) {
+        context.pop();
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -409,6 +421,13 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
                   label: l10n.numberOfDays,
                   hint: l10n.numberOfDaysHint,
                   prefixIcon: Iconsax.timer,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return null;
+                    final days = int.tryParse(value);
+                    return days == null || days < 1
+                        ? l10n.validationNumber
+                        : null;
+                  },
                 ),
                 const SizedBox(height: 16),
 
@@ -429,7 +448,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
               label: _isEditing ? l10n.update : l10n.create,
               isExpanded: true,
               height: 56,
-              onPressed: _saveWazifa,
+              onPressed: _isSaving ? null : _saveWazifa,
             ),
             const SizedBox(height: 24),
           ],

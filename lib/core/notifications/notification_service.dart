@@ -233,11 +233,15 @@ class NotificationService {
         : AndroidScheduleMode.inexactAllowWhileIdle;
   }
 
+  int get pendingReminderLimit =>
+      defaultTargetPlatform == TargetPlatform.iOS ? 64 : 500;
+
   Future<bool> scheduleReminder({
     required int id,
     required String title,
     required String body,
     required DateTime scheduledDate,
+    String? payload,
   }) async {
     if (!_initialized && !(await initialize())) {
       debugPrint('NotificationService not initialized');
@@ -280,6 +284,7 @@ class NotificationService {
         androidScheduleMode: scheduleMode,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
+        payload: payload,
       );
       debugPrint(
         'NotificationService: scheduled reminder $id at $scheduledDate ($scheduleMode)',
@@ -299,6 +304,41 @@ class NotificationService {
     required int hour,
     required int minute,
     String? payload,
+  }) => _scheduleRepeatingReminder(
+    id: id,
+    title: title,
+    body: body,
+    hour: hour,
+    minute: minute,
+    payload: payload,
+  );
+
+  Future<bool> scheduleWeeklyReminder({
+    required int id,
+    required String title,
+    required String body,
+    required int hour,
+    required int minute,
+    required int weekday,
+    String? payload,
+  }) => _scheduleRepeatingReminder(
+    id: id,
+    title: title,
+    body: body,
+    hour: hour,
+    minute: minute,
+    weekday: weekday,
+    payload: payload,
+  );
+
+  Future<bool> _scheduleRepeatingReminder({
+    required int id,
+    required String title,
+    required String body,
+    required int hour,
+    required int minute,
+    String? payload,
+    int? weekday,
   }) async {
     if (!_initialized && !(await initialize())) {
       debugPrint('NotificationService not initialized');
@@ -307,7 +347,17 @@ class NotificationService {
 
     try {
       final now = tz.TZDateTime.now(tz.local);
-      final scheduled = nextDailyReminder(now, hour, minute);
+      var scheduled = nextDailyReminder(now, hour, minute);
+      if (weekday != null) {
+        scheduled = tz.TZDateTime(
+          now.location,
+          scheduled.year,
+          scheduled.month,
+          scheduled.day + (weekday - scheduled.weekday) % 7,
+          hour,
+          minute,
+        );
+      }
 
       final scheduleMode = await _resolveScheduleMode();
 
@@ -334,7 +384,9 @@ class NotificationService {
         androidScheduleMode: scheduleMode,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time,
+        matchDateTimeComponents: weekday == null
+            ? DateTimeComponents.time
+            : DateTimeComponents.dayOfWeekAndTime,
         payload: payload,
       );
       debugPrint(

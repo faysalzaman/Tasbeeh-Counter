@@ -14,7 +14,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await LocalStorage.initialize();
-  await LocalStorage.instance.resetExpiredSchedules();
+  await DhikrRepository(LocalStorage.instance).resetExpiredSchedules();
 
   await AudioService().initialize();
   await HapticsService().initialize();

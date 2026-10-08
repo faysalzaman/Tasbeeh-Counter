@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tesbeeh_counter/providers/settings_provider.dart';
+import 'package:tesbeeh_counter/repositories/settings_repository.dart';
 import 'package:tesbeeh_counter/core/storage/local_storage.dart';
 import 'package:tesbeeh_counter/models/app_settings.dart';
 import 'package:tesbeeh_counter/models/dhikr.dart';
@@ -63,6 +66,87 @@ void main() {
     counter.dispose();
     progressNotifier.dispose();
   });
+
+  test('settings changes preserve active counter and pending writes', () async {
+    final container = ProviderContainer(
+      overrides: [
+        dhikrRepositoryProvider.overrideWithValue(repository),
+        settingsRepositoryProvider.overrideWithValue(
+          SettingsRepository(storage),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    final active = container.read(counterStateProvider.notifier);
+    active.setDhikr(storage.dhikrs['first']!);
+    storage.gate = Completer<void>();
+    final input = active.increment('first');
+    await container.read(settingsProvider.notifier).updateTheme('dark');
+    expect(container.read(counterStateProvider.notifier), same(active));
+    expect(container.read(counterStateProvider).displayCount, 1);
+    final second = active.increment('first');
+    storage.gate!.complete();
+    await Future.wait([input, second]);
+    expect(storage.getProgress('first')!.currentCount, 2);
+    expect(container.read(counterStateProvider).displayCount, 2);
+  });
+
+  test(
+    'active completed counter resets when app resumes on the next day',
+    () async {
+      var now = DateTime(2026, 10, 8, 21);
+      final repo = DhikrRepository(storage, now: () => now);
+      final active = CounterNotifier(repo, storage.settings, progressNotifier);
+      addTearDown(active.dispose);
+      storage.progress['first'] = DhikrProgress(
+        id: 'first',
+        currentCount: 3,
+        isCompleted: true,
+        schedule: 'daily',
+        lastSessionDate: now,
+      );
+      active.setDhikr(storage.dhikrs['first']!);
+      expect(active.state.isCompleted, isTrue);
+      now = DateTime(2026, 10, 9, 0, 1);
+      await active.refreshExpiredSchedules();
+      expect(active.state.displayCount, 0);
+      expect(active.state.isCompleted, isFalse);
+      expect(storage.getProgress('first')!.roundCount, 2);
+      await active.refreshExpiredSchedules();
+      expect(storage.getProgress('first')!.roundCount, 2);
+      await active.increment('first');
+      expect(active.state.displayCount, 1);
+      expect(storage.getProgress('first')!.currentCount, 1);
+    },
+  );
+
+  test(
+    'opening yesterday completed default starts with fresh progress',
+    () async {
+      final now = DateTime(2026, 10, 9, 8);
+      storage.dhikrs['first'] = storage.dhikrs['first']!.copyWith(
+        reminderEnabled: true,
+      );
+      storage.progress['first'] = DhikrProgress(
+        id: 'first',
+        currentCount: 3,
+        isCompleted: true,
+        lastSessionDate: DateTime(2026, 10, 8, 21),
+      );
+      final active = CounterNotifier(
+        DhikrRepository(storage, now: () => now),
+        storage.settings,
+        progressNotifier,
+      );
+      addTearDown(active.dispose);
+      active.setDhikr(storage.dhikrs['first']!);
+      expect(active.state.displayCount, 0);
+      expect(active.state.isCompleted, isFalse);
+      await active.increment('first');
+      expect(storage.getProgress('first')!.currentCount, 1);
+      expect(storage.getProgress('first')!.isCompleted, isFalse);
+    },
+  );
 
   test('rapid mixed inputs stop at target while storage is blocked', () async {
     storage.gate = Completer<void>();
@@ -179,6 +263,16 @@ Dhikr _dhikr(String id, int target) => Dhikr.fromMap({
 });
 
 class _MemoryStorage implements LocalStorage {
+  AppSettings settings = AppSettings.defaultSettings().copyWith(
+    countingVibration: false,
+    completionVibration: false,
+    countingSound: false,
+    completionSound: false,
+  );
+  @override
+  AppSettings getSettings() => settings;
+  @override
+  Future<void> saveSettings(AppSettings value) async => settings = value;
   final dhikrs = {'first': _dhikr('first', 3), 'second': _dhikr('second', 10)};
   final progress = <String, DhikrProgress>{};
   final savedCounts = <int>[];

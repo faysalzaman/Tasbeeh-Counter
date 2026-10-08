@@ -12,7 +12,11 @@ final dhikrRepositoryProvider = Provider<DhikrRepository>((ref) {
 
 final dhikrListNotifierProvider =
     StateNotifierProvider<DhikrListNotifier, List<Dhikr>>((ref) {
-      return DhikrListNotifier(ref.watch(dhikrRepositoryProvider));
+      return DhikrListNotifier(
+        ref.watch(dhikrRepositoryProvider),
+        onProgressChanged: () =>
+            ref.read(progressListNotifierProvider.notifier).refresh(),
+      );
     });
 
 final allDhikrsProvider = Provider<List<Dhikr>>((ref) {
@@ -110,7 +114,10 @@ final relevantNowQuickDhikrsProvider = Provider<List<Dhikr>>((ref) {
 class DhikrListNotifier extends StateNotifier<List<Dhikr>> {
   final DhikrRepository _repository;
 
-  DhikrListNotifier(this._repository) : super(_repository.getAllDhikrs());
+  final void Function()? onProgressChanged;
+
+  DhikrListNotifier(this._repository, {this.onProgressChanged})
+    : super(_repository.getAllDhikrs());
 
   void refresh() {
     state = _repository.getAllDhikrs();
@@ -123,6 +130,7 @@ class DhikrListNotifier extends StateNotifier<List<Dhikr>> {
 
   Future<void> deleteDhikr(String id) async {
     await _repository.deleteDhikr(id);
+    onProgressChanged?.call();
     refresh();
   }
 
@@ -158,6 +166,7 @@ class DhikrListNotifier extends StateNotifier<List<Dhikr>> {
       notes: notes,
       schedule: schedule,
     );
+    onProgressChanged?.call();
     refresh();
     return dhikr;
   }
