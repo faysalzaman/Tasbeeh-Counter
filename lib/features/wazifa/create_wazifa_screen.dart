@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../models/dhikr.dart';
+import '../../core/notifications/notification_service.dart';
+import '../../providers/settings_provider.dart';
 import '../../models/dhikr_progress.dart';
 import '../../models/dhikr_schedule.dart';
 import '../../providers/dhikr_provider.dart';
@@ -32,7 +34,7 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
   final _notesController = TextEditingController();
 
   bool _repeatEnabled = false;
-  bool _reminderEnabled = false;
+  bool _reminderEnabled = true;
   TimeOfDay? _reminderTime;
   DateTime? _startDate;
   DhikrSchedule? _schedule;
@@ -43,6 +45,14 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
   @override
   void initState() {
     super.initState();
+    final defaultTime = ref
+        .read(settingsProvider)
+        .defaultReminderTime
+        .split(':');
+    _reminderTime = TimeOfDay(
+      hour: int.parse(defaultTime[0]),
+      minute: int.parse(defaultTime[1]),
+    );
     if (widget.dhikrId != null) {
       _isEditing = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -65,9 +75,11 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
       _daysController.text = progress?.numberOfDays?.toString() ?? '';
       _notesController.text = progress?.notes ?? '';
       _repeatEnabled = progress?.repeatEnabled ?? false;
-      _reminderEnabled = progress?.reminderEnabled ?? false;
-      if (progress?.reminderTime != null) {
-        final parts = progress!.reminderTime!.split(':');
+      final repository = ref.read(dhikrRepositoryProvider);
+      _reminderEnabled = repository.isReminderEnabledFor(dhikr, progress);
+      final reminderTime = repository.getEffectiveReminderTime(dhikr, progress);
+      if (reminderTime != null) {
+        final parts = reminderTime.split(':');
         _reminderTime = TimeOfDay(
           hour: int.parse(parts[0]),
           minute: int.parse(parts[1]),
@@ -103,6 +115,12 @@ class _CreateWazifaScreenState extends ConsumerState<CreateWazifaScreen> {
 
   Future<void> _saveWazifa() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_reminderEnabled && ref.read(settingsProvider).reminderNotifications) {
+      await NotificationService().requestPermission();
+      await NotificationService().requestExactAlarmPermission();
+      if (!mounted) return;
+    }
 
     final name = _nameController.text.trim();
     final arabicText = _arabicController.text.trim();

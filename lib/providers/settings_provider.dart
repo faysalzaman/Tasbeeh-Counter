@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/storage/local_storage.dart';
+import '../core/notifications/notification_service.dart';
 import '../models/app_settings.dart';
 import '../repositories/dhikr_repository.dart';
 import '../repositories/settings_repository.dart';
@@ -8,7 +9,9 @@ final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
   return SettingsRepository(LocalStorage.instance);
 });
 
-final settingsProvider = StateNotifierProvider<SettingsNotifier, AppSettings>((ref) {
+final settingsProvider = StateNotifierProvider<SettingsNotifier, AppSettings>((
+  ref,
+) {
   final repository = ref.watch(settingsRepositoryProvider);
   return SettingsNotifier(repository);
 });
@@ -54,6 +57,10 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   }
 
   Future<void> updateReminderNotifications(bool enabled) async {
+    if (enabled) {
+      await NotificationService().requestPermission();
+      await NotificationService().requestExactAlarmPermission();
+    }
     await _repository.updateReminderNotifications(enabled);
     state = _repository.getSettings();
     // Reschedule (if enabled) or cancel every wazifa reminder based on the
@@ -64,6 +71,7 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   Future<void> updateDefaultReminderTime(String time) async {
     await _repository.updateDefaultReminderTime(time);
     state = _repository.getSettings();
+    await DhikrRepository(LocalStorage.instance).syncAllReminders();
   }
 
   Future<void> completeOnboarding() async {

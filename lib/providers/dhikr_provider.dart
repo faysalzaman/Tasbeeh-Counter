@@ -12,8 +12,8 @@ final dhikrRepositoryProvider = Provider<DhikrRepository>((ref) {
 
 final dhikrListNotifierProvider =
     StateNotifierProvider<DhikrListNotifier, List<Dhikr>>((ref) {
-  return DhikrListNotifier(ref.watch(dhikrRepositoryProvider));
-});
+      return DhikrListNotifier(ref.watch(dhikrRepositoryProvider));
+    });
 
 final allDhikrsProvider = Provider<List<Dhikr>>((ref) {
   return ref.watch(dhikrListNotifierProvider);
@@ -40,13 +40,13 @@ final dhikrByIdProvider = Provider.family<Dhikr?, String>((ref, id) {
 // --- Progress ---
 
 final progressListNotifierProvider =
-    StateNotifierProvider<ProgressListNotifier, Map<String, DhikrProgress>>(
-        (ref) {
-  return ProgressListNotifier(ref.watch(dhikrRepositoryProvider));
-});
+    StateNotifierProvider<ProgressListNotifier, Map<String, DhikrProgress>>((
+      ref,
+    ) {
+      return ProgressListNotifier(ref.watch(dhikrRepositoryProvider));
+    });
 
-final progressByIdProvider =
-    Provider.family<DhikrProgress?, String>((ref, id) {
+final progressByIdProvider = Provider.family<DhikrProgress?, String>((ref, id) {
   return ref.watch(progressListNotifierProvider)[id];
 });
 
@@ -135,7 +135,7 @@ class DhikrListNotifier extends StateNotifier<List<Dhikr>> {
     String? transliteration,
     required int targetCount,
     bool repeatEnabled = false,
-    bool reminderEnabled = false,
+    bool reminderEnabled = true,
     String? reminderTime,
     DateTime? startDate,
     int? numberOfDays,

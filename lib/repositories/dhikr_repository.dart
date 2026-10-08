@@ -6,8 +6,19 @@ import '../models/dhikr_progress.dart';
 
 class DhikrRepository {
   final LocalStorage _storage;
+  final NotificationService _notifications;
 
-  DhikrRepository(this._storage);
+  DhikrRepository(this._storage, {NotificationService? notifications})
+    : _notifications = notifications ?? NotificationService();
+
+  /// A deterministic positive ID, shared by scheduling and cancellation.
+  static int reminderId(String dhikrId) {
+    var hash = 0x811c9dc5;
+    for (final unit in dhikrId.codeUnits) {
+      hash = ((hash ^ unit) * 0x01000193) & 0xffffffff;
+    }
+    return hash & 0x7fffffff;
+  }
 
   // --- Content ---
 
@@ -25,8 +36,7 @@ class DhikrRepository {
   }
 
   Future<void> deleteDhikr(String id) async {
-    final safeId = id.hashCode & 0x7FFFFFFF;
-    await NotificationService().cancelReminder(safeId);
+    await _notifications.cancelReminder(reminderId(id));
     await _storage.deleteDhikr(id);
   }
 
@@ -92,7 +102,7 @@ class DhikrRepository {
     String? transliteration,
     int targetCount = 100,
     bool repeatEnabled = false,
-    bool reminderEnabled = false,
+    bool reminderEnabled = true,
     String? reminderTime,
     DateTime? startDate,
     int? numberOfDays,
@@ -126,7 +136,7 @@ class DhikrRepository {
       id: id,
       repeatEnabled: repeatEnabled,
       reminderEnabled: reminderEnabled,
-      reminderTime: reminderTime,
+      reminderTime: reminderTime ?? _storage.getSettings().defaultReminderTime,
       startDate: startDate,
       numberOfDays: numberOfDays,
       notes: notes,
@@ -146,12 +156,12 @@ class DhikrRepository {
   // --- Reminders ---
 
   bool isReminderEnabledFor(Dhikr dhikr, DhikrProgress? progress) {
-    if (progress != null &&
-        progress.reminderTime != null &&
-        progress.reminderTime!.isNotEmpty) {
-      return progress.reminderEnabled;
-    }
-    return dhikr.reminderEnabled;
+    final hasOverride = progress?.reminderTime?.isNotEmpty ?? false;
+    if (hasOverride) return progress!.reminderEnabled;
+    // Older custom azkaar had reminders off and no time by default. Treat
+    // those unset preferences like new azkaar; explicit off preferences have
+    // a saved time and are respected above.
+    return dhikr.isCustom || dhikr.reminderEnabled;
   }
 
   String? getEffectiveReminderTime(Dhikr dhikr, DhikrProgress? progress) {
@@ -160,28 +170,36 @@ class DhikrRepository {
         progress.reminderTime!.isNotEmpty) {
       return progress.reminderTime;
     }
-    return dhikr.reminderTime;
+    return dhikr.reminderTime ?? _storage.getSettings().defaultReminderTime;
   }
 
   Future<void> _syncReminderFor(Dhikr dhikr, DhikrProgress? progress) async {
-    final id = dhikr.id.hashCode & 0x7FFFFFFF;
+    final id = reminderId(dhikr.id);
     final settings = _storage.getSettings();
     final reminderEnabled = isReminderEnabledFor(dhikr, progress);
     final reminderTime = getEffectiveReminderTime(dhikr, progress);
 
-    final shouldRemind = reminderEnabled &&
+    final shouldRemind =
+        reminderEnabled &&
         reminderTime != null &&
         reminderTime.isNotEmpty &&
         settings.reminderNotifications;
 
     if (shouldRemind) {
-      final parts = reminderTime.split(':');
-      final hour = int.tryParse(parts[0]) ?? 0;
-      final minute = parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0;
+      final match = RegExp(
+        r'^([01]\d|2[0-3]):([0-5]\d)$',
+      ).firstMatch(reminderTime);
+      if (match == null) {
+        debugPrint('DhikrRepository: invalid reminder time "$reminderTime"');
+        await _notifications.cancelReminder(id);
+        return;
+      }
+      final hour = int.parse(match.group(1)!);
+      final minute = int.parse(match.group(2)!);
       debugPrint(
         'DhikrRepository: scheduling daily reminder for "${dhikr.name}" (id=$id) at $hour:$minute',
       );
-      final ok = await NotificationService().scheduleDailyReminder(
+      final ok = await _notifications.scheduleDailyReminder(
         id: id,
         title: dhikr.name,
         body: "It's time for your dhikr: ${dhikr.name}",
@@ -198,7 +216,7 @@ class DhikrRepository {
       debugPrint(
         'DhikrRepository: cancelling reminder for "${dhikr.name}" (id=$id)',
       );
-      await NotificationService().cancelReminder(id);
+      await _notifications.cancelReminder(id);
     }
   }
 
@@ -211,10 +229,11 @@ class DhikrRepository {
   }) async {
     final dhikr = getDhikr(dhikrId);
     final existingProgress = getProgress(dhikrId) ?? DhikrProgress(id: dhikrId);
-    final time = reminderTime ??
+    final time =
+        reminderTime ??
         existingProgress.reminderTime ??
         dhikr?.reminderTime ??
-        '12:00';
+        _storage.getSettings().defaultReminderTime;
     final updatedProgress = existingProgress.copyWith(
       reminderEnabled: enabled,
       reminderTime: time,
@@ -228,8 +247,7 @@ class DhikrRepository {
   Future<void> syncReminder(String id) async {
     final dhikr = getDhikr(id);
     if (dhikr == null) {
-      final safeId = id.hashCode & 0x7FFFFFFF;
-      await NotificationService().cancelReminder(safeId);
+      await _notifications.cancelReminder(reminderId(id));
       return;
     }
     final progress = getProgress(id);
@@ -240,6 +258,15 @@ class DhikrRepository {
   /// Call on app start and whenever the global reminder setting changes.
   Future<void> syncAllReminders() async {
     final all = getAllDhikrs();
+    // Remove legacy IDs and reminders belonging to deleted azkaar. Use the
+    // payload so unrelated notifications are left alone.
+    final ids = {for (final dhikr in all) dhikr.id: reminderId(dhikr.id)};
+    for (final pending in await _notifications.pendingReminders()) {
+      final payload = pending.payload;
+      if (payload != null && payload.isNotEmpty && ids[payload] != pending.id) {
+        await _notifications.cancelReminder(pending.id);
+      }
+    }
     for (final dhikr in all) {
       final progress = getProgress(dhikr.id);
       await _syncReminderFor(dhikr, progress);

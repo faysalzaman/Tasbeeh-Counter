@@ -9,6 +9,7 @@ import '../../core/constants/app_constants.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../core/notifications/notification_service.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/dhikr_provider.dart';
 import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
 import 'widgets/language_picker_sheet.dart';
@@ -53,7 +54,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> _requestNotificationPermission() async {
     final granted = await NotificationService().requestPermission();
+    if (!mounted) return;
     setState(() => _notificationsEnabled = granted);
+    if (granted) {
+      await NotificationService().requestExactAlarmPermission();
+      await ref.read(dhikrRepositoryProvider).syncAllReminders();
+    }
   }
 
   Future<void> _rateApp() async {

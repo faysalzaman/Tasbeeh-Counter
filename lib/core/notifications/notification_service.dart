@@ -25,16 +25,7 @@ class NotificationService {
 
     tz_data.initializeTimeZones();
 
-    // Set tz.local to the device's real timezone instead of defaulting to UTC.
-    try {
-      final TimezoneInfo timezoneInfo =
-          await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(timezoneInfo.identifier));
-    } catch (e) {
-      debugPrint('NotificationService: failed to set local timezone: $e');
-      // Falls back to UTC — better to log this loudly since it silently
-      // breaks every scheduled time otherwise.
-    }
+    if (!await refreshTimezone()) return false;
 
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
@@ -86,6 +77,60 @@ class NotificationService {
       debugPrint('$stack');
       return false;
     }
+  }
+
+  /// Refresh on resume too, since the device timezone can change while away.
+  Future<bool> refreshTimezone() async {
+    try {
+      final info = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(info.identifier));
+      return true;
+    } catch (e) {
+      debugPrint('NotificationService: failed to set local timezone: $e');
+      return false;
+    }
+  }
+
+  Future<List<PendingNotificationRequest>> pendingReminders() async {
+    if (!_initialized && !await initialize()) return [];
+    try {
+      return await _notifications.pendingNotificationRequests();
+    } catch (e, stack) {
+      debugPrint('NotificationService pendingReminders error: $e');
+      debugPrint('$stack');
+      return [];
+    }
+  }
+
+  @visibleForTesting
+  static tz.TZDateTime nextDailyReminder(
+    tz.TZDateTime now,
+    int hour,
+    int minute,
+  ) {
+    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+      throw ArgumentError('Invalid reminder time: $hour:$minute');
+    }
+    var scheduled = tz.TZDateTime(
+      now.location,
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+    );
+    if (!scheduled.isAfter(now)) {
+      // Calendar arithmetic preserves the wall-clock time across DST changes.
+      scheduled = tz.TZDateTime(
+        now.location,
+        now.year,
+        now.month,
+        now.day + 1,
+        hour,
+        minute,
+      );
+    }
+    return scheduled;
   }
 
   void _onNotificationTap(NotificationResponse response) {
@@ -262,17 +307,7 @@ class NotificationService {
 
     try {
       final now = tz.TZDateTime.now(tz.local);
-      var scheduled = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        hour,
-        minute,
-      );
-      if (!scheduled.isAfter(now)) {
-        scheduled = scheduled.add(const Duration(days: 1));
-      }
+      final scheduled = nextDailyReminder(now, hour, minute);
 
       final scheduleMode = await _resolveScheduleMode();
 
@@ -378,6 +413,13 @@ class NotificationService {
       if (androidPlugin != null) {
         final enabled = await androidPlugin.areNotificationsEnabled();
         return enabled ?? false;
+      }
+      final iosPlugin = _notifications
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >();
+      if (iosPlugin != null) {
+        return (await iosPlugin.checkPermissions())?.isEnabled ?? false;
       }
       return true;
     } catch (e, stack) {
