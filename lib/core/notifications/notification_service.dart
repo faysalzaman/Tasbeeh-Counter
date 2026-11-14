@@ -261,7 +261,6 @@ class NotificationService {
 
       final scheduleMode = await _resolveScheduleMode();
 
-
       await _notifications.zonedSchedule(
         id,
         title,

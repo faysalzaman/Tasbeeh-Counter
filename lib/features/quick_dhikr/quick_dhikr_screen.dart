@@ -216,7 +216,10 @@ class _DhikrListTile extends ConsumerWidget {
                             icon: Iconsax.flag,
                           ),
                           _MetaBadge(
-                            label: EnumLocalizations.category(context, dhikr.category),
+                            label: EnumLocalizations.category(
+                              context,
+                              dhikr.category,
+                            ),
                             icon: Iconsax.category,
                           ),
                           if (scheduleEnum != null)
@@ -259,9 +262,7 @@ class _DhikrListTile extends ConsumerWidget {
                       )
                     else
                       AppButton.primary(
-                        icon: isInProgress
-                            ? Iconsax.play
-                            : Iconsax.finger_scan,
+                        icon: isInProgress ? Iconsax.play : Iconsax.finger_scan,
                         label: isInProgress ? l10n.continue_ : l10n.start,
                         height: 40,
                         onPressed: () =>

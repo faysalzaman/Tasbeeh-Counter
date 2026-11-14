@@ -5,45 +5,41 @@ import 'package:tesbeeh_counter/core/theme/app_theme.dart';
 import 'package:tesbeeh_counter/features/counter/widgets/circular_progress.dart';
 
 void main() {
-  Widget buildTestableWidget({
-    required Widget child,
-    ThemeData? theme,
-  }) {
+  Widget buildTestableWidget({required Widget child, ThemeData? theme}) {
     return MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: theme ?? AppTheme.lightTheme,
-      home: Scaffold(
-        body: Center(
-          child: child,
-        ),
-      ),
+      home: Scaffold(body: Center(child: child)),
     );
   }
 
   group('CircularProgressWidget Tests', () {
-    testWidgets('renders count, percentage, and target properly at 50% progress',
-        (tester) async {
-      await tester.pumpWidget(
-        buildTestableWidget(
-          child: const CircularProgressWidget(
-            progress: 0.5,
-            currentCount: 16,
-            targetCount: 33,
-            remainingCount: 17,
+    testWidgets(
+      'renders count, percentage, and target properly at 50% progress',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(
+            child: const CircularProgressWidget(
+              progress: 0.5,
+              currentCount: 16,
+              targetCount: 33,
+              remainingCount: 17,
+            ),
           ),
-        ),
-      );
-      await tester.pump();
+        );
+        await tester.pump();
 
-      expect(find.text('16'), findsOneWidget);
-      expect(find.text('50%'), findsOneWidget);
-      expect(find.text('/ 33'), findsOneWidget);
-      expect(find.textContaining('17'), findsOneWidget);
-    });
+        expect(find.text('16'), findsOneWidget);
+        expect(find.text('50%'), findsOneWidget);
+        expect(find.text('/ 33'), findsOneWidget);
+        expect(find.textContaining('17'), findsOneWidget);
+      },
+    );
 
-    testWidgets('renders completed state when count reaches target',
-        (tester) async {
+    testWidgets('renders completed state when count reaches target', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         buildTestableWidget(
           child: const CircularProgressWidget(
@@ -64,8 +60,9 @@ void main() {
       expect(find.textContaining('Completed'), findsOneWidget);
     });
 
-    testWidgets('tapping on CircularProgressWidget triggers onTap callback',
-        (tester) async {
+    testWidgets('tapping on CircularProgressWidget triggers onTap callback', (
+      tester,
+    ) async {
       var tapped = false;
 
       await tester.pumpWidget(

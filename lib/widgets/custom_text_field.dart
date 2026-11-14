@@ -149,25 +149,17 @@ class AppTextField extends StatelessWidget {
 
     final border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(_radius),
-      borderSide: BorderSide(
-        color: cs.outlineVariant.withValues(alpha: 0.5),
-      ),
+      borderSide: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.5)),
     );
 
     final focusedBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(_radius),
-      borderSide: BorderSide(
-        color: cs.primary,
-        width: isIOS ? 1.5 : 2,
-      ),
+      borderSide: BorderSide(color: cs.primary, width: isIOS ? 1.5 : 2),
     );
 
     final errorBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(_radius),
-      borderSide: BorderSide(
-        color: cs.error,
-        width: isIOS ? 1.5 : 2,
-      ),
+      borderSide: BorderSide(color: cs.error, width: isIOS ? 1.5 : 2),
     );
 
     final filledColor = enabled

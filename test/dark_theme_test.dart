@@ -23,8 +23,9 @@ void main() {
       );
     });
 
-    testWidgets('SettingsGroupCard title is readable in dark mode',
-        (tester) async {
+    testWidgets('SettingsGroupCard title is readable in dark mode', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           darkTheme: AppTheme.darkTheme,

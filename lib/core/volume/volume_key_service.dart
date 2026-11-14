@@ -13,10 +13,12 @@ class VolumeKeyService {
 
   VolumeKeyService._();
 
-  static const MethodChannel _methodChannel =
-      MethodChannel('tesbeeh/volume_keys');
-  static const EventChannel _eventChannel =
-      EventChannel('tesbeeh/volume_keys_events');
+  static const MethodChannel _methodChannel = MethodChannel(
+    'tesbeeh/volume_keys',
+  );
+  static const EventChannel _eventChannel = EventChannel(
+    'tesbeeh/volume_keys_events',
+  );
 
   StreamSubscription<dynamic>? _subscription;
   StreamController<String>? _controller;

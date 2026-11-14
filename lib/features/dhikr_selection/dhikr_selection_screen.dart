@@ -123,7 +123,8 @@ class DhikrSelectionScreen extends ConsumerWidget {
                           AppButton.primary(
                             icon: Iconsax.add,
                             label: l10n.createWazifa,
-                            onPressed: () => context.push(AppRoutes.createWazifa),
+                            onPressed: () =>
+                                context.push(AppRoutes.createWazifa),
                           ),
                         ],
                       ),
@@ -310,7 +311,10 @@ class DhikrListTile extends ConsumerWidget {
                       icon: Iconsax.flag,
                     ),
                     _MetaBadge(
-                      label: EnumLocalizations.category(context, dhikr.category),
+                      label: EnumLocalizations.category(
+                        context,
+                        dhikr.category,
+                      ),
                       icon: Iconsax.category,
                     ),
                     if (repeatEnabled)
@@ -333,9 +337,8 @@ class DhikrListTile extends ConsumerWidget {
                     if (showEdit)
                       AppIconButton.outlined(
                         icon: Iconsax.edit,
-                        borderColor: theme.colorScheme.outlineVariant.withValues(
-                          alpha: 0.5,
-                        ),
+                        borderColor: theme.colorScheme.outlineVariant
+                            .withValues(alpha: 0.5),
                         onPressed: () => context.push(
                           AppRoutes.createWazifa,
                           extra: dhikr.id,

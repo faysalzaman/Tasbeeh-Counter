@@ -58,13 +58,13 @@ class _CircularProgressWidgetState extends State<CircularProgressWidget>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-    _heightAnimation = Tween<double>(
-      begin: clampedProgress,
-      end: clampedProgress,
-    ).animate(CurvedAnimation(
-      parent: _heightController,
-      curve: Curves.easeOutCubic,
-    ));
+    _heightAnimation =
+        Tween<double>(begin: clampedProgress, end: clampedProgress).animate(
+          CurvedAnimation(
+            parent: _heightController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     // Transient wave perturbation / ripple splash on tap
     _perturbationController = AnimationController(
@@ -91,13 +91,13 @@ class _CircularProgressWidgetState extends State<CircularProgressWidget>
 
     // If progress changes, smoothly animate water level
     if (oldWidget.progress != widget.progress) {
-      _heightAnimation = Tween<double>(
-        begin: _heightAnimation.value,
-        end: newClamped,
-      ).animate(CurvedAnimation(
-        parent: _heightController,
-        curve: Curves.easeOutCubic,
-      ));
+      _heightAnimation =
+          Tween<double>(begin: _heightAnimation.value, end: newClamped).animate(
+            CurvedAnimation(
+              parent: _heightController,
+              curve: Curves.easeOutCubic,
+            ),
+          );
       _heightController.forward(from: 0.0);
     }
 
@@ -146,8 +146,11 @@ class _CircularProgressWidgetState extends State<CircularProgressWidget>
     final l10n = context.l10n;
     final isDark = theme.brightness == Brightness.dark;
     final themeExtension = theme.extension<DhikrThemeExtension>();
-    final trackColor = themeExtension?.progressTrackColor ??
-        (isDark ? AppColors.progressBackgroundDark : AppColors.progressBackgroundLight);
+    final trackColor =
+        themeExtension?.progressTrackColor ??
+        (isDark
+            ? AppColors.progressBackgroundDark
+            : AppColors.progressBackgroundLight);
 
     final clampedProgress = widget.progress.clamp(0.0, 1.0);
     final percentInt = (clampedProgress * 100).toInt();
@@ -155,7 +158,10 @@ class _CircularProgressWidgetState extends State<CircularProgressWidget>
     return LayoutBuilder(
       builder: (context, constraints) {
         // Responsively adapt diameter while leaving room for outer ripple waves
-        final maxAvailable = math.min(constraints.maxWidth, constraints.maxHeight);
+        final maxAvailable = math.min(
+          constraints.maxWidth,
+          constraints.maxHeight,
+        );
         final baseDiameter = (maxAvailable - 32).clamp(190.0, 260.0);
         // Canvas size accommodates outer ripple waves expanding up to 18dp outwards
         final canvasSize = baseDiameter + 36.0;
@@ -214,16 +220,20 @@ class _CircularProgressWidgetState extends State<CircularProgressWidget>
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: (widget.isCompleted
-                                    ? AppColors.secondaryLight
-                                    : (isDark ? Colors.black : Colors.white))
-                                .withValues(alpha: isDark ? 0.45 : 0.70),
+                            color:
+                                (widget.isCompleted
+                                        ? AppColors.secondaryLight
+                                        : (isDark
+                                              ? Colors.black
+                                              : Colors.white))
+                                    .withValues(alpha: isDark ? 0.45 : 0.70),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: (widget.isCompleted
-                                      ? AppColors.secondaryLight
-                                      : theme.colorScheme.primary)
-                                  .withValues(alpha: 0.35),
+                              color:
+                                  (widget.isCompleted
+                                          ? AppColors.secondaryLight
+                                          : theme.colorScheme.primary)
+                                      .withValues(alpha: 0.35),
                               width: 1,
                             ),
                             boxShadow: [
@@ -240,8 +250,12 @@ class _CircularProgressWidgetState extends State<CircularProgressWidget>
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: widget.isCompleted
-                                  ? (isDark ? AppColors.secondaryDark : const Color(0xFF8C621E))
-                                  : (isDark ? Colors.white : theme.colorScheme.primary),
+                                  ? (isDark
+                                        ? AppColors.secondaryDark
+                                        : const Color(0xFF8C621E))
+                                  : (isDark
+                                        ? Colors.white
+                                        : theme.colorScheme.primary),
                               letterSpacing: 0.5,
                             ),
                           ),
@@ -260,10 +274,14 @@ class _CircularProgressWidgetState extends State<CircularProgressWidget>
                               fontWeight: FontWeight.w800,
                               fontSize: baseDiameter > 220 ? 58 : 46,
                               height: 1.05,
-                              color: isDark ? Colors.white : theme.colorScheme.onSurface,
+                              color: isDark
+                                  ? Colors.white
+                                  : theme.colorScheme.onSurface,
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withValues(alpha: isDark ? 0.6 : 0.3),
+                                  color: Colors.black.withValues(
+                                    alpha: isDark ? 0.6 : 0.3,
+                                  ),
                                   blurRadius: 10,
                                   offset: const Offset(0, 2),
                                 ),
@@ -279,12 +297,17 @@ class _CircularProgressWidgetState extends State<CircularProgressWidget>
 
                         // Target Count
                         Text(
-                          widget.targetCount > 0 ? '/ ${widget.targetCount}' : '∞',
+                          widget.targetCount > 0
+                              ? '/ ${widget.targetCount}'
+                              : '∞',
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontSize: baseDiameter > 220 ? 16 : 14,
                             fontWeight: FontWeight.w600,
-                            color: (isDark ? Colors.white : theme.colorScheme.onSurface)
-                                .withValues(alpha: 0.72),
+                            color:
+                                (isDark
+                                        ? Colors.white
+                                        : theme.colorScheme.onSurface)
+                                    .withValues(alpha: 0.72),
                             shadows: [
                               Shadow(
                                 color: Colors.black.withValues(alpha: 0.35),
@@ -317,7 +340,9 @@ class _CircularProgressWidgetState extends State<CircularProgressWidget>
                                   fontWeight: FontWeight.bold,
                                   shadows: [
                                     Shadow(
-                                      color: Colors.black.withValues(alpha: 0.35),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.35,
+                                      ),
                                       blurRadius: 6,
                                     ),
                                   ],
@@ -332,8 +357,11 @@ class _CircularProgressWidgetState extends State<CircularProgressWidget>
                                 : '${widget.currentCount} ${l10n.completed}',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               fontSize: baseDiameter > 220 ? 13 : 11,
-                              color: (isDark ? Colors.white : theme.colorScheme.onSurface)
-                                  .withValues(alpha: 0.7),
+                              color:
+                                  (isDark
+                                          ? Colors.white
+                                          : theme.colorScheme.onSurface)
+                                      .withValues(alpha: 0.7),
                               fontWeight: FontWeight.w500,
                               shadows: [
                                 Shadow(
@@ -392,8 +420,9 @@ class _WaterWavePainter extends CustomPainter {
         final ringRadius = radius + (ringProgress * 17.0);
         final ringAlpha = (1.0 - ringProgress).clamp(0.0, 1.0) * 0.55;
         final ringPaint = Paint()
-          ..color = (isDark ? AppColors.secondaryDark : AppColors.secondaryLight)
-              .withValues(alpha: ringAlpha)
+          ..color =
+              (isDark ? AppColors.secondaryDark : AppColors.secondaryLight)
+                  .withValues(alpha: ringAlpha)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2.4 * (1.0 - ringProgress * 0.45);
         canvas.drawCircle(center, ringRadius, ringPaint);
@@ -420,7 +449,8 @@ class _WaterWavePainter extends CustomPainter {
 
     // 4. CLIP INSIDE CIRCLE FOR WATER
     canvas.save();
-    final clipPath = Path()..addOval(Rect.fromCircle(center: center, radius: radius - 1.5));
+    final clipPath = Path()
+      ..addOval(Rect.fromCircle(center: center, radius: radius - 1.5));
     canvas.clipPath(clipPath);
 
     // Effective liquid height calculation
@@ -443,7 +473,8 @@ class _WaterWavePainter extends CustomPainter {
       final backPath = Path()..moveTo(startX, bottomY);
       for (double x = startX; x <= endX; x += 4.0) {
         final relX = (x - startX) / waveWidth;
-        final y = waterY +
+        final y =
+            waterY +
             (amp * 0.75) *
                 math.sin((relX * 2 * math.pi * 1.25) + wavePhase + 1.2);
         backPath.lineTo(x, y);
@@ -490,16 +521,22 @@ class _WaterWavePainter extends CustomPainter {
                   const Color(0xFFC4984F).withValues(alpha: 0.92),
                 ]
               : [
-                  (isDark ? AppColors.primaryDark : primaryColor).withValues(alpha: 0.90),
+                  (isDark ? AppColors.primaryDark : primaryColor).withValues(
+                    alpha: 0.90,
+                  ),
                   primaryColor.withValues(alpha: 0.82),
-                  (isDark ? const Color(0xFF0F323E) : const Color(0xFF144759)).withValues(alpha: 0.95),
+                  (isDark ? const Color(0xFF0F323E) : const Color(0xFF144759))
+                      .withValues(alpha: 0.95),
                 ],
         ).createShader(Rect.fromCircle(center: center, radius: radius));
       canvas.drawPath(frontPath, frontWavePaint);
 
       // 4C. GLISTENING CREST HIGHLIGHT LINE
-      if (crestPoints.isNotEmpty && effectiveProgress > 0.02 && effectiveProgress < 0.985) {
-        final crestPath = Path()..moveTo(crestPoints.first.dx, crestPoints.first.dy);
+      if (crestPoints.isNotEmpty &&
+          effectiveProgress > 0.02 &&
+          effectiveProgress < 0.985) {
+        final crestPath = Path()
+          ..moveTo(crestPoints.first.dx, crestPoints.first.dy);
         for (int i = 1; i < crestPoints.length; i++) {
           crestPath.lineTo(crestPoints[i].dx, crestPoints[i].dy);
         }
@@ -515,16 +552,25 @@ class _WaterWavePainter extends CustomPainter {
         final bubblePaint = Paint()..style = PaintingStyle.fill;
         for (int i = 0; i < 6; i++) {
           final phase = (wavePhase / (2 * math.pi) + (i * 0.165)) % 1.0;
-          final bubbleX = center.dx - radius * 0.65 + ((i * 41) % (radius * 1.3));
+          final bubbleX =
+              center.dx - radius * 0.65 + ((i * 41) % (radius * 1.3));
           final startBubbleY = center.dy + radius - 10;
           final targetBubbleY = waterY + 12;
-          final bubbleY = startBubbleY - (phase * (startBubbleY - targetBubbleY));
+          final bubbleY =
+              startBubbleY - (phase * (startBubbleY - targetBubbleY));
 
           if (bubbleY > waterY + 4 && bubbleY < startBubbleY) {
             final bubbleRadius = 1.6 + ((i % 3) * 0.7);
-            final bubbleAlpha = (math.sin(phase * math.pi) * 0.40).clamp(0.0, 0.40);
+            final bubbleAlpha = (math.sin(phase * math.pi) * 0.40).clamp(
+              0.0,
+              0.40,
+            );
             bubblePaint.color = Colors.white.withValues(alpha: bubbleAlpha);
-            canvas.drawCircle(Offset(bubbleX, bubbleY), bubbleRadius, bubblePaint);
+            canvas.drawCircle(
+              Offset(bubbleX, bubbleY),
+              bubbleRadius,
+              bubblePaint,
+            );
           }
         }
       }
@@ -551,17 +597,18 @@ class _WaterWavePainter extends CustomPainter {
 
     // 5. 3D GLASS SPECULAR REFLECTION (Curved Porthole Highlight)
     final highlightPaint = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          Colors.white.withValues(alpha: isDark ? 0.20 : 0.38),
-          Colors.white.withValues(alpha: 0.0),
-        ],
-      ).createShader(
-        Rect.fromCircle(
-          center: Offset(center.dx, center.dy - radius * 0.55),
-          radius: radius * 0.7,
-        ),
-      );
+      ..shader =
+          RadialGradient(
+            colors: [
+              Colors.white.withValues(alpha: isDark ? 0.20 : 0.38),
+              Colors.white.withValues(alpha: 0.0),
+            ],
+          ).createShader(
+            Rect.fromCircle(
+              center: Offset(center.dx, center.dy - radius * 0.55),
+              radius: radius * 0.7,
+            ),
+          );
     canvas.drawOval(
       Rect.fromCenter(
         center: Offset(center.dx, center.dy - radius * 0.58),
@@ -580,8 +627,8 @@ class _WaterWavePainter extends CustomPainter {
       ..color = isCompleted
           ? AppColors.secondaryLight
           : (isDark
-              ? primaryColor.withValues(alpha: 0.30)
-              : trackColor.withValues(alpha: 0.85));
+                ? primaryColor.withValues(alpha: 0.30)
+                : trackColor.withValues(alpha: 0.85));
     canvas.drawCircle(center, radius, bezelPaint);
 
     // Perimeter progress arc

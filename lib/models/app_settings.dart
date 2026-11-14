@@ -48,17 +48,17 @@ class AppSettings extends HiveObject {
   });
 
   factory AppSettings.defaultSettings() => AppSettings(
-        themeMode: 'system',
-        languageCode: 'system',
-        countingVibration: true,
-        completionVibration: true,
-        countingSound: false,
-        completionSound: true,
-        volumeKeyCounting: false,
-        reminderNotifications: true,
-        defaultReminderTime: '21:00',
-        hasCompletedOnboarding: false,
-      );
+    themeMode: 'system',
+    languageCode: 'system',
+    countingVibration: true,
+    completionVibration: true,
+    countingSound: false,
+    completionSound: true,
+    volumeKeyCounting: false,
+    reminderNotifications: true,
+    defaultReminderTime: '21:00',
+    hasCompletedOnboarding: false,
+  );
 
   AppSettings copyWith({
     String? themeMode,
@@ -80,9 +80,11 @@ class AppSettings extends HiveObject {
       countingSound: countingSound ?? this.countingSound,
       completionSound: completionSound ?? this.completionSound,
       volumeKeyCounting: volumeKeyCounting ?? this.volumeKeyCounting,
-      reminderNotifications: reminderNotifications ?? this.reminderNotifications,
+      reminderNotifications:
+          reminderNotifications ?? this.reminderNotifications,
       defaultReminderTime: defaultReminderTime ?? this.defaultReminderTime,
-      hasCompletedOnboarding: hasCompletedOnboarding ?? this.hasCompletedOnboarding,
+      hasCompletedOnboarding:
+          hasCompletedOnboarding ?? this.hasCompletedOnboarding,
     );
   }
 }

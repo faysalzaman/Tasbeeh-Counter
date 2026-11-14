@@ -121,10 +121,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 else
                   const SizedBox.shrink(),
 
-                AppButton.text(
-                  label: l10n.skip,
-                  onPressed: _finishOnboarding,
-                ),
+                AppButton.text(label: l10n.skip, onPressed: _finishOnboarding),
               ],
             ),
           ),

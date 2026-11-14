@@ -126,18 +126,26 @@ class Dhikr {
       description: map['description'] as String? ?? '',
       type: _parseType(map['type']),
       category: _parseCategory(map['category']),
-      azkar: (map['azkar'] as List?)
-              ?.map((e) => AzkarItem.fromMap(Map<String, dynamic>.from(e as Map)))
+      azkar:
+          (map['azkar'] as List?)
+              ?.map(
+                (e) => AzkarItem.fromMap(Map<String, dynamic>.from(e as Map)),
+              )
               .toList() ??
           const [],
-      references: (map['references'] as List?)
-              ?.map((e) => DhikrReference.fromMap(
-                  Map<String, dynamic>.from(e as Map)))
+      references:
+          (map['references'] as List?)
+              ?.map(
+                (e) =>
+                    DhikrReference.fromMap(Map<String, dynamic>.from(e as Map)),
+              )
               .toList() ??
           const [],
-      benefits: (map['benefits'] as List?)?.map((e) => e.toString()).toList() ??
+      benefits:
+          (map['benefits'] as List?)?.map((e) => e.toString()).toList() ??
           const [],
-      recommendedTimes: (map['recommendedTimes'] as List?)
+      recommendedTimes:
+          (map['recommendedTimes'] as List?)
               ?.map((e) => e.toString())
               .toList() ??
           const [],

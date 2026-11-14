@@ -12,22 +12,10 @@ class GreetingWidget extends StatelessWidget {
     final hour = DateTime.now().hour;
 
     final (_GreetingData data) = switch (hour) {
-      < 5 => _GreetingData(
-        text: l10n.goodNight,
-        icon: Iconsax.moon,
-      ),
-      < 12 => _GreetingData(
-        text: l10n.goodMorning,
-        icon: Iconsax.sun,
-      ),
-      < 17 => _GreetingData(
-        text: l10n.goodAfternoon,
-        icon: Iconsax.sun_fog,
-      ),
-      < 20 => _GreetingData(
-        text: l10n.goodEvening,
-        icon: Iconsax.moon,
-      ),
+      < 5 => _GreetingData(text: l10n.goodNight, icon: Iconsax.moon),
+      < 12 => _GreetingData(text: l10n.goodMorning, icon: Iconsax.sun),
+      < 17 => _GreetingData(text: l10n.goodAfternoon, icon: Iconsax.sun_fog),
+      < 20 => _GreetingData(text: l10n.goodEvening, icon: Iconsax.moon),
       _ => _GreetingData(text: l10n.goodNight, icon: Iconsax.moon),
     };
 

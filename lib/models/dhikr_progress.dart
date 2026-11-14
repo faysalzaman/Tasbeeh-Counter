@@ -67,8 +67,8 @@ class DhikrProgress extends HiveObject {
     this.lastSessionDate,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   DhikrSchedule? get scheduleEnum {
     if (schedule == null) return null;

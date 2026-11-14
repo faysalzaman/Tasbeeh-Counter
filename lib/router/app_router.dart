@@ -27,8 +27,9 @@ class AppRoutes {
 final appRouter = GoRouter(
   initialLocation: AppRoutes.home,
   redirect: (context, state) {
-    final hasCompletedOnboarding =
-        LocalStorage.instance.getSettings().hasCompletedOnboarding;
+    final hasCompletedOnboarding = LocalStorage.instance
+        .getSettings()
+        .hasCompletedOnboarding;
     final isOnboarding = state.matchedLocation == AppRoutes.onboarding;
 
     if (!hasCompletedOnboarding && !isOnboarding) {
