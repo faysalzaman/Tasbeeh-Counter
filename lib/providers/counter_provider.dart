@@ -81,28 +81,28 @@ class CounterNotifier extends StateNotifier<CounterState> {
   bool _isCurrent(int session, String id) =>
       mounted && _session == session && _dhikrId == id;
 
-  bool _isCompleting = false;
-
   CounterNotifier(this._repository, this._settings, this._progressNotifier)
     : super(const CounterState());
 
   void updateSettings(AppSettings settings) => _settings = settings;
 
   void setDhikr(Dhikr dhikr) {
-    _isCompleting = false;
-    final progress = _repository.getProgress(dhikr.id);
+    _dhikrId = dhikr.id;
+    _session++;
+    final original = _repository.getProgress(dhikr.id);
+    final progress = _repository.progressForCurrentPeriod(dhikr.id);
     final target = dhikr.totalTargetCount;
-    final rawCount = progress?.currentCount ?? 0;
-    final clampedCount = target > 0 ? rawCount.clamp(0, target) : rawCount;
-    final isCompleted = (progress?.isCompleted ?? false) ||
-        (target > 0 &&
-            clampedCount >= target &&
-            !(progress?.repeatEnabled ?? false));
-
+    final count = progress?.currentCount ?? 0;
+    final reached = target > 0 && count >= target;
+    final repeat = progress?.repeatEnabled ?? false;
+    final displayCount = reached ? (repeat ? 0 : target) : count;
+    final roundCount =
+        (progress?.roundCount ?? 1) + (reached && repeat ? 1 : 0);
+    final completed = reached ? !repeat : (progress?.isCompleted ?? false);
     state = CounterState(
-      displayCount: clampedCount,
-      roundCount: progress?.roundCount ?? 1,
-      isCompleted: isCompleted,
+      displayCount: displayCount,
+      roundCount: roundCount,
+      isCompleted: completed,
     );
 
     // Repair counts left above the target by the old asynchronous flow, or
@@ -147,117 +147,60 @@ class CounterNotifier extends StateNotifier<CounterState> {
     final dhikr = _repository.getDhikr(dhikrId);
     if (dhikr == null) return;
 
-    if (_isCompleting) return;
-
-    var progress = _repository.getProgress(dhikrId);
-    progress ??= DhikrProgress(id: dhikrId);
-
-    final repeatEnabled = progress.repeatEnabled;
-    final isAlreadyCompleted = progress.isCompleted || state.isCompleted;
-
-    if (isAlreadyCompleted && !repeatEnabled) return;
-
     final target = dhikr.totalTargetCount;
     if (target > 0 && state.displayCount >= target) return;
-
+    final session = _session;
     final newCount = state.displayCount + 1;
-    final isTargetReached = target > 0 && newCount >= target;
+    final isTargetReached = target > 0 && newCount == target;
 
-    if (isTargetReached) {
-      _isCompleting = true;
-      state = state.copyWith(
-        displayCount: target,
-        isCompleted: true,
-        showCompletionAnimation: true,
-      );
-    } else {
-      state = state.copyWith(displayCount: newCount);
-    }
+    // Reserve this press before any await. All input sources see the same
+    // count and completion guard, even while feedback or storage is pending.
+    state = state.copyWith(
+      displayCount: newCount,
+      isCompleted: isTargetReached,
+      showCompletionAnimation: isTargetReached,
+    );
 
-    // Haptic feedback
-    if (_settings.countingVibration) {
-      if (isTargetReached && _settings.completionVibration) {
-        // Completion haptics handled in _handleCompletion
-      } else {
-        unawaited(_haptics.lightImpact());
+    await _writeInOrder(() async {
+      await _repository.incrementCount(dhikrId);
+      if (isTargetReached) {
+        await _repository.completeDhikr(dhikrId, target);
       }
-    }
+      if (mounted) _progressNotifier.refresh();
+    });
+    if (!_isCurrent(session, dhikrId)) return;
 
-    // Sound feedback
-    if (_settings.countingSound) {
-      if (isTargetReached && _settings.completionSound) {
-        // Completion sound handled in _handleCompletion
-      } else {
-        unawaited(_audio.playCountSound());
-      }
-    }
+    if (_settings.countingVibration) await _haptics.lightImpact();
+    if (_settings.countingSound) await _audio.playCountSound();
+    if (!isTargetReached || !_isCurrent(session, dhikrId)) return;
 
-    // Persist to storage
-    await _repository.updateCount(dhikrId, isTargetReached ? target : newCount);
-    _progressNotifier.refresh();
+    if (_settings.completionVibration) await _haptics.completionFeedback();
+    if (_settings.completionSound) await _audio.playCompletionSound();
+    if (!_isCurrent(session, dhikrId)) return;
 
-    if (isTargetReached) {
-      await _handleCompletion(dhikrId, target);
-    }
-  }
-
-  Future<void> _handleCompletion(String dhikrId, int target) async {
-    final dhikr = _repository.getDhikr(dhikrId);
-    if (dhikr == null) {
-      _isCompleting = false;
-      return;
-    }
     final progress = _repository.getProgress(dhikrId);
-    if (progress == null) {
-      _isCompleting = false;
-      return;
-    }
-
-    // Completion haptics
-    if (_settings.completionVibration) {
-      await _haptics.completionFeedback();
-    }
-
-    // Completion sound
-    if (_settings.completionSound) {
-      await _audio.playCompletionSound();
-    }
-
-    // Complete dhikr / start next round
-    await _repository.completeDhikr(dhikrId, target);
-    _progressNotifier.refresh();
-
-    // If repeat mode, reset after animation
-    if (progress.repeatEnabled) {
+    if (progress?.repeatEnabled ?? false) {
       await Future.delayed(const Duration(seconds: 2));
-      final updatedDhikr = _repository.getDhikr(dhikrId);
-      if (updatedDhikr != null && _isCompleting) {
-        final updated = _repository.getProgress(dhikrId);
-        if (updated != null) {
-          state = CounterState(
-            displayCount: updated.currentCount,
-            roundCount: updated.roundCount,
-            isCompleted: false,
-            showCompletionAnimation: false,
-          );
-        }
+      // Resetting or changing dhikr invalidates an earlier round's timer.
+      if (!_isCurrent(session, dhikrId)) return;
+      final updated = _repository.getProgress(dhikrId);
+      if (updated != null) {
+        state = CounterState(
+          displayCount: updated.currentCount,
+          roundCount: updated.roundCount,
+        );
       }
     }
-    _isCompleting = false;
   }
 
   Future<void> reset(String dhikrId) async {
-    _isCompleting = false;
-    await _repository.resetCount(dhikrId);
-    _progressNotifier.refresh();
-
-    final progress = _repository.getProgress(dhikrId);
-    state = CounterState(
-      displayCount: progress?.currentCount ?? 0,
-      roundCount: progress?.roundCount ?? 1,
-      isCompleted: false,
-      showCompletionAnimation: false,
-    );
+    if (_dhikrId != dhikrId) return;
+    _session++;
+    state = const CounterState();
+    await _writeInOrder(() async {
+      await _repository.resetCount(dhikrId);
+      if (mounted) _progressNotifier.refresh();
+    });
   }
 
   Future<void> saveAndExit(String dhikrId) async {

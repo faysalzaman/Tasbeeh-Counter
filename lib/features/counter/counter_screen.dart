@@ -162,12 +162,14 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
 
     final targetCount = dhikr.totalTargetCount;
     final repeatEnabled = progress?.repeatEnabled ?? false;
-    final isCompleted = counterState.isCompleted ||
+    final isCompleted =
+        counterState.isCompleted ||
         (progress?.isCompleted ?? false) ||
         (targetCount > 0 &&
             counterState.displayCount >= targetCount &&
             !repeatEnabled);
-    final isCountDisabled = (isCompleted && !repeatEnabled) ||
+    final isCountDisabled =
+        (isCompleted && !repeatEnabled) ||
         counterState.showCompletionAnimation ||
         (targetCount > 0 &&
             counterState.displayCount >= targetCount &&
@@ -260,16 +262,20 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
                       child: Center(
                         child: CircularProgressWidget(
                           progress: targetCount > 0
-                              ? (counterState.displayCount / targetCount)
-                                  .clamp(0.0, 1.0)
+                              ? (counterState.displayCount / targetCount).clamp(
+                                  0.0,
+                                  1.0,
+                                )
                               : 0,
                           currentCount: targetCount > 0
                               ? math.min(counterState.displayCount, targetCount)
                               : counterState.displayCount,
                           targetCount: targetCount,
                           remainingCount: targetCount > 0
-                              ? (targetCount - counterState.displayCount)
-                                  .clamp(0, targetCount)
+                              ? (targetCount - counterState.displayCount).clamp(
+                                  0,
+                                  targetCount,
+                                )
                               : 0,
                           isCompleted: isCompleted,
                           showCompletionAnimation:
@@ -306,9 +312,7 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
                       ),
 
                     // Fixed Bottom Controls
-                    CountButton(
-                      onTap: isCountDisabled ? null : _handleCount,
-                    ),
+                    CountButton(onTap: isCountDisabled ? null : _handleCount),
                     const SizedBox(height: 12),
                     Row(
                       children: [
