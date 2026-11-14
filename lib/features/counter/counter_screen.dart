@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:confetti/confetti.dart';
 import 'package:material_ui/material_ui.dart';
@@ -74,13 +75,24 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
 
   void _handleCount() {
     final dhikr = ref.read(dhikrByIdProvider(widget.dhikrId));
-    final progress = ref.read(progressByIdProvider(widget.dhikrId));
-    final isCompleted = progress?.isCompleted ?? false;
-    final repeatEnabled = progress?.repeatEnabled ?? false;
+    if (dhikr == null) return;
 
-    if (dhikr != null && (!isCompleted || repeatEnabled)) {
-      ref.read(counterStateProvider.notifier).increment(widget.dhikrId);
+    final progress = ref.read(progressByIdProvider(widget.dhikrId));
+    final counterState = ref.read(counterStateProvider);
+    final repeatEnabled = progress?.repeatEnabled ?? false;
+    final isCompleted =
+        counterState.isCompleted || (progress?.isCompleted ?? false);
+    final targetCount = dhikr.totalTargetCount;
+
+    if (isCompleted && !repeatEnabled) return;
+    if (targetCount > 0 &&
+        counterState.displayCount >= targetCount &&
+        !repeatEnabled) {
+      return;
     }
+    if (counterState.showCompletionAnimation) return;
+
+    ref.read(counterStateProvider.notifier).increment(widget.dhikrId);
   }
 
   void _showResetDialog() {
@@ -148,8 +160,17 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
     }
 
     final targetCount = dhikr.totalTargetCount;
-    final isCompleted = progress?.isCompleted ?? false;
     final repeatEnabled = progress?.repeatEnabled ?? false;
+    final isCompleted = counterState.isCompleted ||
+        (progress?.isCompleted ?? false) ||
+        (targetCount > 0 &&
+            counterState.displayCount >= targetCount &&
+            !repeatEnabled);
+    final isCountDisabled = (isCompleted && !repeatEnabled) ||
+        counterState.showCompletionAnimation ||
+        (targetCount > 0 &&
+            counterState.displayCount >= targetCount &&
+            !repeatEnabled);
 
     return KeyboardListener(
       focusNode: _focusNode,
@@ -160,7 +181,9 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
             (event.logicalKey == LogicalKeyboardKey.space ||
                 event.logicalKey == LogicalKeyboardKey.audioVolumeUp ||
                 event.logicalKey == LogicalKeyboardKey.audioVolumeDown)) {
-          _handleCount();
+          if (!isCountDisabled) {
+            _handleCount();
+          }
         }
       },
       child: CustomScaffold(
@@ -236,24 +259,27 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
                       child: Center(
                         child: CircularProgressWidget(
                           progress: targetCount > 0
-                              ? counterState.displayCount / targetCount
+                              ? (counterState.displayCount / targetCount)
+                                  .clamp(0.0, 1.0)
                               : 0,
-                          currentCount: counterState.displayCount,
+                          currentCount: targetCount > 0
+                              ? math.min(counterState.displayCount, targetCount)
+                              : counterState.displayCount,
                           targetCount: targetCount,
-                          remainingCount:
-                              targetCount - counterState.displayCount,
+                          remainingCount: targetCount > 0
+                              ? (targetCount - counterState.displayCount)
+                                  .clamp(0, targetCount)
+                              : 0,
                           isCompleted: isCompleted,
                           showCompletionAnimation:
                               counterState.showCompletionAnimation,
-                          onTap: isCompleted && !repeatEnabled
-                              ? null
-                              : _handleCount,
+                          onTap: isCountDisabled ? null : _handleCount,
                         ),
                       ),
                     ),
 
                     // Completion Text Badge
-                    if (counterState.isCompleted && !repeatEnabled)
+                    if (isCompleted && !repeatEnabled)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Container(
@@ -280,9 +306,7 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
 
                     // Fixed Bottom Controls
                     CountButton(
-                      onTap: isCompleted && !repeatEnabled
-                          ? null
-                          : _handleCount,
+                      onTap: isCountDisabled ? null : _handleCount,
                     ),
                     const SizedBox(height: 12),
                     Row(

@@ -40,10 +40,31 @@ class DhikrRepository {
     await _storage.saveProgress(progress);
   }
 
+  Future<DhikrProgress> updateCount(String id, int count) async {
+    final progress = _storage.getProgress(id) ?? DhikrProgress(id: id);
+    final dhikr = _storage.getDhikr(id);
+    final target = dhikr?.totalTargetCount ?? 0;
+    final clampedCount = target > 0 ? count.clamp(0, target) : count;
+    final updated = progress.copyWith(
+      currentCount: clampedCount,
+      lastSessionDate: DateTime.now(),
+    );
+    await _storage.saveProgress(updated);
+    return updated;
+  }
+
   Future<DhikrProgress> incrementCount(String id) async {
     final progress = _storage.getProgress(id) ?? DhikrProgress(id: id);
+    final dhikr = _storage.getDhikr(id);
+    final target = dhikr?.totalTargetCount ?? 0;
+    if (target > 0 && progress.currentCount >= target) {
+      return progress;
+    }
+    final nextCount = target > 0
+        ? (progress.currentCount + 1).clamp(0, target)
+        : progress.currentCount + 1;
     final updated = progress.copyWith(
-      currentCount: progress.currentCount + 1,
+      currentCount: nextCount,
       lastSessionDate: DateTime.now(),
     );
     await _storage.saveProgress(updated);
