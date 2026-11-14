@@ -8,6 +8,8 @@ import '../../core/localization/generated/app_localizations.dart';
 import '../../core/localization/l10n_extension.dart';
 import '../../models/dhikr.dart';
 import '../../providers/dhikr_provider.dart';
+import '../../providers/settings_provider.dart';
+import '../../core/notifications/notification_service.dart';
 import '../../router/app_router.dart';
 import '../../widgets/custom_buttons.dart';
 import '../../widgets/custom_scaffold.dart';
@@ -946,11 +948,17 @@ class _ReminderSection extends ConsumerWidget {
             ),
             value: isEnabled,
             onChanged: (value) async {
+              if (value && ref.read(settingsProvider).reminderNotifications) {
+                await NotificationService().requestPermission();
+                await NotificationService().requestExactAlarmPermission();
+                if (!context.mounted) return;
+              }
               await repository.updateDhikrReminder(
                 dhikrId: dhikr.id,
                 enabled: value,
                 reminderTime: rawTime,
               );
+              if (!context.mounted) return;
               ref.read(progressListNotifierProvider.notifier).refresh();
             },
           ),

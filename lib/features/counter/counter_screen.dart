@@ -43,6 +43,7 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       _initializeDhikr();
       _setupVolumeKeys();
     });
@@ -119,9 +120,9 @@ class _CounterScreenState extends ConsumerState<CounterScreen>
     );
   }
 
-  void _saveAndExit() {
-    ref.read(counterStateProvider.notifier).saveAndExit(widget.dhikrId);
-    context.pop();
+  Future<void> _saveAndExit() async {
+    await ref.read(counterStateProvider.notifier).saveAndExit(widget.dhikrId);
+    if (mounted) context.pop();
   }
 
   @override

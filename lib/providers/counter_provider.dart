@@ -5,7 +5,6 @@ import '../core/audio/audio_service.dart';
 import '../core/haptics/haptics_service.dart';
 import '../models/app_settings.dart';
 import '../models/dhikr.dart';
-import '../models/dhikr_progress.dart';
 import '../repositories/dhikr_repository.dart';
 import 'dhikr_provider.dart';
 import 'settings_provider.dart';
@@ -20,11 +19,15 @@ final currentDhikrProvider = Provider<Dhikr?>((ref) {
 
 final counterStateProvider =
     StateNotifierProvider<CounterNotifier, CounterState>((ref) {
-  final dhikrRepo = ref.watch(dhikrRepositoryProvider);
-  final settings = ref.watch(settingsProvider);
-  final progressNotifier = ref.watch(progressListNotifierProvider.notifier);
-  return CounterNotifier(dhikrRepo, settings, progressNotifier);
-});
+      final dhikrRepo = ref.watch(dhikrRepositoryProvider);
+      final settings = ref.read(settingsProvider);
+      final progressNotifier = ref.watch(progressListNotifierProvider.notifier);
+      final notifier = CounterNotifier(dhikrRepo, settings, progressNotifier);
+      ref.listen(settingsProvider, (_, settings) {
+        notifier.updateSettings(settings);
+      });
+      return notifier;
+    });
 
 class CounterState {
   final bool isCompleted;
@@ -57,15 +60,33 @@ class CounterState {
 
 class CounterNotifier extends StateNotifier<CounterState> {
   final DhikrRepository _repository;
-  final AppSettings _settings;
+  AppSettings _settings;
   final ProgressListNotifier _progressNotifier;
   final AudioService _audio = AudioService();
   final HapticsService _haptics = HapticsService();
+  Future<void> _pendingWrite = Future.value();
+  String? _dhikrId;
+  int _session = 0;
+
+  Future<void> _writeInOrder(Future<void> Function() action) {
+    final write = _pendingWrite.then((_) => action());
+    // A failed write must not prevent subsequent resets or saves.
+    _pendingWrite = write.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    return write;
+  }
+
+  bool _isCurrent(int session, String id) =>
+      mounted && _session == session && _dhikrId == id;
 
   bool _isCompleting = false;
 
   CounterNotifier(this._repository, this._settings, this._progressNotifier)
-      : super(const CounterState());
+    : super(const CounterState());
+
+  void updateSettings(AppSettings settings) => _settings = settings;
 
   void setDhikr(Dhikr dhikr) {
     _isCompleting = false;
@@ -83,9 +104,46 @@ class CounterNotifier extends StateNotifier<CounterState> {
       roundCount: progress?.roundCount ?? 1,
       isCompleted: isCompleted,
     );
+
+    // Repair counts left above the target by the old asynchronous flow, or
+    // by editing a wazifa to have a smaller target.
+    if (progress != null &&
+        (!identical(original, progress) ||
+            count != displayCount ||
+            progress.isCompleted != completed)) {
+      unawaited(
+        _writeInOrder(() async {
+          await _repository.saveProgress(
+            progress.copyWith(
+              currentCount: displayCount,
+              roundCount: roundCount,
+              isCompleted: completed,
+            ),
+          );
+          if (mounted) _progressNotifier.refresh();
+        }),
+      );
+    }
+  }
+
+  /// Uses the same storage queue as counting, so day rollover cannot race
+  /// pending presses or a repeat-round completion.
+  Future<void> refreshExpiredSchedules() async {
+    final session = _session;
+    final id = _dhikrId;
+    await _writeInOrder(() async {
+      final changed = await _repository.resetExpiredSchedules();
+      if (!mounted || changed.isEmpty) return;
+      _progressNotifier.refresh();
+      if (id != null && changed.contains(id) && _isCurrent(session, id)) {
+        final dhikr = _repository.getDhikr(id);
+        if (dhikr != null) setDhikr(dhikr);
+      }
+    });
   }
 
   Future<void> increment(String dhikrId) async {
+    if (_dhikrId != dhikrId || state.isCompleted) return;
     final dhikr = _repository.getDhikr(dhikrId);
     if (dhikr == null) return;
 
@@ -203,12 +261,15 @@ class CounterNotifier extends StateNotifier<CounterState> {
   }
 
   Future<void> saveAndExit(String dhikrId) async {
-    final progress = _repository.getProgress(dhikrId);
-    if (progress != null) {
-      final updated = progress.copyWith(lastSessionDate: DateTime.now());
-      await _repository.saveProgress(updated);
-      _progressNotifier.refresh();
-    }
+    await _writeInOrder(() async {
+      final progress = _repository.getProgress(dhikrId);
+      if (progress != null) {
+        await _repository.saveProgress(
+          progress.copyWith(lastSessionDate: DateTime.now()),
+        );
+        if (mounted) _progressNotifier.refresh();
+      }
+    });
   }
 
   void dismissCompletionAnimation() {
