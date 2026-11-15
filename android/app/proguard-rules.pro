@@ -15,6 +15,15 @@
 # Keep local notification models
 -keep class com.dexterous.flutterlocalnotifications.** { *; }
 
+# flutter_local_notifications deserializes scheduled notifications with Gson
+# TypeTokens in ScheduledNotificationReceiver. R8 strips the generic type
+# info, which crashes the app when a scheduled notification fires.
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
+-keep class com.google.gson.** { *; }
+
 # Keep Riverpod/Provider
 -keep class * extends StateNotifier { *; }
 -keep class * extends AsyncNotifier { *; }
