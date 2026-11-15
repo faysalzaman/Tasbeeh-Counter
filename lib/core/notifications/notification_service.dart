@@ -141,7 +141,7 @@ class NotificationService {
   }
 
   /// The dhikr id whose reminder notification launched the app (cold start),
-  /// if any. Check once on the splash screen to deep-link into the counter.
+  /// if any. Check once on app launch to deep-link into the counter.
   Future<String?> getLaunchDhikrId() async {
     try {
       final details = await _notifications.getNotificationAppLaunchDetails();
