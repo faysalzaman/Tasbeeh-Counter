@@ -63,7 +63,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ],
                 ),
                 const SizedBox(height: 28),
-
                 // Category Section Title
                 Row(
                   children: [
