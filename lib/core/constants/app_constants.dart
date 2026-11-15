@@ -11,8 +11,12 @@ class AppConstants {
   static const String dhikrProgressBox = 'dhikr_progress';
   static const String settingsBox = 'settings';
 
-  // Store listing
-  static const String appStoreId = 'com.tesbeeh.counter';
+  // Store listing & Developer Info
+  static const String appStoreId = 'com.sairatec.tesbeeh_counter';
+  static const String packageName = 'com.sairatec.tesbeeh_counter';
+  static const String developerName = 'BrotherCoders';
+  static const String privacyPolicyUrl =
+      'https://docs.google.com/document/d/1AqEvC4Eq5Kiva1cQmF5B-l-Yq92vaVTNKQcxKB65J60/edit?usp=sharing';
 
   // Notification channel
   static const String reminderChannelId = 'dhikr_reminders';
