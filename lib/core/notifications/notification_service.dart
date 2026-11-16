@@ -79,16 +79,44 @@ class NotificationService {
     }
   }
 
-  /// Refresh on resume too, since the device timezone can change while away.
+  /// Points tz.local at the device's current time zone. Refreshed on resume
+  /// too, since the zone can change while away. Never fails outright: if the
+  /// reported identifier is unknown or disagrees with the device clock, the
+  /// zone is derived from the device UTC offset instead.
   Future<bool> refreshTimezone() async {
+    final now = DateTime.now();
+    tz.Location? location;
     try {
       final info = await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(info.identifier));
-      return true;
+      location = tz.getLocation(info.identifier);
     } catch (e) {
-      debugPrint('NotificationService: failed to set local timezone: $e');
+      debugPrint('NotificationService: could not resolve timezone id: $e');
+    }
+    if (location == null ||
+        location.timeZone(now.millisecondsSinceEpoch).offset !=
+            now.timeZoneOffset.inMilliseconds) {
+      location = locationForDeviceOffset(now);
+    }
+    if (location == null) {
+      debugPrint('NotificationService: failed to set local timezone');
       return false;
     }
+    tz.setLocalLocation(location);
+    return true;
+  }
+
+  @visibleForTesting
+  static tz.Location? locationForDeviceOffset(DateTime now) {
+    final offsetMs = now.timeZoneOffset.inMilliseconds;
+    final atMs = now.millisecondsSinceEpoch;
+    tz.Location? match;
+    for (final location in tz.timeZoneDatabase.locations.values) {
+      final zone = location.timeZone(atMs);
+      if (zone.offset != offsetMs) continue;
+      if (zone.abbreviation == now.timeZoneName) return location;
+      match ??= location;
+    }
+    return match;
   }
 
   Future<List<PendingNotificationRequest>> pendingReminders() async {
@@ -249,9 +277,16 @@ class NotificationService {
     }
 
     try {
-      final tz.TZDateTime tzScheduledDate = tz.TZDateTime.from(
-        scheduledDate,
+      // Keep the wall-clock time the user expects in the device time zone.
+      final localDate = scheduledDate.toLocal();
+      final tz.TZDateTime tzScheduledDate = tz.TZDateTime(
         tz.local,
+        localDate.year,
+        localDate.month,
+        localDate.day,
+        localDate.hour,
+        localDate.minute,
+        localDate.second,
       );
 
       if (tzScheduledDate.isBefore(tz.TZDateTime.now(tz.local))) {

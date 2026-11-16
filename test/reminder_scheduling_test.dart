@@ -362,6 +362,18 @@ void main() {
         expect(next.minute, 15);
       }
     });
+
+    test('falls back to the device UTC offset when the zone id is unknown', () {
+      final location = NotificationService.locationForDeviceOffset(
+        DateTime.now(),
+      );
+      expect(location, isNotNull);
+      final now = DateTime.now();
+      expect(
+        location!.timeZone(now.millisecondsSinceEpoch).offset,
+        now.timeZoneOffset.inMilliseconds,
+      );
+    });
   });
 }
 
